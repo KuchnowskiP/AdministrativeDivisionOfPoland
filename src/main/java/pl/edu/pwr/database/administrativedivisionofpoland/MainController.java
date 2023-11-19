@@ -21,6 +21,8 @@ import java.util.Scanner;
 
 public class MainController implements Initializable {
     @FXML
+    private Label loginFeedbackLabel;
+    @FXML
     private TabPane viewUnitsTabPane;
     @FXML
     private Button loginButton;
@@ -58,6 +60,9 @@ public class MainController implements Initializable {
             System.out.println("zmiana");
             tables[oldTab].getSelectionModel().selectedItemProperty().removeListener(currentlyActiveListener);
             changed = true;
+
+            unitsTree[0] = tabChangeStarters[newTab];
+
         }
         unitsTreeIndex = 0;
         boolean finalChanged = changed;
@@ -65,7 +70,7 @@ public class MainController implements Initializable {
             unitsTreeIndex = 0;
             activeTable = newTab;
             Platform.runLater(() -> {
-                changeItemsInMainList(tabChangeStarters[newTab] + ".txt");
+                changeItemsInMainList(tabChangeStarters[newTab]);
             });
         }
             currentlyActiveListener = new ChangeListener<AdministrativeUnit>() {
@@ -78,7 +83,7 @@ public class MainController implements Initializable {
                             System.out.println(unitsTree[unitsTreeIndex]);
                             System.out.println("Selected item: " + unitsTree[unitsTreeIndex]);
                             Platform.runLater(() -> {
-                                changeItemsInMainList(unitsTree[unitsTreeIndex] + ".txt");
+                                changeItemsInMainList(unitsTree[unitsTreeIndex]);
                             });
                         }
                     }
@@ -87,17 +92,30 @@ public class MainController implements Initializable {
         tables[newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveListener);
     }
 
-    public void changeItemsInMainList(String filename){
+    public void setColumns(String filename){
         nameColumn = new TableColumn<AdministrativeUnit, String>("Nazwa");
         nameColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, String>("name"));
-        populationColumn = new TableColumn<AdministrativeUnit, Integer>("Liczba ludności");
+        populationColumn = new TableColumn<AdministrativeUnit, Integer>("Przykładowe dane");
         populationColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, Integer>("population"));
-        tables[activeTable].setEditable(true);
-        try {
-            File myFile = new File(System.getProperty("user.dir") + path + filename);
-            Scanner myScanner = new Scanner(myFile, StandardCharsets.UTF_8);
-            tables[activeTable].getColumns().clear();
+        tables[activeTable].getColumns().clear();
+        if(unitsTreeIndex == 1 && activeTable == 0){
+            TableColumn master = new TableColumn<>("Powiaty w " + "'" + filename + "'");
+            master.getColumns().addAll(nameColumn,populationColumn);
+            tables[activeTable].getColumns().add(master);
+        }else if(unitsTreeIndex == 2 && activeTable == 0 || unitsTreeIndex == 1 && activeTable == 1){
+            TableColumn master = new TableColumn<>("Gminy w " + "'" + filename + "'");
+            master.getColumns().addAll(nameColumn,populationColumn);
+            tables[activeTable].getColumns().add(master);
+        }else{
             tables[activeTable].getColumns().addAll(nameColumn, populationColumn);
+        }
+    }
+
+    public void changeItemsInMainList(String filename){
+        try {
+            File myFile = new File(System.getProperty("user.dir") + path + filename + ".txt");
+            Scanner myScanner = new Scanner(myFile, StandardCharsets.UTF_8);
+            setColumns(filename);
             tables[activeTable].getItems().clear();
             String line;
             while(myScanner.hasNextLine()){
@@ -134,7 +152,7 @@ public class MainController implements Initializable {
         tabChangeStarters = new String[]{"voivodeships","counties","communes"};
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
-        changeItemsInMainList("voivodeships.txt");
+        changeItemsInMainList("voivodeships");
         unitsTree[0] = tabChangeStarters[0];
 
         changeListener(-1,0);
@@ -147,7 +165,7 @@ public class MainController implements Initializable {
                 unitsTreeIndex--;
             }
             System.out.println("Got back to: " + unitsTree[unitsTreeIndex]);
-            changeItemsInMainList(unitsTree[unitsTreeIndex] + ".txt");
+            changeItemsInMainList(unitsTree[unitsTreeIndex]);
         });
     }
 
@@ -157,7 +175,12 @@ public class MainController implements Initializable {
         String password = passwordTextField.getText();
         if(login.equals("admin") && password.equals("admin")){
             System.out.println("yesyes");
+            loginFeedbackLabel.setText("Successively logged in as " + loginTextField.getText());
+            loginFeedbackLabel.setVisible(true);
             mainTabPane.getTabs().add(manageTab);
+        }else{
+            loginFeedbackLabel.setText("Wrong credentials!");
+            loginFeedbackLabel.setVisible(true);
         }
     }
 }

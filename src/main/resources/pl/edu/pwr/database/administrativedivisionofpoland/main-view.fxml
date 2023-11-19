@@ -98,6 +98,7 @@
                                 <TextField fx:id="loginTextField" alignment="CENTER" maxWidth="100.0"/>
                                 <PasswordField fx:id="passwordTextField" alignment="CENTER" maxWidth="100.0"/>
                                 <Button fx:id="loginButton" text="Login" onAction="#onLoginButtonClick" alignment="CENTER"/>
+                                <Label fx:id="loginFeedbackLabel" visible="false"/>
                             </VBox>
                         </children>
                     </AnchorPane>
