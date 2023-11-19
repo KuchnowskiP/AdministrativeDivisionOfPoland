@@ -4,39 +4,106 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.text.Text?>
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.MainController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
    <children>
-      <TabPane prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" fx:id="mainTabPane">
         <tabs>
-          <Tab text="Województwa">
+          <Tab text="Przeglądaj">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="600.0" prefWidth="800.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                      <children>
-                        <VBox prefHeight="600.0" prefWidth="800.0">
-                           <children>
-                              <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0">
-                                <columns>
-                                  <TableColumn prefWidth="75.0" text="C1" />
-                                  <TableColumn prefWidth="75.0" text="C2" />
-                                </columns>
-                              </TableView>
-                              <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
-                           </children>
-                        </VBox>
-                     </children></AnchorPane>
+                        <TabPane prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" fx:id="viewUnitsTabPane">
+                          <tabs>
+                            <Tab text="Województwa" id="0">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                       <children>
+                                          <VBox prefHeight="600.0" prefWidth="800.0">
+                                             <children>
+                                                <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0">
+                                                  <columns>
+                                                    <TableColumn prefWidth="75.0" text="C1" />
+                                                    <TableColumn prefWidth="75.0" text="C2" />
+                                                  </columns>
+                                                </TableView>
+                                                <Button fx:id="backButtonVoivodeship" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab text="Powiaty" id="1">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                        <children>
+                                            <VBox prefHeight="700.0" prefWidth="900.0">
+                                                <children>
+                                                    <TableView fx:id="countiesTable">
+                                                        <columns>
+                                                            <TableColumn prefWidth="75.0" text="C1" />
+                                                            <TableColumn prefWidth="75.0" text="C2" />
+                                                        </columns>
+                                                    </TableView>
+                                                    <Button fx:id="backButtonCount" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab text="Gminy" id="2">
+                              <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                      <children>
+                                          <VBox prefHeight="700.0" prefWidth="900.0">
+                                              <children>
+                                                  <TableView fx:id="communesTable">
+                                                      <columns>
+                                                          <TableColumn prefWidth="75.0" text="C1" />
+                                                          <TableColumn prefWidth="75.0" text="C2" />
+                                                      </columns>
+                                                  </TableView>
+                                                  <Button fx:id="backButtonCommune" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                              </children>
+                                          </VBox>
+                                      </children>
+                                  </AnchorPane>
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </AnchorPane>
             </content>
           </Tab>
-          <Tab text="Powiaty">
+          <Tab text="Zarządzaj" fx:id="manageTab">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                  <children>
+                      <Label text="hihi" />
+                  </children>
+              </AnchorPane>
             </content>
           </Tab>
+            <Tab text="Logowanie">
+                <content>
+                    <AnchorPane prefHeight="700.0" prefWidth="900.0">
+                        <children>
+                            <VBox alignment="CENTER" spacing="10.0" prefHeight="200.0" prefWidth="200.0">
+                                <TextField fx:id="loginTextField" alignment="CENTER" maxWidth="100.0"/>
+                                <PasswordField fx:id="passwordTextField" alignment="CENTER" maxWidth="100.0"/>
+                                <Button fx:id="loginButton" text="Login" onAction="#onLoginButtonClick" alignment="CENTER"/>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
+                </content>
+            </Tab>
         </tabs>
       </TabPane>
    </children>
-
-
 </VBox>
