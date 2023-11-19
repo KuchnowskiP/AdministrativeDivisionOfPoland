@@ -12,24 +12,19 @@
    <children>
       <TabPane prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" fx:id="mainTabPane">
         <tabs>
-          <Tab text="Przeglądaj">
+          <Tab text="Przeglądaj" fx:id="viewTab" id="view">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                      <children>
                         <TabPane prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" fx:id="viewUnitsTabPane">
                           <tabs>
-                            <Tab text="Województwa" id="0">
+                            <Tab text="Województwa" id="0" fx:id="voivodeshipsTab">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                        <children>
                                           <VBox prefHeight="600.0" prefWidth="800.0">
                                              <children>
-                                                <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0">
-                                                  <columns>
-                                                    <TableColumn prefWidth="75.0" text="C1" />
-                                                    <TableColumn prefWidth="75.0" text="C2" />
-                                                  </columns>
-                                                </TableView>
+                                                <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0"/>
                                                 <Button fx:id="backButtonVoivodeship" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                              </children>
                                           </VBox>
@@ -37,18 +32,13 @@
                                     </AnchorPane>
                               </content>
                             </Tab>
-                            <Tab text="Powiaty" id="1">
+                            <Tab text="Powiaty" id="1" fx:id="countiesTab">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                         <children>
                                             <VBox prefHeight="700.0" prefWidth="900.0">
                                                 <children>
-                                                    <TableView fx:id="countiesTable">
-                                                        <columns>
-                                                            <TableColumn prefWidth="75.0" text="C1" />
-                                                            <TableColumn prefWidth="75.0" text="C2" />
-                                                        </columns>
-                                                    </TableView>
+                                                    <TableView fx:id="countiesTable"/>
                                                     <Button fx:id="backButtonCount" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                                 </children>
                                             </VBox>
@@ -56,18 +46,13 @@
                                 </AnchorPane>
                               </content>
                             </Tab>
-                            <Tab text="Gminy" id="2">
+                            <Tab text="Gminy" id="2" fx:id="communesTab">
                               <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                       <children>
                                           <VBox prefHeight="700.0" prefWidth="900.0">
                                               <children>
-                                                  <TableView fx:id="communesTable">
-                                                      <columns>
-                                                          <TableColumn prefWidth="75.0" text="C1" />
-                                                          <TableColumn prefWidth="75.0" text="C2" />
-                                                      </columns>
-                                                  </TableView>
+                                                  <TableView fx:id="communesTable"/>
                                                   <Button fx:id="backButtonCommune" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                               </children>
                                           </VBox>
@@ -81,16 +66,16 @@
                   </AnchorPane>
             </content>
           </Tab>
-          <Tab text="Zarządzaj" fx:id="manageTab">
+          <Tab text="Zarządzaj" fx:id="manageTab" id="manage">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                   <children>
-                      <Label text="hihi" />
+                      <TabPane fx:id="manageTabPane"/>
                   </children>
               </AnchorPane>
             </content>
           </Tab>
-            <Tab text="Logowanie">
+            <Tab text="Logowanie" id="login">
                 <content>
                     <AnchorPane prefHeight="700.0" prefWidth="900.0">
                         <children>

@@ -21,11 +21,17 @@ import java.util.Scanner;
 
 public class MainController implements Initializable {
     @FXML
+    private Tab communesTab;
+    @FXML
+    private Tab countiesTab;
+    @FXML
+    private Tab voivodeshipsTab;
+    @FXML
+    private TabPane manageTabPane;
+    @FXML
     private Label loginFeedbackLabel;
     @FXML
     private TabPane viewUnitsTabPane;
-    @FXML
-    private Button loginButton;
     @FXML
     private TextField loginTextField;
     @FXML
@@ -34,6 +40,8 @@ public class MainController implements Initializable {
     private TabPane mainTabPane;
     @FXML
     private Tab manageTab;
+    @FXML
+    private Tab viewTab;
     @FXML
     private TableView<AdministrativeUnit> voivodeshipsTable = new TableView<AdministrativeUnit>();
     @FXML
@@ -174,9 +182,14 @@ public class MainController implements Initializable {
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
         if(login.equals("admin") && password.equals("admin")){
-            loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
-            loginFeedbackLabel.setVisible(true);
-            mainTabPane.getTabs().add(manageTab);
+            Platform.runLater(() -> {
+                loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
+                loginFeedbackLabel.setVisible(true);
+            });
+
+            Platform.runLater(() -> {
+                mainTabPane.getTabs().add(manageTab);
+            });
         }else{
             loginFeedbackLabel.setText("Błędne dane logowania!");
             loginFeedbackLabel.setVisible(true);
