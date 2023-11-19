@@ -164,22 +164,21 @@ public class MainController implements Initializable {
             if(unitsTreeIndex > 0) {
                 unitsTreeIndex--;
             }
-            System.out.println("Got back to: " + unitsTree[unitsTreeIndex]);
+            System.out.println("Wrócono do: " + unitsTree[unitsTreeIndex]);
             changeItemsInMainList(unitsTree[unitsTreeIndex]);
         });
     }
 
     public void onLoginButtonClick(ActionEvent actionEvent) {
-        System.out.println("clicked");
+        System.out.println("przycisk wciśnięty");
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
         if(login.equals("admin") && password.equals("admin")){
-            System.out.println("yesyes");
-            loginFeedbackLabel.setText("Successively logged in as " + loginTextField.getText());
+            loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
             loginFeedbackLabel.setVisible(true);
             mainTabPane.getTabs().add(manageTab);
         }else{
-            loginFeedbackLabel.setText("Wrong credentials!");
+            loginFeedbackLabel.setText("Błędne dane logowania!");
             loginFeedbackLabel.setVisible(true);
         }
     }
