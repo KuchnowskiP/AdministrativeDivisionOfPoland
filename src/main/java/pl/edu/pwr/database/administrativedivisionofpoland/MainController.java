@@ -21,6 +21,14 @@ import java.util.Scanner;
 
 public class MainController implements Initializable {
     @FXML
+    private TableView countiesTableManage;
+    @FXML
+    private TableView communesTableManage;
+    @FXML
+    private TableView voivodeshipsTableManage;
+    @FXML
+    private TabPane manageUnitsTabPane;
+    @FXML
     private Tab communesTab;
     @FXML
     private Tab countiesTab;
@@ -48,7 +56,7 @@ public class MainController implements Initializable {
     private TableView<AdministrativeUnit> countiesTable = new TableView<AdministrativeUnit>();
     @FXML
     private TableView<AdministrativeUnit> communesTable = new TableView<AdministrativeUnit>();
-    private TableView<AdministrativeUnit>[] tables;
+    private TableView<AdministrativeUnit>[][] tables;
     @FXML
     TableColumn<AdministrativeUnit, String> nameColumn;
     @FXML
@@ -56,79 +64,77 @@ public class MainController implements Initializable {
     String path = "\\src\\main\\resources\\pl\\edu\\pwr\\database\\administrativedivisionofpoland\\";
     String[] unitsTree = new String[3];
     String[] tabChangeStarters = new String[3];
-    int unitsTreeIndex;
-    int activeTable = 0;
+    int[] unitsTreeIndexes = new int[2];
+    int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
 
-    ChangeListener<AdministrativeUnit> currentlyActiveListener;
+    ChangeListener<AdministrativeUnit>[] currentlyActiveTableListeners;
 
-    public void changeListener(int oldTab, int newTab){
+    public void changeListener(int oldTab, int newTab, int viewOrManage){
         boolean changed = false;
         if(oldTab != -1){
             System.out.println("zmiana");
-            tables[oldTab].getSelectionModel().selectedItemProperty().removeListener(currentlyActiveListener);
+            tables[viewOrManage][oldTab].getSelectionModel().selectedItemProperty().removeListener(currentlyActiveTableListeners[viewOrManage]);
             changed = true;
-
             unitsTree[0] = tabChangeStarters[newTab];
-
         }
-        unitsTreeIndex = 0;
+        unitsTreeIndexes[viewOrManage] = 0;
         boolean finalChanged = changed;
         if(finalChanged){
-            unitsTreeIndex = 0;
-            activeTable = newTab;
+            unitsTreeIndexes[viewOrManage] = 0;
+            activeTables[viewOrManage] = newTab;
             Platform.runLater(() -> {
-                changeItemsInMainList(tabChangeStarters[newTab]);
+                changeItemsInMainList(tabChangeStarters[newTab], viewOrManage);
             });
         }
-            currentlyActiveListener = new ChangeListener<AdministrativeUnit>() {
+            currentlyActiveTableListeners[viewOrManage] = new ChangeListener<AdministrativeUnit>() {
                 @Override
                 public void changed(ObservableValue<? extends AdministrativeUnit> observable, AdministrativeUnit oldValue, AdministrativeUnit newValue) {
                     if(newValue != null) {
-                        if(unitsTreeIndex < (maxDepth - newTab)) {
-                            unitsTreeIndex++;
-                            unitsTree[unitsTreeIndex] = newValue.getName();
-                            System.out.println(unitsTree[unitsTreeIndex]);
-                            System.out.println("Selected item: " + unitsTree[unitsTreeIndex]);
+                        if(unitsTreeIndexes[viewOrManage] < (maxDepth - newTab)) {
+                            unitsTreeIndexes[viewOrManage]++;
+                            unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getName();
+                            System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
+                            System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
                             Platform.runLater(() -> {
-                                changeItemsInMainList(unitsTree[unitsTreeIndex]);
+                                changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
                             });
                         }
                     }
                 }
             };
-        tables[newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveListener);
+        tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
     }
 
-    public void setColumns(String filename){
+    public void setColumns(String filename, int viewOrManage){
         nameColumn = new TableColumn<AdministrativeUnit, String>("Nazwa");
         nameColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, String>("name"));
         populationColumn = new TableColumn<AdministrativeUnit, Integer>("Przykładowe dane");
         populationColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, Integer>("population"));
-        tables[activeTable].getColumns().clear();
-        if(unitsTreeIndex == 1 && activeTable == 0){
+        tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
+        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
             TableColumn master = new TableColumn<>("Powiaty w " + "'" + filename + "'");
             master.getColumns().addAll(nameColumn,populationColumn);
-            tables[activeTable].getColumns().add(master);
-        }else if(unitsTreeIndex == 2 && activeTable == 0 || unitsTreeIndex == 1 && activeTable == 1){
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
             TableColumn master = new TableColumn<>("Gminy w " + "'" + filename + "'");
             master.getColumns().addAll(nameColumn,populationColumn);
-            tables[activeTable].getColumns().add(master);
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
         }else{
-            tables[activeTable].getColumns().addAll(nameColumn, populationColumn);
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(nameColumn, populationColumn);
         }
     }
 
-    public void changeItemsInMainList(String filename){
+    public void changeItemsInMainList(String filename, int viewOrManage){
         try {
             File myFile = new File(System.getProperty("user.dir") + path + filename + ".txt");
             Scanner myScanner = new Scanner(myFile, StandardCharsets.UTF_8);
-            setColumns(filename);
-            tables[activeTable].getItems().clear();
+            setColumns(filename, viewOrManage);
+            tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
             String line;
             while(myScanner.hasNextLine()){
                 line = myScanner.nextLine();
-                tables[activeTable].getItems().add(new AdministrativeUnit(line, new Random().nextInt(21000)));
+                tables[viewOrManage][activeTables[viewOrManage]].getItems().add(new AdministrativeUnit(line, new Random().nextInt(21000)));
             }
             myScanner.close();
         } catch (IOException e) {
@@ -138,14 +144,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        viewUnitsTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override
-            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-                System.out.println(oldValue.getId() + " -> " + newValue.getId());
-                changeListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()));
-            }
-        });
-
         passwordTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent key) {
@@ -154,26 +152,38 @@ public class MainController implements Initializable {
                 }
             }
         });
-
         mainTabPane.getTabs().remove(manageTab);
-        tables = new TableView[]{voivodeshipsTable, countiesTable, communesTable};
+        tables = new TableView[][]{{voivodeshipsTable, countiesTable, communesTable},{voivodeshipsTableManage, countiesTableManage, communesTableManage}};
         tabChangeStarters = new String[]{"voivodeships","counties","communes"};
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
-        changeItemsInMainList("voivodeships");
-        unitsTree[0] = tabChangeStarters[0];
+        currentlyActiveTableListeners = new ChangeListener[2];
+        currentlyActiveTableListeners[0] = new ChangeListener<AdministrativeUnit>() {
+            @Override
+            public void changed(ObservableValue<? extends AdministrativeUnit> observable, AdministrativeUnit oldValue, AdministrativeUnit newValue) {
 
-        changeListener(-1,0);
+            }
+        };
+        currentlyActiveTableListeners[1] = new ChangeListener<AdministrativeUnit>() {
+            @Override
+            public void changed(ObservableValue<? extends AdministrativeUnit> observable, AdministrativeUnit oldValue, AdministrativeUnit newValue) {
+
+            }
+        };
+        changeItemsInMainList("voivodeships",0);
+        unitsTree[0] = tabChangeStarters[0];
+        changeListener(-1,0,0);
+        TabPaneListenerInitializer(viewUnitsTabPane, 0);
 
     }
 
     public void onBackButtonClick(ActionEvent actionEvent) {
         Platform.runLater(() -> {
-            if(unitsTreeIndex > 0) {
-                unitsTreeIndex--;
+            if(unitsTreeIndexes[0] > 0) {
+                unitsTreeIndexes[0]--;
             }
-            System.out.println("Wrócono do: " + unitsTree[unitsTreeIndex]);
-            changeItemsInMainList(unitsTree[unitsTreeIndex]);
+            System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
         });
     }
 
@@ -182,17 +192,42 @@ public class MainController implements Initializable {
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
         if(login.equals("admin") && password.equals("admin")){
+
+            TabPaneListenerInitializer(manageUnitsTabPane, 1);
+            voivodeshipsTableManage.setEditable(true);
+            countiesTableManage.setEditable(true);
+            communesTable.setEditable(true);
+
+            changeListener(-1, 0, 1);
+
             Platform.runLater(() -> {
                 loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
                 loginFeedbackLabel.setVisible(true);
-            });
-
-            Platform.runLater(() -> {
                 mainTabPane.getTabs().add(manageTab);
             });
         }else{
             loginFeedbackLabel.setText("Błędne dane logowania!");
             loginFeedbackLabel.setVisible(true);
         }
+    }
+
+    private void TabPaneListenerInitializer(TabPane TabPane, int viewOrManage) {
+        TabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+            @Override
+            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
+                System.out.println(oldValue.getId() + " -> " + newValue.getId());
+                changeListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
+            }
+        });
+    }
+
+    public void onManageBackButtonClick(ActionEvent actionEvent) {
+        Platform.runLater(() -> {
+            if(unitsTreeIndexes[1] > 0) {
+                unitsTreeIndexes[1]--;
+            }
+            System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
+        });
     }
 }

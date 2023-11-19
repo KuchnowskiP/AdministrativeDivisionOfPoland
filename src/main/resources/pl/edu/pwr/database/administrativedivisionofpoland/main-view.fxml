@@ -25,7 +25,7 @@
                                           <VBox prefHeight="600.0" prefWidth="800.0">
                                              <children>
                                                 <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0"/>
-                                                <Button fx:id="backButtonVoivodeship" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                                <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                              </children>
                                           </VBox>
                                        </children>
@@ -39,7 +39,7 @@
                                             <VBox prefHeight="700.0" prefWidth="900.0">
                                                 <children>
                                                     <TableView fx:id="countiesTable"/>
-                                                    <Button fx:id="backButtonCount" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                                    <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                                 </children>
                                             </VBox>
                                         </children>
@@ -53,7 +53,7 @@
                                           <VBox prefHeight="700.0" prefWidth="900.0">
                                               <children>
                                                   <TableView fx:id="communesTable"/>
-                                                  <Button fx:id="backButtonCommune" mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                                  <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                               </children>
                                           </VBox>
                                       </children>
@@ -67,13 +67,58 @@
             </content>
           </Tab>
           <Tab text="Zarządzaj" fx:id="manageTab" id="manage">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                  <children>
-                      <TabPane fx:id="manageTabPane"/>
-                  </children>
-              </AnchorPane>
-            </content>
+              <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                      <children>
+                          <TabPane prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" fx:id="manageUnitsTabPane">
+                              <tabs>
+                                  <Tab text="Województwa" id="0" fx:id="voivodeshipsTabManage">
+                                      <content>
+                                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                              <children>
+                                                  <VBox prefHeight="600.0" prefWidth="800.0">
+                                                      <children>
+                                                          <TableView fx:id="voivodeshipsTableManage" prefHeight="600.0" prefWidth="800.0"/>
+                                                          <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
+                                                      </children>
+                                                  </VBox>
+                                              </children>
+                                          </AnchorPane>
+                                      </content>
+                                  </Tab>
+                                  <Tab text="Powiaty" id="1" fx:id="countiesTabManage">
+                                      <content>
+                                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                              <children>
+                                                  <VBox prefHeight="700.0" prefWidth="900.0">
+                                                      <children>
+                                                          <TableView fx:id="countiesTableManage"/>
+                                                          <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
+                                                      </children>
+                                                  </VBox>
+                                              </children>
+                                          </AnchorPane>
+                                      </content>
+                                  </Tab>
+                                  <Tab text="Gminy" id="2" fx:id="communesTabManage">
+                                      <content>
+                                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                              <children>
+                                                  <VBox prefHeight="700.0" prefWidth="900.0">
+                                                      <children>
+                                                          <TableView fx:id="communesTableManage"/>
+                                                          <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
+                                                      </children>
+                                                  </VBox>
+                                              </children>
+                                          </AnchorPane>
+                                      </content>
+                                  </Tab>
+                              </tabs>
+                          </TabPane>
+                      </children>
+                  </AnchorPane>
+              </content>
           </Tab>
             <Tab text="Logowanie" id="login">
                 <content>
