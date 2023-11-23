@@ -15,11 +15,17 @@ import javafx.scene.input.KeyEvent;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class MainController implements Initializable {
+    public ChoiceBox voivodeshipReportChoiceBox;
+    public ChoiceBox countyReportChoiceBox;
+    public ChoiceBox communeReportChoiceBox;
     @FXML
     private TableView countiesTableManage;
     @FXML
@@ -175,6 +181,40 @@ public class MainController implements Initializable {
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
 
+
+        try {
+            voivodeshipReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "voivodeships.txt")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        voivodeshipReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                System.out.println(newValue);
+                if(Objects.equals(String.valueOf(newValue), "dolnośląskie")){
+                    try {
+                        countyReportChoiceBox.setDisable(false);
+                        countyReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "dolnośląskie.txt")));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+
+        countyReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if(Objects.equals(String.valueOf(newValue), "wrocławski")){
+                    try {
+                        communeReportChoiceBox.setDisable(false);
+                        communeReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "wrocławski.txt")));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
     }
 
     public void onBackButtonClick(ActionEvent actionEvent) {
