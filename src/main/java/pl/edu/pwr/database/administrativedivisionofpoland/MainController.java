@@ -183,6 +183,8 @@ public class MainController implements Initializable {
 
 
         try {
+            voivodeshipReportChoiceBox.getItems().add("-");
+            voivodeshipReportChoiceBox.setValue("-");
             voivodeshipReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "voivodeships.txt")));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -194,10 +196,17 @@ public class MainController implements Initializable {
                 if(Objects.equals(String.valueOf(newValue), "dolnośląskie")){
                     try {
                         countyReportChoiceBox.setDisable(false);
+                        countyReportChoiceBox.getItems().add("-");
+                        countyReportChoiceBox.setValue("-");
                         countyReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "dolnośląskie.txt")));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
+                }
+                if(Objects.equals(String.valueOf(newValue), "-")){
+                    countyReportChoiceBox.setValue("-");
+                    countyReportChoiceBox.getItems().clear();
+                    countyReportChoiceBox.setDisable(true);
                 }
             }
         });
@@ -208,10 +217,16 @@ public class MainController implements Initializable {
                 if(Objects.equals(String.valueOf(newValue), "wrocławski")){
                     try {
                         communeReportChoiceBox.setDisable(false);
+                        communeReportChoiceBox.getItems().add("-");
+                        communeReportChoiceBox.setValue("-");
                         communeReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "wrocławski.txt")));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
+                }
+                if(Objects.equals(String.valueOf(newValue), "-")){
+                    communeReportChoiceBox.getItems().clear();
+                    communeReportChoiceBox.setDisable(true);
                 }
             }
         });
