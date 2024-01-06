@@ -11,16 +11,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
-import java.util.Random;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 
 public class MainController implements Initializable {
     public ChoiceBox voivodeshipReportChoiceBox;
@@ -57,12 +57,12 @@ public class MainController implements Initializable {
     @FXML
     private Tab viewTab;
     @FXML
-    private TableView<AdministrativeUnit> voivodeshipsTable = new TableView<AdministrativeUnit>();
+    private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
     @FXML
-    private TableView<AdministrativeUnit> countiesTable = new TableView<AdministrativeUnit>();
+    private TableView<VoivodeshipDto> countiesTable = new TableView<>();
     @FXML
-    private TableView<AdministrativeUnit> communesTable = new TableView<AdministrativeUnit>();
-    private TableView<AdministrativeUnit>[][] tables;
+    private TableView<VoivodeshipDto> communesTable = new TableView<>();
+    private TableView<VoivodeshipDto>[][] tables;
     @FXML
     TableColumn<AdministrativeUnit, String> nameColumn;
     @FXML
@@ -73,8 +73,11 @@ public class MainController implements Initializable {
     int[] unitsTreeIndexes = new int[2];
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
+    Request request = new Request();
 
-    ChangeListener<AdministrativeUnit>[] currentlyActiveTableListeners;
+    VoivodeshipDto voiClass = new VoivodeshipDto();
+
+    ChangeListener<VoivodeshipDto>[] currentlyActiveTableListeners;
 
     public void changeListener(int oldTab, int newTab, int viewOrManage){
         boolean changed = false;
@@ -93,9 +96,9 @@ public class MainController implements Initializable {
                 changeItemsInMainList(tabChangeStarters[newTab], viewOrManage);
             });
         }
-            currentlyActiveTableListeners[viewOrManage] = new ChangeListener<AdministrativeUnit>() {
+            currentlyActiveTableListeners[viewOrManage] = new ChangeListener<VoivodeshipDto>() {
                 @Override
-                public void changed(ObservableValue<? extends AdministrativeUnit> observable, AdministrativeUnit oldValue, AdministrativeUnit newValue) {
+                public void changed(ObservableValue<? extends VoivodeshipDto> observable, VoivodeshipDto oldValue, VoivodeshipDto newValue) {
                     if(newValue != null) {
                         if(unitsTreeIndexes[viewOrManage] < (maxDepth - newTab)) {
                             unitsTreeIndexes[viewOrManage]++;
@@ -112,38 +115,49 @@ public class MainController implements Initializable {
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
     }
 
-    public void setColumns(String filename, int viewOrManage){
-        nameColumn = new TableColumn<AdministrativeUnit, String>("Nazwa");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, String>("name"));
-        populationColumn = new TableColumn<AdministrativeUnit, Integer>("Przykładowe dane");
-        populationColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, Integer>("population"));
-        tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
-        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
-            TableColumn master = new TableColumn<>("Powiaty w " + "'" + filename + "'");
-            master.getColumns().addAll(nameColumn,populationColumn);
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
-            TableColumn master = new TableColumn<>("Gminy w " + "'" + filename + "'");
-            master.getColumns().addAll(nameColumn,populationColumn);
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-        }else{
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(nameColumn, populationColumn);
+    public void setColumns(PageResult<VoivodeshipDto> voivodeships, int viewOrManage){
+        List<TableColumn<VoivodeshipDto, ?>> columnsToAdd = new ArrayList<>();
+        Class clazz = voiClass.getClass();
+        Field[] fields = clazz.getFields();
+        for(int i = 0; i < 4; i++){
+            columnsToAdd.add(new TableColumn<>(fields[i].getName()));
         }
+
+        int iterator = 0;
+        for(TableColumn t : columnsToAdd){
+            t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
+            iterator++;
+        }
+//        nameColumn = new TableColumn<AdministrativeUnit, String>("Nazwa");
+//        nameColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, String>("name"));
+//        populationColumn = new TableColumn<AdministrativeUnit, Integer>("Przykładowe dane");
+//        populationColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, Integer>("population"));
+        tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
+//        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
+//            TableColumn master = new TableColumn<>("Powiaty w " + "'"  + "'");
+//            master.getColumns().addAll(nameColumn,populationColumn);
+//            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+//        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
+//            TableColumn master = new TableColumn<>("Gminy w " + "'" +  "'");
+//            master.getColumns().addAll(nameColumn,populationColumn);
+//            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+//        }else{
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);
+        //}
     }
 
     public void changeItemsInMainList(String filename, int viewOrManage){
         try {
-            File myFile = new File(System.getProperty("user.dir") + path + filename + ".txt");
-            Scanner myScanner = new Scanner(myFile, StandardCharsets.UTF_8);
-            setColumns(filename, viewOrManage);
+            PageResult<VoivodeshipDto> voivodeships = request.getVoivodeships(1, 16);
+//            File myFile = new File(System.getProperty("user.dir") + path + filename + ".txt");
+//            Scanner myScanner = new Scanner(myFile, StandardCharsets.UTF_8);
+            setColumns(voivodeships, viewOrManage);
             tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
             String line;
-            while(myScanner.hasNextLine()){
-                line = myScanner.nextLine();
-                tables[viewOrManage][activeTables[viewOrManage]].getItems().add(new AdministrativeUnit(line, new Random().nextInt(21000)));
+            for(VoivodeshipDto v : voivodeships.items){
+                tables[viewOrManage][activeTables[viewOrManage]].getItems().add(v);
             }
-            myScanner.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -164,15 +178,15 @@ public class MainController implements Initializable {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         currentlyActiveTableListeners = new ChangeListener[2];
-        currentlyActiveTableListeners[0] = new ChangeListener<AdministrativeUnit>() {
+        currentlyActiveTableListeners[0] = new ChangeListener<VoivodeshipDto>() {
             @Override
-            public void changed(ObservableValue<? extends AdministrativeUnit> observable, AdministrativeUnit oldValue, AdministrativeUnit newValue) {
+            public void changed(ObservableValue<? extends VoivodeshipDto> observable, VoivodeshipDto oldValue, VoivodeshipDto newValue) {
 
             }
         };
-        currentlyActiveTableListeners[1] = new ChangeListener<AdministrativeUnit>() {
+        currentlyActiveTableListeners[1] = new ChangeListener<VoivodeshipDto>() {
             @Override
-            public void changed(ObservableValue<? extends AdministrativeUnit> observable, AdministrativeUnit oldValue, AdministrativeUnit newValue) {
+            public void changed(ObservableValue<? extends VoivodeshipDto> observable, VoivodeshipDto oldValue, VoivodeshipDto newValue) {
 
             }
         };
