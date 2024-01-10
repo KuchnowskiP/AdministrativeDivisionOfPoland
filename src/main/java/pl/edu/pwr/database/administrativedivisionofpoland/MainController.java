@@ -12,6 +12,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.CommuneDto;
+import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 
 import java.io.*;
@@ -57,12 +59,12 @@ public class MainController implements Initializable {
     @FXML
     private Tab viewTab;
     @FXML
-    private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
+    private TableView voivodeshipsTable = new TableView<>();
     @FXML
-    private TableView<VoivodeshipDto> countiesTable = new TableView<>();
+    private TableView countiesTable = new TableView<>();
     @FXML
-    private TableView<VoivodeshipDto> communesTable = new TableView<>();
-    private TableView<VoivodeshipDto>[][] tables;
+    private TableView communesTable = new TableView<>();
+    private TableView[][] tables;
     @FXML
     TableColumn<AdministrativeUnit, String> nameColumn;
     @FXML
@@ -75,9 +77,10 @@ public class MainController implements Initializable {
     int maxDepth = 2;
     Request request = new Request();
 
+    Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class};
     VoivodeshipDto voiClass = new VoivodeshipDto();
 
-    ChangeListener<VoivodeshipDto>[] currentlyActiveTableListeners;
+    ChangeListener[] currentlyActiveTableListeners;
 
     public void changeListener(int oldTab, int newTab, int viewOrManage){
         boolean changed = false;
@@ -115,12 +118,11 @@ public class MainController implements Initializable {
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
     }
 
-    public void setColumns(PageResult<VoivodeshipDto> voivodeships, int viewOrManage){
-        List<TableColumn<VoivodeshipDto, ?>> columnsToAdd = new ArrayList<>();
-        Class clazz = voiClass.getClass();
-        Field[] fields = clazz.getFields();
-        for(int i = 0; i < 4; i++){
-            columnsToAdd.add(new TableColumn<>(fields[i].getName()));
+    public void setColumns(Class<?> passedClass, int viewOrManage){
+        List<TableColumn<?, ?>> columnsToAdd = new ArrayList<>();
+        Field[] fields = passedClass.getFields();
+        for(Field f : fields){
+            columnsToAdd.add(new TableColumn<>(f.getName()));
         }
 
         int iterator = 0;
@@ -142,20 +144,32 @@ public class MainController implements Initializable {
 //            master.getColumns().addAll(nameColumn,populationColumn);
 //            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
 //        }else{
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);
-        //}
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);//}
     }
 
     public void changeItemsInMainList(String filename, int viewOrManage){
         try {
-            PageResult<VoivodeshipDto> voivodeships = request.getVoivodeships(1, 16);
-//            File myFile = new File(System.getProperty("user.dir") + path + filename + ".txt");
-//            Scanner myScanner = new Scanner(myFile, StandardCharsets.UTF_8);
-            setColumns(voivodeships, viewOrManage);
+            PageResult<?> requestResult = new PageResult<>();
+            switch (activeTables[viewOrManage]){
+                case 0:{
+                    requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
+                    break;
+                }
+                case 1:{
+                    requestResult = request.getCounties(-1,1,Integer.MAX_VALUE);
+                    break;
+                }
+                case 2:{
+                    requestResult = request.getCommunes(-1, 1,2477);
+                    System.out.println("Dupa");
+                    break;
+                }
+            }
+            setColumns(units[activeTables[viewOrManage]], viewOrManage);
             tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
             String line;
-            for(VoivodeshipDto v : voivodeships.items){
-                tables[viewOrManage][activeTables[viewOrManage]].getItems().add(v);
+            for(Object o : requestResult.items){
+                tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
