@@ -14,7 +14,9 @@ import javafx.scene.input.KeyEvent;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.CommuneDto;
 import pl.edu.pwr.contract.Dtos.CountyDto;
+import pl.edu.pwr.contract.Dtos.ReportDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
+import pl.edu.pwr.contract.Reports.AddReportRequest;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -25,25 +27,23 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class MainController implements Initializable {
-    public ChoiceBox voivodeshipReportChoiceBox;
-    public ChoiceBox countyReportChoiceBox;
-    public ChoiceBox communeReportChoiceBox;
+    public ChoiceBox<String> voivodeshipReportChoiceBox;
+    public ChoiceBox<String> countyReportChoiceBox;
+    public ChoiceBox<String> communeReportChoiceBox;
     @FXML
-    private TableView countiesTableManage;
+    private TextField topicTextField;
     @FXML
-    private TableView communesTableManage;
+    private TextArea reportContentTextArea;
     @FXML
-    private TableView voivodeshipsTableManage;
+    private TableView<ReportDto> reportsTableManage;
+    @FXML
+    private TableView<CountyDto> countiesTableManage;
+    @FXML
+    private TableView<CommuneDto> communesTableManage;
+    @FXML
+    private TableView<VoivodeshipDto> voivodeshipsTableManage;
     @FXML
     private TabPane manageUnitsTabPane;
-    @FXML
-    private Tab communesTab;
-    @FXML
-    private Tab countiesTab;
-    @FXML
-    private Tab voivodeshipsTab;
-    @FXML
-    private TabPane manageTabPane;
     @FXML
     private Label loginFeedbackLabel;
     @FXML
@@ -57,22 +57,20 @@ public class MainController implements Initializable {
     @FXML
     private Tab manageTab;
     @FXML
-    private Tab viewTab;
+    private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
     @FXML
-    private TableView voivodeshipsTable = new TableView<>();
+    private TableView<CountyDto> countiesTable = new TableView<>();
     @FXML
-    private TableView countiesTable = new TableView<>();
-    @FXML
-    private TableView communesTable = new TableView<>();
+    private TableView<CommuneDto> communesTable = new TableView<>();
     private TableView[][] tables;
     String path = "\\src\\main\\resources\\pl\\edu\\pwr\\database\\administrativedivisionofpoland\\";
     Object[] unitsTree = new Object[]{-1,-1,-1};
     int[] unitsTreeIndexes = new int[2];
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
-    String masterName;
+    String[] masterName = new String[3];
     Request request = new Request();
-    Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class};
+    Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
 
     public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
@@ -99,7 +97,7 @@ public class MainController implements Initializable {
                             unitsTreeIndexes[viewOrManage]++;
                             try {
                                 unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("id").get(newValue);
-                                masterName = newValue.getClass().getField("name").get(newValue).toString();
+                                masterName[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("name").get(newValue).toString();
                             } catch (IllegalAccessException e) {
                                 throw new RuntimeException(e);
                             } catch (NoSuchFieldException e) {
@@ -114,7 +112,9 @@ public class MainController implements Initializable {
                     }
                 }
             };
+
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
+
     }
 
     public void setColumns(Class<?> passedClass, int viewOrManage){
@@ -132,11 +132,11 @@ public class MainController implements Initializable {
 
         tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
         if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
-            TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName  + "'");
+            TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
             master.getColumns().addAll(columnsToAdd);
             tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
         }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
-            TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName +  "'");
+            TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] +  "'");
             master.getColumns().addAll(columnsToAdd);
             tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
         }else{
@@ -179,7 +179,12 @@ public class MainController implements Initializable {
                     requestResult = request.getCommunes(-1, 1,Integer.MAX_VALUE);
                     break;
                 }
+                case 3:{
+                    requestResult = request.getReports(1,Integer.MAX_VALUE);
+                    break;
+                }
             }
+
             setColumns(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]], viewOrManage);
             tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
             String line;
@@ -203,37 +208,58 @@ public class MainController implements Initializable {
             }
         });
         mainTabPane.getTabs().remove(manageTab);
-        tables = new TableView[][]{{voivodeshipsTable, countiesTable, communesTable},{voivodeshipsTableManage, countiesTableManage, communesTableManage}};
+        tables = new TableView[][]{{voivodeshipsTable, countiesTable, communesTable},{voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         currentlyActiveTableListeners = new ChangeListener[2];
         changeItemsInMainList(-1,0);
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
+
         try {
-            voivodeshipReportChoiceBox.getItems().add("-");
-            voivodeshipReportChoiceBox.setValue("-");
-            voivodeshipReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "voivodeships.txt")));
-        } catch (IOException e) {
+            choiceBoxListeners();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    PageResult<VoivodeshipDto> requestVoivodeships;
+    PageResult<CountyDto> requestCounties;
+    PageResult<CommuneDto> requestCommunes;
+    VoivodeshipDto reportSelectedVoivodeship = new VoivodeshipDto(-1,"","","");
+    CountyDto reportSelectedCounty = new CountyDto(-1,-1,"","",false,"","");
+    CommuneDto reportSelectedCommune = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
+    public void choiceBoxListeners() throws Exception {
+        requestVoivodeships = request.getVoivodeships(1, Integer.MAX_VALUE);
+        voivodeshipReportChoiceBox.getItems().add("-");
+        voivodeshipReportChoiceBox.setValue("-");
+        for(int i = 0; i < requestVoivodeships.items.size(); i++){
+            voivodeshipReportChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
+        }
+
         voivodeshipReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+            public void changed(ObservableValue observable, Object oldValue, Object newValue)  {
                 System.out.println(newValue);
-                if(Objects.equals(String.valueOf(newValue), "dolnośląskie")){
+                if(!Objects.equals(String.valueOf(newValue), "-")){
+                    countyReportChoiceBox.getItems().clear();
+                    countyReportChoiceBox.setDisable(false);
+                    countyReportChoiceBox.getItems().add("-");
+                    countyReportChoiceBox.setValue("-");
+                    reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
+                            .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                     try {
-                        countyReportChoiceBox.setDisable(false);
-                        countyReportChoiceBox.getItems().add("-");
-                        countyReportChoiceBox.setValue("-");
-                        countyReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "dolnośląskie.txt")));
-                    } catch (IOException e) {
+                        requestCounties = request.getCounties(reportSelectedVoivodeship.getId(),1,Integer.MAX_VALUE);
+                        for(int i = 0; i < requestCounties.getItems().size(); i++){
+                            countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
+                        }
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
-                if(Objects.equals(String.valueOf(newValue), "-")){
+                else{
+                    reportSelectedVoivodeship.setId(-1);
                     countyReportChoiceBox.setValue("-");
-                    countyReportChoiceBox.getItems().clear();
                     countyReportChoiceBox.setDisable(true);
                 }
             }
@@ -242,24 +268,44 @@ public class MainController implements Initializable {
         countyReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if(Objects.equals(String.valueOf(newValue), "wrocławski")){
+                if(!Objects.equals(String.valueOf(newValue), "-")){
+                    communeReportChoiceBox.getItems().clear();
+                    communeReportChoiceBox.setDisable(false);
+                    communeReportChoiceBox.getItems().add("-");
+                    communeReportChoiceBox.setValue("-");
+                    reportSelectedCounty = requestCounties.getItems().stream()
+                            .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+
                     try {
-                        communeReportChoiceBox.setDisable(false);
-                        communeReportChoiceBox.getItems().add("-");
-                        communeReportChoiceBox.setValue("-");
-                        communeReportChoiceBox.getItems().addAll(Files.readAllLines(Path.of(System.getProperty("user.dir") + path + "wrocławski.txt")));
-                    } catch (IOException e) {
+                        requestCommunes = request.getCommunes(reportSelectedCounty.getId(),1,Integer.MAX_VALUE);
+                        for(int i = 0; i < requestCommunes.getItems().size(); i++){
+                            communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
+                        }
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
                 if(Objects.equals(String.valueOf(newValue), "-")){
+                    reportSelectedCounty.setId(-1);
                     communeReportChoiceBox.getItems().clear();
                     communeReportChoiceBox.setDisable(true);
                 }
             }
         });
-    }
 
+        communeReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if(!Objects.equals(String.valueOf(newValue),"-")){
+                    String[] name = newValue.toString().split(" ");
+                    reportSelectedCommune = requestCommunes.getItems().stream()
+                            .filter(communeDto -> name[0].equals(communeDto.getName())).findAny().get();
+                }else{
+                    reportSelectedCommune.setId(-1);
+                }
+            }
+        });
+    }
     public void onBackButtonClick(ActionEvent actionEvent) {
         Platform.runLater(() -> {
             if(unitsTreeIndexes[0] > 0) {
@@ -281,12 +327,12 @@ public class MainController implements Initializable {
             countiesTableManage.setEditable(true);
             communesTable.setEditable(true);
 
-            changeListener(-1, 0, 1);
-
             Platform.runLater(() -> {
                 loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
                 loginFeedbackLabel.setVisible(true);
                 mainTabPane.getTabs().add(manageTab);
+                changeListener(-1, 0, 1);
+                changeItemsInMainList(-1,1);
             });
         }else{
             loginFeedbackLabel.setText("Błędne dane logowania!");
@@ -312,5 +358,26 @@ public class MainController implements Initializable {
             System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
             changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
         });
+    }
+
+    public void onSendButtonClick(ActionEvent actionEvent) {
+        System.out.println("Click");
+        AddReportRequest addReportRequest = new AddReportRequest();
+        addReportRequest.setTopic(topicTextField.getText());
+        addReportRequest.setContent(reportContentTextArea.getText());
+        if (reportSelectedVoivodeship.getId() != -1) {
+            addReportRequest.setVoivodeshipId(reportSelectedVoivodeship.getId());
+        }
+        if (reportSelectedCounty.getId() != -1) {
+            addReportRequest.setCountyId(reportSelectedCounty.getId());
+        }
+        if (reportSelectedCommune.getId() != -1) {
+            addReportRequest.setCommuneId(reportSelectedCommune.getId());
+        }
+        try {
+            request.createReport(addReportRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -113,13 +113,13 @@
                                           </AnchorPane>
                                       </content>
                                   </Tab>
-                                  <Tab id="2" fx:id="reportsTabManage" text="Przeglądaj zgłoszenia">
+                                  <Tab id="3" fx:id="reportsTabManage" text="Przeglądaj zgłoszenia">
                                       <content>
                                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                               <children>
                                                   <VBox prefHeight="700.0" prefWidth="900.0">
                                                       <children>
-                                                          <TableView>
+                                                          <TableView fx:id="reportsTableManage">
                                                               <TableColumn text="Data przesłania" />
                                                               <TableColumn text="Temat" />
                                                    <columns>
@@ -181,7 +181,7 @@
                                 <HBox prefWidth="900.0" spacing="10.0">
                               <VBox prefHeight="200.0" prefWidth="400.0">
                                  <children>
-                                          <Button fx:id="sendButton" text="Wyślij zgłoszenie">
+                                          <Button fx:id="sendButton" text="Wyślij zgłoszenie" onAction="#onSendButtonClick">
                                        <VBox.margin>
                                           <Insets left="147.0" />
                                        </VBox.margin>
