@@ -297,9 +297,9 @@ public class MainController implements Initializable {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if(!Objects.equals(String.valueOf(newValue),"-")){
-                    String[] name = newValue.toString().split(" ");
+                    String[] name = newValue.toString().split("\\(");
                     reportSelectedCommune = requestCommunes.getItems().stream()
-                            .filter(communeDto -> name[0].equals(communeDto.getName())).findAny().get();
+                            .filter(communeDto -> name[0].trim().equals(communeDto.getName())).findAny().get();
                 }else{
                     reportSelectedCommune.setId(-1);
                 }
