@@ -27,9 +27,9 @@ public class Request {
                 });
         return result;
     }
-    public PageResult<CountyDto> getCounties(int voivodeshipId, int page, int size) throws Exception {
+    public PageResult<CountyDto> getCounties(Object voivodeshipId, int page, int size) throws Exception {
         HttpRequest request;
-        if (voivodeshipId == -1) {
+        if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8085/api/county/all?page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
@@ -48,9 +48,9 @@ public class Request {
         return result;
     }
 
-    public PageResult<CommuneDto> getCommunes(int countyID, int page, int size) throws Exception {
+    public PageResult<CommuneDto> getCommunes(Object countyID, int page, int size) throws Exception {
         HttpRequest request;
-        if (countyID == -1) {
+        if (countyID.equals(-1)) {
             request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8085/api/commune/all?page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")

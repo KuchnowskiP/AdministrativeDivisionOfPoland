@@ -38,7 +38,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
-    implementation files('libs/Contract-all.jar')
+    implementation files('libs/Contract.jar')
 }
 
 test {

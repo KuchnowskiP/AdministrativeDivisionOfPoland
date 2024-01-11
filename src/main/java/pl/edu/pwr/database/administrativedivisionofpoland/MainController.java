@@ -65,30 +65,22 @@ public class MainController implements Initializable {
     @FXML
     private TableView communesTable = new TableView<>();
     private TableView[][] tables;
-    @FXML
-    TableColumn<AdministrativeUnit, String> nameColumn;
-    @FXML
-    TableColumn<AdministrativeUnit, Integer> populationColumn;
     String path = "\\src\\main\\resources\\pl\\edu\\pwr\\database\\administrativedivisionofpoland\\";
-    String[] unitsTree = new String[3];
-    String[] tabChangeStarters = new String[3];
+    Object[] unitsTree = new Object[]{-1,-1,-1};
     int[] unitsTreeIndexes = new int[2];
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
+    String masterName;
     Request request = new Request();
-
     Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class};
-    VoivodeshipDto voiClass = new VoivodeshipDto();
+    ChangeListener<?>[] currentlyActiveTableListeners;
 
-    ChangeListener[] currentlyActiveTableListeners;
-
-    public void changeListener(int oldTab, int newTab, int viewOrManage){
+    public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
             System.out.println("zmiana");
             tables[viewOrManage][oldTab].getSelectionModel().selectedItemProperty().removeListener(currentlyActiveTableListeners[viewOrManage]);
             changed = true;
-            unitsTree[0] = tabChangeStarters[newTab];
         }
         unitsTreeIndexes[viewOrManage] = 0;
         boolean finalChanged = changed;
@@ -96,16 +88,23 @@ public class MainController implements Initializable {
             unitsTreeIndexes[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
             Platform.runLater(() -> {
-                changeItemsInMainList(tabChangeStarters[newTab], viewOrManage);
+                changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
             });
         }
-            currentlyActiveTableListeners[viewOrManage] = new ChangeListener<VoivodeshipDto>() {
+            currentlyActiveTableListeners[viewOrManage] = new ChangeListener<>() {
                 @Override
-                public void changed(ObservableValue<? extends VoivodeshipDto> observable, VoivodeshipDto oldValue, VoivodeshipDto newValue) {
+                public void changed(ObservableValue<?> observableValue, Object oldValue, Object newValue) {
                     if(newValue != null) {
                         if(unitsTreeIndexes[viewOrManage] < (maxDepth - newTab)) {
                             unitsTreeIndexes[viewOrManage]++;
-                            unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getName();
+                            try {
+                                unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("id").get(newValue);
+                                masterName = newValue.getClass().getField("name").get(newValue).toString();
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            } catch (NoSuchFieldException e) {
+                                throw new RuntimeException(e);
+                            }
                             System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
                             System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
                             Platform.runLater(() -> {
@@ -130,46 +129,63 @@ public class MainController implements Initializable {
             t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
             iterator++;
         }
-//        nameColumn = new TableColumn<AdministrativeUnit, String>("Nazwa");
-//        nameColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, String>("name"));
-//        populationColumn = new TableColumn<AdministrativeUnit, Integer>("Przykładowe dane");
-//        populationColumn.setCellValueFactory(new PropertyValueFactory<AdministrativeUnit, Integer>("population"));
+
         tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
-//        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
-//            TableColumn master = new TableColumn<>("Powiaty w " + "'"  + "'");
-//            master.getColumns().addAll(nameColumn,populationColumn);
-//            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-//        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
-//            TableColumn master = new TableColumn<>("Gminy w " + "'" +  "'");
-//            master.getColumns().addAll(nameColumn,populationColumn);
-//            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-//        }else{
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);//}
+        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
+            TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName  + "'");
+            master.getColumns().addAll(columnsToAdd);
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
+            TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName +  "'");
+            master.getColumns().addAll(columnsToAdd);
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+        }else{
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);
+        }
     }
 
-    public void changeItemsInMainList(String filename, int viewOrManage){
+    public void changeItemsInMainList(Object id, int viewOrManage){
         try {
             PageResult<?> requestResult = new PageResult<>();
             switch (activeTables[viewOrManage]){
                 case 0:{
-                    requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
+                    switch (unitsTreeIndexes[viewOrManage]){
+                        case 1:{
+                            requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                            break;
+                        }
+                        case 2:{
+                            requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1,Integer.MAX_VALUE);
+                            break;
+                        }
+                        default:{
+                            requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
+                            break;
+                        }
+                    }
                     break;
                 }
                 case 1:{
-                    requestResult = request.getCounties(-1,1,Integer.MAX_VALUE);
+
+                    if(unitsTreeIndexes[viewOrManage] == 1){
+                        requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1,Integer.MAX_VALUE);
+                    }
+                    else{
+                        requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                    }
                     break;
                 }
                 case 2:{
-                    requestResult = request.getCommunes(-1, 1,2477);
-                    System.out.println("Dupa");
+                    requestResult = request.getCommunes(-1, 1,Integer.MAX_VALUE);
                     break;
                 }
             }
-            setColumns(units[activeTables[viewOrManage]], viewOrManage);
+            setColumns(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]], viewOrManage);
             tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
             String line;
             for(Object o : requestResult.items){
                 tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
+                TableView a = new TableView<>();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -188,28 +204,12 @@ public class MainController implements Initializable {
         });
         mainTabPane.getTabs().remove(manageTab);
         tables = new TableView[][]{{voivodeshipsTable, countiesTable, communesTable},{voivodeshipsTableManage, countiesTableManage, communesTableManage}};
-        tabChangeStarters = new String[]{"voivodeships","counties","communes"};
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         currentlyActiveTableListeners = new ChangeListener[2];
-        currentlyActiveTableListeners[0] = new ChangeListener<VoivodeshipDto>() {
-            @Override
-            public void changed(ObservableValue<? extends VoivodeshipDto> observable, VoivodeshipDto oldValue, VoivodeshipDto newValue) {
-
-            }
-        };
-        currentlyActiveTableListeners[1] = new ChangeListener<VoivodeshipDto>() {
-            @Override
-            public void changed(ObservableValue<? extends VoivodeshipDto> observable, VoivodeshipDto oldValue, VoivodeshipDto newValue) {
-
-            }
-        };
-        changeItemsInMainList("voivodeships",0);
-        unitsTree[0] = tabChangeStarters[0];
+        changeItemsInMainList(-1,0);
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
-
-
         try {
             voivodeshipReportChoiceBox.getItems().add("-");
             voivodeshipReportChoiceBox.setValue("-");
