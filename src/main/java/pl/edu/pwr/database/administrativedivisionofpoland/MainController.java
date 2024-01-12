@@ -12,24 +12,26 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import pl.edu.pwr.contract.Common.PageResult;
-import pl.edu.pwr.contract.Dtos.CommuneDto;
-import pl.edu.pwr.contract.Dtos.CountyDto;
-import pl.edu.pwr.contract.Dtos.ReportDto;
-import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
+import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 
-import java.io.*;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     public ChoiceBox<String> voivodeshipReportChoiceBox;
     public ChoiceBox<String> countyReportChoiceBox;
     public ChoiceBox<String> communeReportChoiceBox;
+    @FXML
+    private CheckBox registeredOfficesCheckBox;
     @FXML
     private TextField topicTextField;
     @FXML
@@ -63,15 +65,16 @@ public class MainController implements Initializable {
     @FXML
     private TableView<CommuneDto> communesTable = new TableView<>();
     private TableView[][] tables;
-    String path = "\\src\\main\\resources\\pl\\edu\\pwr\\database\\administrativedivisionofpoland\\";
     Object[] unitsTree = new Object[]{-1,-1,-1};
     int[] unitsTreeIndexes = new int[2];
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
     String[] masterName = new String[3];
     Request request = new Request();
-    Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class};
+    Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
+            VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
+    int addressessAreChecked = 0;
 
     public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
@@ -151,15 +154,27 @@ public class MainController implements Initializable {
                 case 0:{
                     switch (unitsTreeIndexes[viewOrManage]){
                         case 1:{
-                            requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                            if(addressessAreChecked == 4){
+                                requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                            }else {
+                                requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                            }
                             break;
                         }
                         case 2:{
-                            requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1,Integer.MAX_VALUE);
+                            if(addressessAreChecked == 4){
+                                requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                            }else {
+                                requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                            }
                             break;
                         }
                         default:{
-                            requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
+                            if(addressessAreChecked == 4){
+                                requestResult = request.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
+                            }else {
+                                requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
+                            }
                             break;
                         }
                     }
@@ -168,15 +183,27 @@ public class MainController implements Initializable {
                 case 1:{
 
                     if(unitsTreeIndexes[viewOrManage] == 1){
-                        requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1,Integer.MAX_VALUE);
+                        if(addressessAreChecked == 4){
+                            requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                        }else {
+                            requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                        }
                     }
                     else{
-                        requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                        if(addressessAreChecked == 4){
+                            requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                        }else {
+                            requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                        }
                     }
                     break;
                 }
                 case 2:{
-                    requestResult = request.getCommunes(-1, 1,Integer.MAX_VALUE);
+                    if(addressessAreChecked == 4){
+                        requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                    }else {
+                        requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                    }
                     break;
                 }
                 case 3:{
@@ -185,7 +212,7 @@ public class MainController implements Initializable {
                 }
             }
 
-            setColumns(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]], viewOrManage);
+            setColumns(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage] + addressessAreChecked], viewOrManage);
             tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
             String line;
             for(Object o : requestResult.items){
@@ -378,6 +405,24 @@ public class MainController implements Initializable {
             request.createReport(addReportRequest);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void onRefreshButtonClick(ActionEvent actionEvent) {
+        changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+    }
+
+    public void onManageRefreshButtonClick(ActionEvent actionEvent) {
+        changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
+    }
+
+    public void onCheckboxChange(ActionEvent actionEvent) {
+        if(registeredOfficesCheckBox.isSelected()){
+            addressessAreChecked = 4;
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+        }else{
+            addressessAreChecked = 0;
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
         }
     }
 }
