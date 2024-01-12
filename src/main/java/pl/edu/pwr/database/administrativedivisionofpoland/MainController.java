@@ -76,6 +76,8 @@ public class MainController implements Initializable {
     ChangeListener<?>[] currentlyActiveTableListeners;
     int addressessAreChecked = 0;
 
+    Thread tableUpdater = new Thread();
+
     public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
@@ -88,7 +90,12 @@ public class MainController implements Initializable {
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
-            Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage));
+            tableUpdater.interrupt();
+            Runnable updateTable = () -> {
+                changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
+            };
+            tableUpdater = new Thread(updateTable);
+            tableUpdater.start();
         }
             currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
                 if(newValue != null) {
@@ -102,7 +109,12 @@ public class MainController implements Initializable {
                         }
                         System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
                         System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
-                        Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage));
+                        tableUpdater.interrupt();
+                        Runnable updateTable = () -> {
+                            changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
+                        };
+                        tableUpdater = new Thread(updateTable);
+                        tableUpdater.start();
                     }
                 }
             };
@@ -127,14 +139,19 @@ public class MainController implements Initializable {
         tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
         if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
             TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
-            master.getColumns().addAll(columnsToAdd);
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            Platform.runLater(() -> {
+                master.getColumns().addAll(columnsToAdd);
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            });
         }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
             TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] +  "'");
-            master.getColumns().addAll(columnsToAdd);
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            Platform.runLater(() -> {
+                master.getColumns().addAll(columnsToAdd);
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            });
+
         }else{
-            tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);
+            Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd));
         }
     }
 
@@ -204,12 +221,14 @@ public class MainController implements Initializable {
             }
 
             setColumns(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage] + addressessAreChecked], viewOrManage);
-            tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
-            String line;
-            for(Object o : requestResult.items){
-                tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
-                TableView a = new TableView<>();
-            }
+            PageResult<?> finalRequestResult = requestResult;
+            Platform.runLater(() -> {
+                tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
+                for(Object o : finalRequestResult.items){
+                    tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
+                }
+            });
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -230,7 +249,13 @@ public class MainController implements Initializable {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         currentlyActiveTableListeners = new ChangeListener[2];
-        Platform.runLater(() -> changeItemsInMainList(-1,0));
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
+            changeItemsInMainList(-1, 0);
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
+
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
 
@@ -325,13 +350,19 @@ public class MainController implements Initializable {
         });
     }
     public void onBackButtonClick(ActionEvent ignoredActionEvent) {
-        Platform.runLater(() -> {
-            if(unitsTreeIndexes[0] > 0) {
-                unitsTreeIndexes[0]--;
-            }
-            System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
-        });
+
+        if(unitsTreeIndexes[0] > 0) {
+            unitsTreeIndexes[0]--;
+        }
+        System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
+
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]], 0);
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
+
     }
 
     public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
@@ -346,15 +377,26 @@ public class MainController implements Initializable {
             communesTable.setEditable(true);
 
             Platform.runLater(() -> {
-                loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
-                loginFeedbackLabel.setVisible(true);
-                mainTabPane.getTabs().add(manageTab);
-                changeListener(-1, 0, 1);
-                changeItemsInMainList(-1,1);
+                        loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
+                        loginFeedbackLabel.setVisible(true);
+                        mainTabPane.getTabs().add(manageTab);
             });
+
+            changeListener(-1, 0, 1);
+
+            tableUpdater.interrupt();
+            Runnable updateTable = () -> {
+                changeItemsInMainList(-1,1);
+            };
+            tableUpdater = new Thread(updateTable);
+            tableUpdater.start();
+
         }else{
-            loginFeedbackLabel.setText("Błędne dane logowania!");
-            loginFeedbackLabel.setVisible(true);
+            Platform.runLater(() -> {
+                loginFeedbackLabel.setText("Błędne dane logowania!");
+                loginFeedbackLabel.setVisible(true);
+            });
+
         }
     }
 
@@ -366,13 +408,18 @@ public class MainController implements Initializable {
     }
 
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
-        Platform.runLater(() -> {
-            if(unitsTreeIndexes[1] > 0) {
-                unitsTreeIndexes[1]--;
-            }
-            System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
+
+        if(unitsTreeIndexes[1] > 0) {
+            unitsTreeIndexes[1]--;
+        }
+        System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
+
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
             changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
-        });
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
     }
 
     public void onSendButtonClick(ActionEvent ignoredActionEvent) {
@@ -397,20 +444,34 @@ public class MainController implements Initializable {
     }
 
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
-        Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0));
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
     }
 
     public void onManageRefreshButtonClick(ActionEvent ignoredActionEvent) {
-        Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1));
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
     }
 
     public void onCheckboxChange(ActionEvent ignoredActionEvent) {
         if(registeredOfficesCheckBox.isSelected()){
             addressessAreChecked = 4;
-            Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0));
         }else{
             addressessAreChecked = 0;
-            Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0));
         }
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
+            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
     }
 }
