@@ -118,7 +118,7 @@ public class MainController implements Initializable {
             iterator++;
         }
 
-        tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
+        Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear());
         if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
             TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
             Platform.runLater(() -> {
