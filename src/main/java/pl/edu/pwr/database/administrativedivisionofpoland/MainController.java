@@ -9,16 +9,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -30,6 +34,8 @@ public class MainController implements Initializable {
     public ChoiceBox<String> voivodeshipReportChoiceBox;
     public ChoiceBox<String> countyReportChoiceBox;
     public ChoiceBox<String> communeReportChoiceBox;
+    public ImageView flagImage;
+    public ImageView emblemImage;
     @FXML
     private CheckBox registeredOfficesCheckBox;
     @FXML
@@ -104,8 +110,12 @@ public class MainController implements Initializable {
                         try {
                             unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("id").get(newValue);
                             masterName[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("name").get(newValue).toString();
+                            setImages(newValue.getClass().getField("terytCode").get(newValue).toString());
                         } catch (IllegalAccessException | NoSuchFieldException e) {
                             throw new RuntimeException(e);
+                        } catch (URISyntaxException e) {
+                            throw new RuntimeException(e);
+
                         }
                         System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
                         System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
@@ -473,5 +483,12 @@ public class MainController implements Initializable {
         };
         tableUpdater = new Thread(updateTable);
         tableUpdater.start();
+    }
+    public void setImages(String terytCode) throws URISyntaxException {
+        if(terytCode== null) terytCode = "0000000";
+        String flagFileName = "src/main/resources/flags/" + terytCode + ".png";
+        String emblemFileName = "src/main/resources/emblems/" + terytCode + ".png";
+        flagImage.setImage(new Image(new File(flagFileName).toURI().toString()));
+        emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
     }
 }
