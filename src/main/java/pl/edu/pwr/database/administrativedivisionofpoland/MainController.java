@@ -88,30 +88,21 @@ public class MainController implements Initializable {
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
-            Platform.runLater(() -> {
-                changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
-            });
+            Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage));
         }
-            currentlyActiveTableListeners[viewOrManage] = new ChangeListener<>() {
-                @Override
-                public void changed(ObservableValue<?> observableValue, Object oldValue, Object newValue) {
-                    if(newValue != null) {
-                        if(unitsTreeIndexes[viewOrManage] < (maxDepth - newTab)) {
-                            unitsTreeIndexes[viewOrManage]++;
-                            try {
-                                unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("id").get(newValue);
-                                masterName[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("name").get(newValue).toString();
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            } catch (NoSuchFieldException e) {
-                                throw new RuntimeException(e);
-                            }
-                            System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
-                            System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
-                            Platform.runLater(() -> {
-                                changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
-                            });
+            currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
+                if(newValue != null) {
+                    if(unitsTreeIndexes[viewOrManage] < (maxDepth - newTab)) {
+                        unitsTreeIndexes[viewOrManage]++;
+                        try {
+                            unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("id").get(newValue);
+                            masterName[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("name").get(newValue).toString();
+                        } catch (IllegalAccessException | NoSuchFieldException e) {
+                            throw new RuntimeException(e);
                         }
+                        System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
+                        System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
+                        Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage));
                     }
                 }
             };
@@ -239,7 +230,7 @@ public class MainController implements Initializable {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         currentlyActiveTableListeners = new ChangeListener[2];
-        changeItemsInMainList(-1,0);
+        Platform.runLater(() -> changeItemsInMainList(-1,0));
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
 
@@ -333,7 +324,7 @@ public class MainController implements Initializable {
             }
         });
     }
-    public void onBackButtonClick(ActionEvent actionEvent) {
+    public void onBackButtonClick(ActionEvent ignoredActionEvent) {
         Platform.runLater(() -> {
             if(unitsTreeIndexes[0] > 0) {
                 unitsTreeIndexes[0]--;
@@ -343,7 +334,7 @@ public class MainController implements Initializable {
         });
     }
 
-    public void onLoginButtonClick(ActionEvent actionEvent) {
+    public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("przycisk wciśnięty");
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
@@ -368,16 +359,13 @@ public class MainController implements Initializable {
     }
 
     private void TabPaneListenerInitializer(TabPane TabPane, int viewOrManage) {
-        TabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override
-            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-                System.out.println(oldValue.getId() + " -> " + newValue.getId());
-                changeListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
-            }
+        TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(oldValue.getId() + " -> " + newValue.getId());
+            changeListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
         });
     }
 
-    public void onManageBackButtonClick(ActionEvent actionEvent) {
+    public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
         Platform.runLater(() -> {
             if(unitsTreeIndexes[1] > 0) {
                 unitsTreeIndexes[1]--;
@@ -387,7 +375,7 @@ public class MainController implements Initializable {
         });
     }
 
-    public void onSendButtonClick(ActionEvent actionEvent) {
+    public void onSendButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("Click");
         AddReportRequest addReportRequest = new AddReportRequest();
         addReportRequest.setTopic(topicTextField.getText());
@@ -408,21 +396,21 @@ public class MainController implements Initializable {
         }
     }
 
-    public void onRefreshButtonClick(ActionEvent actionEvent) {
-        changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+    public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
+        Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0));
     }
 
-    public void onManageRefreshButtonClick(ActionEvent actionEvent) {
-        changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
+    public void onManageRefreshButtonClick(ActionEvent ignoredActionEvent) {
+        Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1));
     }
 
-    public void onCheckboxChange(ActionEvent actionEvent) {
+    public void onCheckboxChange(ActionEvent ignoredActionEvent) {
         if(registeredOfficesCheckBox.isSelected()){
             addressessAreChecked = 4;
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+            Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0));
         }else{
             addressessAreChecked = 0;
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
+            Platform.runLater(() -> changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0));
         }
     }
 }
