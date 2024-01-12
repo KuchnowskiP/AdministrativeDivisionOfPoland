@@ -100,9 +100,10 @@ public class MainController implements Initializable {
             tableUpdater.start();
         }
         currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
-
+            System.out.println(newValue);
         };
 
+        tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
     }
 
     public void setColumns(Class<?> passedClass, int viewOrManage){
@@ -261,7 +262,6 @@ public class MainController implements Initializable {
         });
         mainTabPane.getTabs().remove(manageTab);
         tables = new TableView[][]{{voivodeshipsTable, countiesTable, communesTable},{voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
-        setRowsFactories();
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         currentlyActiveTableListeners = new ChangeListener[2];
@@ -274,6 +274,8 @@ public class MainController implements Initializable {
 
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
+
+        setRowsFactories();
 
         try {
             choiceBoxListeners();
