@@ -1,10 +1,9 @@
-package pl.edu.pwr.database.administrativedivisionofpoland;
+package pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -12,12 +11,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
+import pl.edu.pwr.database.administrativedivisionofpoland.Request;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -72,7 +70,7 @@ public class MainController implements Initializable {
     private TableView<CountyDto> countiesTable = new TableView<>();
     @FXML
     private TableView<CommuneDto> communesTable = new TableView<>();
-    private TableView[][] tables;
+    TableView[][] tables;
     Object[] unitsTree = new Object[]{-1,-1,-1};
     int[] unitsTreeIndexes = new int[2];
     int[] activeTables = new int[]{0,0};
@@ -83,8 +81,51 @@ public class MainController implements Initializable {
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
     int addressessAreChecked = 0;
-
     Thread tableUpdater = new Thread();
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out),
+                true, StandardCharsets.UTF_8)); //needed due to polish diacritics
+        setInitialView();
+        initializeStructures();
+        try {
+            initializeListeners();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setInitialView(){
+        mainTabPane.getTabs().remove(manageTab); //hiding managing tab. Will be open after singing in.
+        changeView(-1,0);
+    }
+
+    public void changeView(Object id, int viewOrManage){
+        tableUpdater.interrupt();
+        Runnable updateTable = () -> {
+            changeItemsInMainList(id, viewOrManage);
+        };
+        tableUpdater = new Thread(updateTable);
+        tableUpdater.start();
+    }
+    public void initializeStructures(){
+        tables = new TableView<?>[][]{{voivodeshipsTable, countiesTable, communesTable},
+                {voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
+        currentlyActiveTableListeners = new ChangeListener[2];
+    }
+
+    public void initializeListeners() throws Exception {
+        changeListener(-1,0,0);
+        TabPaneListenerInitializer(viewUnitsTabPane, 0);
+        choiceBoxListeners();
+        setRowsFactories();
+        passwordTextField.setOnKeyPressed(key -> {
+            if(key.getCode().equals(KeyCode.ENTER)){
+                onLoginButtonClick(new ActionEvent());
+            }
+        });
+    }
+
     public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
@@ -97,16 +138,17 @@ public class MainController implements Initializable {
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
-            tableUpdater.interrupt();
-            Runnable updateTable = () -> {
-                changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
-            };
-            tableUpdater = new Thread(updateTable);
-            tableUpdater.start();
+            changeView(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
         }
         currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
             System.out.println(newValue);
-            setImages(newValue.getClass().getField("terytCode").get(newValue).toString())
+//            if(newValue != null) {
+//                try {
+//                    setImages(newValue.getClass().getField("terytCode").get(newValue).toString());
+//                } catch (URISyntaxException | IllegalAccessException | NoSuchFieldException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
         };
 
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
@@ -223,7 +265,6 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-
     public void setRowsFactories(){
         for(int i = 0; i < tables.length; i++){
             for(int j = 0; j < tables[i].length - 1; j++){
@@ -242,12 +283,7 @@ public class MainController implements Initializable {
                                 }
                                 System.out.println(unitsTree[unitsTreeIndexes[0]]);
                                 System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[0]]);
-                                tableUpdater.interrupt();
-                                Runnable updateTable = () -> {
-                                    changeItemsInMainList(unitsTree[unitsTreeIndexes[0]], 0);
-                                };
-                                tableUpdater = new Thread(updateTable);
-                                tableUpdater.start();
+                                changeView(unitsTree[unitsTreeIndexes[0]],0);
                             }
                         }
                     });
@@ -257,39 +293,6 @@ public class MainController implements Initializable {
         }
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        passwordTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent key) {
-                if(key.getCode().equals(KeyCode.ENTER)){
-                    onLoginButtonClick(new ActionEvent());
-                }
-            }
-        });
-        mainTabPane.getTabs().remove(manageTab);
-        tables = new TableView[][]{{voivodeshipsTable, countiesTable, communesTable},{voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
-        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
-
-        currentlyActiveTableListeners = new ChangeListener[2];
-        tableUpdater.interrupt();
-        Runnable updateTable = () -> {
-            changeItemsInMainList(-1, 0);
-        };
-        tableUpdater = new Thread(updateTable);
-        tableUpdater.start();
-
-        changeListener(-1,0,0);
-        TabPaneListenerInitializer(viewUnitsTabPane, 0);
-
-        setRowsFactories();
-
-        try {
-            choiceBoxListeners();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
@@ -375,19 +378,11 @@ public class MainController implements Initializable {
         });
     }
     public void onBackButtonClick(ActionEvent ignoredActionEvent) {
-
         if(unitsTreeIndexes[0] > 0) {
             unitsTreeIndexes[0]--;
         }
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
-
-        tableUpdater.interrupt();
-        Runnable updateTable = () -> {
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]], 0);
-        };
-        tableUpdater = new Thread(updateTable);
-        tableUpdater.start();
-
+        changeView(unitsTree[unitsTreeIndexes[0]],0);
     }
 
     public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
@@ -408,14 +403,7 @@ public class MainController implements Initializable {
             });
 
             changeListener(-1, 0, 1);
-
-            tableUpdater.interrupt();
-            Runnable updateTable = () -> {
-                changeItemsInMainList(-1,1);
-            };
-            tableUpdater = new Thread(updateTable);
-            tableUpdater.start();
-
+            changeView(-1,1);
         }else{
             Platform.runLater(() -> {
                 loginFeedbackLabel.setText("Błędne dane logowania!");
@@ -438,13 +426,7 @@ public class MainController implements Initializable {
             unitsTreeIndexes[1]--;
         }
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
-
-        tableUpdater.interrupt();
-        Runnable updateTable = () -> {
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
-        };
-        tableUpdater = new Thread(updateTable);
-        tableUpdater.start();
+        changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
 
     public void onSendButtonClick(ActionEvent ignoredActionEvent) {
@@ -469,21 +451,11 @@ public class MainController implements Initializable {
     }
 
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
-        tableUpdater.interrupt();
-        Runnable updateTable = () -> {
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
-        };
-        tableUpdater = new Thread(updateTable);
-        tableUpdater.start();
+        changeView(unitsTree[unitsTreeIndexes[0]],0);
     }
 
     public void onManageRefreshButtonClick(ActionEvent ignoredActionEvent) {
-        tableUpdater.interrupt();
-        Runnable updateTable = () -> {
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[1]],1);
-        };
-        tableUpdater = new Thread(updateTable);
-        tableUpdater.start();
+        changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
 
     public void onCheckboxChange(ActionEvent ignoredActionEvent) {
@@ -492,15 +464,10 @@ public class MainController implements Initializable {
         }else{
             addressessAreChecked = 0;
         }
-        tableUpdater.interrupt();
-        Runnable updateTable = () -> {
-            changeItemsInMainList(unitsTree[unitsTreeIndexes[0]],0);
-        };
-        tableUpdater = new Thread(updateTable);
-        tableUpdater.start();
+        changeView(unitsTree[unitsTreeIndexes[0]],0);
     }
     public void setImages(String terytCode) throws URISyntaxException {
-        if(terytCode== null) terytCode = "0000000";
+        if(terytCode == null) terytCode = "0000000";
         String flagFileName = "src/main/resources/flags/" + terytCode + ".png";
         String emblemFileName = "src/main/resources/emblems/" + terytCode + ".png";
         flagImage.setImage(new Image(new File(flagFileName).toURI().toString()));
