@@ -16,6 +16,7 @@ import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Request;
+import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -77,6 +78,7 @@ public class MainController implements Initializable {
     int maxDepth = 2;
     String[] masterName = new String[3];
     Request request = new Request();
+    RequestResultsReceiver requestResultsReceiver = new RequestResultsReceiver();
     Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
@@ -163,74 +165,13 @@ public class MainController implements Initializable {
     }
     public void changeItemsInMainTable(Object id, int viewOrManage){
         try {
-            PageResult<?> requestResult = new PageResult<>();
-            switch (activeTables[viewOrManage]){
-                case 0:{
-                    switch (unitsTreeIndexes[viewOrManage]){
-                        case 1:{
-                            if(addressesAreChecked == 4){
-                                requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                            }else {
-                                requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                            }
-                            break;
-                        }
-                        case 2:{
-                            if(addressesAreChecked == 4){
-                                requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                            }else {
-                                requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                            }
-                            break;
-                        }
-                        default:{
-                            if(addressesAreChecked == 4){
-                                requestResult = request.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
-                            }else {
-                                requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case 1:{
-
-                    if(unitsTreeIndexes[viewOrManage] == 1){
-                        if(addressesAreChecked == 4){
-                            requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                        }else {
-                            requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                        }
-                    }
-                    else{
-                        if(addressesAreChecked == 4){
-                            requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                        }else {
-                            requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                        }
-                    }
-                    break;
-                }
-                case 2:{
-                    if(addressesAreChecked == 4){
-                        requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                    }else {
-                        requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                    }
-                    break;
-                }
-                case 3:{
-                    requestResult = request.getReports(1,Integer.MAX_VALUE);
-                    break;
-                }
-            }
-
-            setColumnsInMainTable(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage] + addressesAreChecked], viewOrManage);
-            PageResult<?> finalRequestResult = requestResult;
+            PageResult<?> requestResult = requestResultsReceiver.getResult(activeTables[viewOrManage],
+                    unitsTreeIndexes[viewOrManage], unitsTree[unitsTreeIndexes[viewOrManage]], addressesAreChecked);
+            setColumnsInMainTable(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]
+                    + addressesAreChecked], viewOrManage);
             Platform.runLater(() -> {
                 tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
-                for(Object o : finalRequestResult.items){
+                for(Object o : requestResult.items){
                     tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
                 }
             });
@@ -307,7 +248,6 @@ public class MainController implements Initializable {
                 }
             }
         });
-
         countyReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -335,7 +275,6 @@ public class MainController implements Initializable {
                 }
             }
         });
-
         communeReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -412,19 +351,17 @@ public class MainController implements Initializable {
         }
     }
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
-
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
         }
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
         changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
-
     public void onSendButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("Click");
         AddReportRequest addReportRequest = new AddReportRequest();
-        addReportRequest.setTopic(topicTextField.getText());
-        addReportRequest.setContent(reportContentTextArea.getText());
+        addReportRequest.setTopic(topicTextField.getText().trim());
+        addReportRequest.setContent(reportContentTextArea.getText().trim());
         if (reportSelectedVoivodeship.getId() != -1) {
             addReportRequest.setVoivodeshipId(reportSelectedVoivodeship.getId());
         }
@@ -440,15 +377,12 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
         changeView(unitsTree[unitsTreeIndexes[0]],0);
     }
-
     public void onManageRefreshButtonClick(ActionEvent ignoredActionEvent) {
         changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
-
     public void onCheckboxChange(ActionEvent ignoredActionEvent) {
         if(registeredOfficesCheckBox.isSelected()){
             addressesAreChecked = 4;

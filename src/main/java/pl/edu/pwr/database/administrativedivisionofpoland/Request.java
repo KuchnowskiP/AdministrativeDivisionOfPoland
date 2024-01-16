@@ -16,10 +16,10 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 
 public class Request {
-    private  final HttpClient httpClient = HttpClient.newHttpClient();
-    private  final ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
 
-    public  PageResult<VoivodeshipDto> getVoivodeships(int page, int size) throws Exception {
+    public static PageResult<VoivodeshipDto> getVoivodeships(int page, int size) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/voivodeship/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
@@ -31,7 +31,7 @@ public class Request {
                 });
         return result;
     }
-    public PageResult<CountyDto> getCounties(Object voivodeshipId, int page, int size) throws Exception {
+    public static PageResult<CountyDto> getCounties(Object voivodeshipId, int page, int size) throws Exception {
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
@@ -51,7 +51,7 @@ public class Request {
                 });
         return result;
     }
-    public PageResult<CountyAddressData> getCountiesWithAddresses(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
+    public static PageResult<CountyAddressData> getCountiesWithAddresses(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
@@ -72,7 +72,7 @@ public class Request {
         return result;
     }
 
-    public PageResult<CommuneDto> getCommunes(Object countyID, int page, int size) throws Exception {
+    public static PageResult<CommuneDto> getCommunes(Object countyID, int page, int size) throws Exception {
         HttpRequest request;
         if (countyID.equals(-1)) {
             request = HttpRequest.newBuilder()
@@ -93,7 +93,7 @@ public class Request {
         return result;
     }
 
-    public PageResult<CommuneAddressData> getCommunesWithAddresses(Object countyID, int page, int size) throws Exception {
+    public static PageResult<CommuneAddressData> getCommunesWithAddresses(Object countyID, int page, int size) throws Exception {
         HttpRequest request;
         if (countyID.equals(-1)) {
             request = HttpRequest.newBuilder()
@@ -135,7 +135,7 @@ public class Request {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public PageResult<ReportDto> getReports(int page, int size) throws Exception {
+    public static PageResult<ReportDto> getReports(int page, int size) throws Exception {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/report/all?page=" + page + "&size=" + size))
@@ -149,7 +149,7 @@ public class Request {
         return result;
     }
 
-    public PageResult<VoivodeshipAddressData> getVoivodeshipsWithAddresses(int page, int size) throws IOException, InterruptedException {
+    public static PageResult<VoivodeshipAddressData> getVoivodeshipsWithAddresses(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/voivodeship/address/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
