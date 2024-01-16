@@ -219,7 +219,7 @@ public class MainController implements Initializable {
 
     public void setRowsFactories(){
         for(int i = 0; i < tables.length; i++){
-            for(int j = 0; j < tables[i].length; j++){
+            for(int j = 0; j < tables[i].length - 1; j++){
                 tables[i][j].setRowFactory(trf -> {
                     TableRow<?> row = new TableRow<>();
                     row.setOnMouseClicked(event -> {
