@@ -80,30 +80,37 @@ public class MainController implements Initializable {
     Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
-    int addressessAreChecked = 0;
+    int addressesAreChecked = 0;
     Thread tableUpdater = new Thread();
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out),
                 true, StandardCharsets.UTF_8)); //needed due to polish diacritics
-        setInitialView();
-        initializeStructures();
         try {
-            initializeListeners();
+            setInitialView();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        initializeStructures();
+        initializeListeners();
     }
-
-    public void setInitialView(){
+    public void setInitialView() throws Exception {
         mainTabPane.getTabs().remove(manageTab); //hiding managing tab. Will be open after singing in.
-        changeView(-1,0);
+        changeView(-1,0); //setting content of table
+        setReportTab();
     }
-
+    public void setReportTab() throws Exception {
+        requestVoivodeships = request.getVoivodeships(1, Integer.MAX_VALUE);
+        voivodeshipReportChoiceBox.getItems().add("-");
+        voivodeshipReportChoiceBox.setValue("-");
+        for(int i = 0; i < requestVoivodeships.items.size(); i++){
+            voivodeshipReportChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
+        }
+    }
     public void changeView(Object id, int viewOrManage){
         tableUpdater.interrupt();
         Runnable updateTable = () -> {
-            changeItemsInMainList(id, viewOrManage);
+            changeItemsInMainTable(id, viewOrManage);
         };
         tableUpdater = new Thread(updateTable);
         tableUpdater.start();
@@ -113,9 +120,8 @@ public class MainController implements Initializable {
                 {voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
         currentlyActiveTableListeners = new ChangeListener[2];
     }
-
-    public void initializeListeners() throws Exception {
-        changeListener(-1,0,0);
+    public void initializeListeners(){
+        changeTableListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
         choiceBoxListeners();
         setRowsFactories();
@@ -125,8 +131,115 @@ public class MainController implements Initializable {
             }
         });
     }
+    public void setColumnsInMainTable(Class<?> passedClass, int viewOrManage){
+        List<TableColumn<?, ?>> columnsToAdd = new ArrayList<>();
+        Field[] fields = passedClass.getFields();
+        for(Field f : fields){
+            columnsToAdd.add(new TableColumn<>(f.getName()));
+        }
 
-    public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
+        int iterator = 0;
+        for(TableColumn t : columnsToAdd){
+            t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
+            iterator++;
+        }
+        Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear());
+        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
+            TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
+            Platform.runLater(() -> {
+                master.getColumns().addAll(columnsToAdd);
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            });
+        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
+            TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] +  "'");
+            Platform.runLater(() -> {
+                master.getColumns().addAll(columnsToAdd);
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            });
+
+        }else{
+            Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd));
+        }
+    }
+    public void changeItemsInMainTable(Object id, int viewOrManage){
+        try {
+            PageResult<?> requestResult = new PageResult<>();
+            switch (activeTables[viewOrManage]){
+                case 0:{
+                    switch (unitsTreeIndexes[viewOrManage]){
+                        case 1:{
+                            if(addressesAreChecked == 4){
+                                requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                            }else {
+                                requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                            }
+                            break;
+                        }
+                        case 2:{
+                            if(addressesAreChecked == 4){
+                                requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                            }else {
+                                requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                            }
+                            break;
+                        }
+                        default:{
+                            if(addressesAreChecked == 4){
+                                requestResult = request.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
+                            }else {
+                                requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 1:{
+
+                    if(unitsTreeIndexes[viewOrManage] == 1){
+                        if(addressesAreChecked == 4){
+                            requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                        }else {
+                            requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                        }
+                    }
+                    else{
+                        if(addressesAreChecked == 4){
+                            requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                        }else {
+                            requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                        }
+                    }
+                    break;
+                }
+                case 2:{
+                    if(addressesAreChecked == 4){
+                        requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
+                    }else {
+                        requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                    }
+                    break;
+                }
+                case 3:{
+                    requestResult = request.getReports(1,Integer.MAX_VALUE);
+                    break;
+                }
+            }
+
+            setColumnsInMainTable(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage] + addressesAreChecked], viewOrManage);
+            PageResult<?> finalRequestResult = requestResult;
+            Platform.runLater(() -> {
+                tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
+                for(Object o : finalRequestResult.items){
+                    tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
+                }
+            });
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void changeTableListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
             System.out.println("zmiana");
@@ -154,160 +267,19 @@ public class MainController implements Initializable {
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
 
     }
-
-    public void setColumns(Class<?> passedClass, int viewOrManage){
-        List<TableColumn<?, ?>> columnsToAdd = new ArrayList<>();
-        Field[] fields = passedClass.getFields();
-        for(Field f : fields){
-            columnsToAdd.add(new TableColumn<>(f.getName()));
-        }
-
-        int iterator = 0;
-        for(TableColumn t : columnsToAdd){
-            t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
-            iterator++;
-        }
-
-        Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear());
-        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
-            TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
-            Platform.runLater(() -> {
-                master.getColumns().addAll(columnsToAdd);
-                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-            });
-        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
-            TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] +  "'");
-            Platform.runLater(() -> {
-                master.getColumns().addAll(columnsToAdd);
-                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-            });
-
-        }else{
-            Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd));
-        }
+    private void TabPaneListenerInitializer(TabPane TabPane, int viewOrManage) {
+        TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(oldValue.getId() + " -> " + newValue.getId());
+            changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
+        });
     }
-
-    public void changeItemsInMainList(Object id, int viewOrManage){
-        try {
-            PageResult<?> requestResult = new PageResult<>();
-            switch (activeTables[viewOrManage]){
-                case 0:{
-                    switch (unitsTreeIndexes[viewOrManage]){
-                        case 1:{
-                            if(addressessAreChecked == 4){
-                                requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                            }else {
-                                requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                            }
-                            break;
-                        }
-                        case 2:{
-                            if(addressessAreChecked == 4){
-                                requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                            }else {
-                                requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                            }
-                            break;
-                        }
-                        default:{
-                            if(addressessAreChecked == 4){
-                                requestResult = request.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
-                            }else {
-                                requestResult = request.getVoivodeships(1, Integer.MAX_VALUE);
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case 1:{
-
-                    if(unitsTreeIndexes[viewOrManage] == 1){
-                        if(addressessAreChecked == 4){
-                            requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                        }else {
-                            requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                        }
-                    }
-                    else{
-                        if(addressessAreChecked == 4){
-                            requestResult = request.getCountiesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                        }else {
-                            requestResult = request.getCounties(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                        }
-                    }
-                    break;
-                }
-                case 2:{
-                    if(addressessAreChecked == 4){
-                        requestResult = request.getCommunesWithAddresses(unitsTree[unitsTreeIndexes[viewOrManage]],1,Integer.MAX_VALUE);
-                    }else {
-                        requestResult = request.getCommunes(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
-                    }
-                    break;
-                }
-                case 3:{
-                    requestResult = request.getReports(1,Integer.MAX_VALUE);
-                    break;
-                }
-            }
-
-            setColumns(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage] + addressessAreChecked], viewOrManage);
-            PageResult<?> finalRequestResult = requestResult;
-            Platform.runLater(() -> {
-                tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
-                for(Object o : finalRequestResult.items){
-                    tables[viewOrManage][activeTables[viewOrManage]].getItems().add(o);
-                }
-            });
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public void setRowsFactories(){
-        for(int i = 0; i < tables.length; i++){
-            for(int j = 0; j < tables[i].length - 1; j++){
-                tables[i][j].setRowFactory(trf -> {
-                    TableRow<?> row = new TableRow<>();
-                    row.setOnMouseClicked(event -> {
-                        if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0){
-                            System.out.println(row.getItem());
-                            if(unitsTreeIndexes[0] < (maxDepth)) {
-                                unitsTreeIndexes[0]++;
-                                try {
-                                    unitsTree[unitsTreeIndexes[0]] = row.getItem().getClass().getField("id").get(row.getItem());
-                                    masterName[unitsTreeIndexes[0]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
-                                } catch (IllegalAccessException | NoSuchFieldException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                System.out.println(unitsTree[unitsTreeIndexes[0]]);
-                                System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[0]]);
-                                changeView(unitsTree[unitsTreeIndexes[0]],0);
-                            }
-                        }
-                    });
-                    return row;
-                });
-            }
-        }
-    }
-
-
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
     PageResult<CommuneDto> requestCommunes;
     VoivodeshipDto reportSelectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto reportSelectedCounty = new CountyDto(-1,-1,"","",false,"","");
     CommuneDto reportSelectedCommune = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
-    public void choiceBoxListeners() throws Exception {
-        requestVoivodeships = request.getVoivodeships(1, Integer.MAX_VALUE);
-        voivodeshipReportChoiceBox.getItems().add("-");
-        voivodeshipReportChoiceBox.setValue("-");
-        for(int i = 0; i < requestVoivodeships.items.size(); i++){
-            voivodeshipReportChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
-        }
-
+    public void choiceBoxListeners() {
         voivodeshipReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue)  {
@@ -377,6 +349,33 @@ public class MainController implements Initializable {
             }
         });
     }
+    public void setRowsFactories(){
+        for(int i = 0; i < tables.length; i++){
+            for(int j = 0; j < tables[i].length - 1; j++){
+                tables[i][j].setRowFactory(trf -> {
+                    TableRow<?> row = new TableRow<>();
+                    row.setOnMouseClicked(event -> {
+                        if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0){
+                            System.out.println(row.getItem());
+                            if(unitsTreeIndexes[0] < (maxDepth)) {
+                                unitsTreeIndexes[0]++;
+                                try {
+                                    unitsTree[unitsTreeIndexes[0]] = row.getItem().getClass().getField("id").get(row.getItem());
+                                    masterName[unitsTreeIndexes[0]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
+                                } catch (IllegalAccessException | NoSuchFieldException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                System.out.println(unitsTree[unitsTreeIndexes[0]]);
+                                System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[0]]);
+                                changeView(unitsTree[unitsTreeIndexes[0]],0);
+                            }
+                        }
+                    });
+                    return row;
+                });
+            }
+        }
+    }
     public void onBackButtonClick(ActionEvent ignoredActionEvent) {
         if(unitsTreeIndexes[0] > 0) {
             unitsTreeIndexes[0]--;
@@ -402,7 +401,7 @@ public class MainController implements Initializable {
                         mainTabPane.getTabs().add(manageTab);
             });
 
-            changeListener(-1, 0, 1);
+            changeTableListener(-1, 0, 1);
             changeView(-1,1);
         }else{
             Platform.runLater(() -> {
@@ -412,14 +411,6 @@ public class MainController implements Initializable {
 
         }
     }
-
-    private void TabPaneListenerInitializer(TabPane TabPane, int viewOrManage) {
-        TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(oldValue.getId() + " -> " + newValue.getId());
-            changeListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
-        });
-    }
-
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
 
         if(unitsTreeIndexes[1] > 0) {
@@ -460,9 +451,9 @@ public class MainController implements Initializable {
 
     public void onCheckboxChange(ActionEvent ignoredActionEvent) {
         if(registeredOfficesCheckBox.isSelected()){
-            addressessAreChecked = 4;
+            addressesAreChecked = 4;
         }else{
-            addressessAreChecked = 0;
+            addressesAreChecked = 0;
         }
         changeView(unitsTree[unitsTreeIndexes[0]],0);
     }
