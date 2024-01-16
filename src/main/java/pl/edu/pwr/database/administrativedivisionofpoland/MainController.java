@@ -13,6 +13,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
@@ -83,7 +85,6 @@ public class MainController implements Initializable {
     int addressessAreChecked = 0;
 
     Thread tableUpdater = new Thread();
-
     public void changeListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
@@ -103,31 +104,10 @@ public class MainController implements Initializable {
             tableUpdater = new Thread(updateTable);
             tableUpdater.start();
         }
-            currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
-                if(newValue != null) {
-                    if(unitsTreeIndexes[viewOrManage] < (maxDepth - newTab)) {
-                        unitsTreeIndexes[viewOrManage]++;
-                        try {
-                            unitsTree[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("id").get(newValue);
-                            masterName[unitsTreeIndexes[viewOrManage]] = newValue.getClass().getField("name").get(newValue).toString();
-                            setImages(newValue.getClass().getField("terytCode").get(newValue).toString());
-                        } catch (IllegalAccessException | NoSuchFieldException e) {
-                            throw new RuntimeException(e);
-                        } catch (URISyntaxException e) {
-                            throw new RuntimeException(e);
-
-                        }
-                        System.out.println(unitsTree[unitsTreeIndexes[viewOrManage]]);
-                        System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[viewOrManage]]);
-                        tableUpdater.interrupt();
-                        Runnable updateTable = () -> {
-                            changeItemsInMainList(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
-                        };
-                        tableUpdater = new Thread(updateTable);
-                        tableUpdater.start();
-                    }
-                }
-            };
+        currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
+            System.out.println(newValue);
+            setImages(newValue.getClass().getField("terytCode").get(newValue).toString())
+        };
 
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
 
@@ -146,7 +126,7 @@ public class MainController implements Initializable {
             iterator++;
         }
 
-        tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
+        Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear());
         if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
             TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
             Platform.runLater(() -> {
@@ -244,6 +224,39 @@ public class MainController implements Initializable {
         }
     }
 
+    public void setRowsFactories(){
+        for(int i = 0; i < tables.length; i++){
+            for(int j = 0; j < tables[i].length - 1; j++){
+                tables[i][j].setRowFactory(trf -> {
+                    TableRow<?> row = new TableRow<>();
+                    row.setOnMouseClicked(event -> {
+                        if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0){
+                            System.out.println(row.getItem());
+                            if(unitsTreeIndexes[0] < (maxDepth)) {
+                                unitsTreeIndexes[0]++;
+                                try {
+                                    unitsTree[unitsTreeIndexes[0]] = row.getItem().getClass().getField("id").get(row.getItem());
+                                    masterName[unitsTreeIndexes[0]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
+                                } catch (IllegalAccessException | NoSuchFieldException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                System.out.println(unitsTree[unitsTreeIndexes[0]]);
+                                System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[0]]);
+                                tableUpdater.interrupt();
+                                Runnable updateTable = () -> {
+                                    changeItemsInMainList(unitsTree[unitsTreeIndexes[0]], 0);
+                                };
+                                tableUpdater = new Thread(updateTable);
+                                tableUpdater.start();
+                            }
+                        }
+                    });
+                    return row;
+                });
+            }
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         passwordTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -268,6 +281,8 @@ public class MainController implements Initializable {
 
         changeListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
+
+        setRowsFactories();
 
         try {
             choiceBoxListeners();
