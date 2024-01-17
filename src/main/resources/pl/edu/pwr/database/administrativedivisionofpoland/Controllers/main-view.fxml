@@ -68,7 +68,7 @@
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
                                       <TableView fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" />
-                              <Button mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+"/>
+                              <Button fx:id="addVoivodeshipButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+"/>
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />

@@ -1,6 +1,9 @@
 package pl.edu.pwr.database.administrativedivisionofpoland;
 
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
+
+import java.io.IOException;
 
 
 public class RequestResultsReceiver extends Request {
@@ -68,5 +71,9 @@ public class RequestResultsReceiver extends Request {
             }
         }
         return requestResult;
+    }
+
+    public PageResult<OfficeAddressDto> getAddresses(int page, int size) throws IOException, InterruptedException {
+        return Request.getAllAddresses(page,size);
     }
 }

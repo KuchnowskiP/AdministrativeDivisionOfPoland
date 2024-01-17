@@ -1,11 +1,13 @@
 package pl.edu.pwr.database.administrativedivisionofpoland;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
+import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -114,7 +116,7 @@ public class Request {
         return result;
     }
 
-    public void createReport(AddReportRequest addReportRequest) throws Exception {
+    public static void createReport(AddReportRequest addReportRequest) throws Exception {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : addReportRequest.getClass().getFields()){
             Object o = new AddReportRequest();
@@ -162,4 +164,37 @@ public class Request {
         return result;
     }
 
+    public static void createVoivodeship(AddVoivodeshipRequest addVoivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
+        HashMap<String, Object> values = new HashMap<String, Object>();
+        for(Field field : addVoivodeshipRequest.getClass().getFields()){
+            Object o = new AddReportRequest();
+            if(field.get(addVoivodeshipRequest) != null) {
+                values.put(field.getName(), field.get(addVoivodeshipRequest).toString());
+            }else{
+                values.put(field.getName(), " ");
+            }
+        }
+
+        String requestBody = objectMapper.writeValueAsString(values);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/voivodeship/add"))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static PageResult<OfficeAddressDto> getAllAddresses(int page, int size) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/address/all?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<OfficeAddressDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        return result;
+    }
 }

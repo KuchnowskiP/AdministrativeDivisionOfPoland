@@ -5,23 +5,28 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Request;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -37,6 +42,8 @@ public class MainController implements Initializable {
     public ChoiceBox<String> communeReportChoiceBox;
     public ImageView flagImage;
     public ImageView emblemImage;
+    @FXML
+    private Button addVoivodeshipButton;
     @FXML
     private CheckBox registeredOfficesCheckBox;
     @FXML
@@ -79,6 +86,7 @@ public class MainController implements Initializable {
     String[] masterName = new String[3];
     Request request = new Request();
     RequestResultsReceiver requestResultsReceiver = new RequestResultsReceiver();
+    RequestSender requestSender = new RequestSender();
     Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
@@ -299,6 +307,9 @@ public class MainController implements Initializable {
                             System.out.println(row.getItem());
                             if(unitsTreeIndexes[finalI] < (maxDepth)) {
                                 unitsTreeIndexes[finalI]++;
+                                if(finalI == 1){
+                                    addVoivodeshipButton.setDisable(true);
+                                }
                                 try {
                                     unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
                                     masterName[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
@@ -355,10 +366,13 @@ public class MainController implements Initializable {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
         }
+        if(unitsTreeIndexes[1] == 0){
+            addVoivodeshipButton.setDisable(false);
+        }
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
         changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
-    public void onSendButtonClick(ActionEvent ignoredActionEvent) {
+    public void onSendButtonClick(ActionEvent ignoredActionEvent) throws Exception {
         System.out.println("Click");
         AddReportRequest addReportRequest = new AddReportRequest();
         addReportRequest.setTopic(topicTextField.getText().trim());
@@ -372,11 +386,7 @@ public class MainController implements Initializable {
         if (reportSelectedCommune.getId() != -1) {
             addReportRequest.setCommuneId(reportSelectedCommune.getId());
         }
-        try {
-            request.createReport(addReportRequest);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        requestSender.addReport(addReportRequest);
     }
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
         changeView(unitsTree[unitsTreeIndexes[0]],0);
@@ -400,7 +410,18 @@ public class MainController implements Initializable {
         emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
     }
 
-    public void onAddVoivodeshipButtonClick(ActionEvent actionEvent) {
+    public void onAddVoivodeshipButtonClick(ActionEvent actionEvent) throws IOException {
         System.out.println("Adding voivodeship");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-voivodeship-popup.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Podaj dane nowego województwa");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }
