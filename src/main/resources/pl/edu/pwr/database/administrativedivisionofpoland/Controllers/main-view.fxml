@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.Controllers.MainController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <TabPane fx:id="mainTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+        <Tab id="view" text="Przeglądaj">
+            <HBox>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                    <TabPane fx:id="viewUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+                        <Tab id="0" text="Województwa">
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                <VBox prefHeight="600.0" prefWidth="800.0">
+                                    <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0" />
+                                    <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                    <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                                </VBox>
+                            </AnchorPane>
+                        </Tab>
+                        <Tab id="1" text="Powiaty">
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                <VBox prefHeight="700.0" prefWidth="900.0">
+                                    <TableView fx:id="countiesTable" />
+                                    <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                    <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                                </VBox>
+                            </AnchorPane>
+                        </Tab>
+                        <Tab id="2" text="Gminy">
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                <VBox prefHeight="700.0" prefWidth="900.0">
+                                    <TableView fx:id="communesTable" />
+                                    <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                                </VBox>
+                            </AnchorPane>
+                        </Tab>
+                    </TabPane>
+                </AnchorPane>
+                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                    <ImageView fx:id="flagImage" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                    <ImageView fx:id="emblemImage" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                    <CheckBox fx:id="registeredOfficesCheckBox" onAction="#onCheckboxChange" text="Wczytaj dane adresowe">
+                        <opaqueInsets>
+                            <Insets />
+                        </opaqueInsets>
+                    </CheckBox>
+                </VBox>
+            </HBox>
+        </Tab>
+        <Tab id="manage" fx:id="manageTab" text="Zarządzaj">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                <TabPane fx:id="manageUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+                    <Tab id="0" text="Województwa">
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox prefHeight="600.0" prefWidth="800.0">
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                               <TableView fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
+                              <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+" />
+                           </children>
+                        </HBox>
+                                <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
+                                <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
+                            </VBox>
+                        </AnchorPane>
+                    </Tab>
+                    <Tab id="1" text="Powiaty">
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox prefHeight="700.0" prefWidth="900.0">
+                        <HBox prefHeight="500.0" prefWidth="900.0">
+                           <children>
+                               <TableView fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
+                              <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCountyButtonClick" />
+                           </children>
+                        </HBox>
+                                <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
+                                <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
+                            </VBox>
+                        </AnchorPane>
+                    </Tab>
+                    <Tab id="2" text="Gminy">
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox prefHeight="700.0" prefWidth="900.0">
+                        <HBox prefHeight="500.0" prefWidth="900.0">
+                           <children>
+                                      <TableView fx:id="communesTableManage" prefHeight="500.0" prefWidth="700.0" />
+                              <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCommuneButtonClick" />
+                           </children>
+                        </HBox>
+                                <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
+                            </VBox>
+                        </AnchorPane>
+                    </Tab>
+                    <Tab id="3" text="Przeglądaj zgłoszenia">
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox prefHeight="700.0" prefWidth="900.0">
+                                <TableView fx:id="reportsTableManage" />
+                                <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
+                            </VBox>
+                        </AnchorPane>
+                    </Tab>
+                </TabPane>
+            </AnchorPane>
+        </Tab>
+        <Tab id="login" text="Logowanie">
+            <AnchorPane prefHeight="700.0" prefWidth="900.0">
+                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10.0">
+                    <TextField fx:id="loginTextField" alignment="CENTER" maxWidth="100.0" />
+                    <PasswordField fx:id="passwordTextField" alignment="CENTER" maxWidth="100.0" />
+                    <Button alignment="CENTER" onAction="#onLoginButtonClick" text="Login" />
+                    <Label fx:id="loginFeedbackLabel" visible="false" />
+                </VBox>
+            </AnchorPane>
+        </Tab>
+        <Tab id="login" text="Zgłoszenia">
+            <AnchorPane prefHeight="700.0" prefWidth="900.0">
+                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.topAnchor="20.0">
+                    <HBox prefWidth="900.0" spacing="10.0">
+                        <Label text="Temat: " />
+                        <TextField fx:id="topicTextField" maxWidth="400.0" />
+                    </HBox>
+                    <HBox prefWidth="900.0" spacing="10.0">
+                        <Label text="Wojewodztwo: " />
+                        <ChoiceBox fx:id="voivodeshipReportChoiceBox" minWidth="150.0" prefWidth="150.0" />
+                    </HBox>
+                    <HBox prefWidth="900.0" spacing="50.0">
+                        <Label text="Powiat: " />
+                        <ChoiceBox fx:id="countyReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
+                    </HBox>
+                    <HBox prefWidth="900.0" spacing="51.0">
+                        <Label text="Gmina: " />
+                        <ChoiceBox fx:id="communeReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
+                    </HBox>
+                    <HBox prefWidth="900.0" spacing="10.0">
+                        <Label text="Treść: " />
+                        <TextArea fx:id="reportContentTextArea" maxWidth="400.0" minHeight="200.0" prefHeight="200.0" />
+                    </HBox>
+                    <HBox prefWidth="900.0" spacing="10.0">
+                        <VBox prefHeight="200.0" prefWidth="400.0">
+                            <HBox.margin>
+                                <Insets left="45.0" />
+                            </HBox.margin>
+                            <Button onAction="#onSendButtonClick" text="Wyślij zgłoszenie">
+                                <VBox.margin>
+                                    <Insets left="147.0" />
+                                </VBox.margin>
+                            </Button>
+                            <Label visible="false">
+                                <VBox.margin>
+                                    <Insets left="200.0" />
+                                </VBox.margin>
+                            </Label>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </AnchorPane>
+        </Tab>
+    </TabPane>
+</VBox>

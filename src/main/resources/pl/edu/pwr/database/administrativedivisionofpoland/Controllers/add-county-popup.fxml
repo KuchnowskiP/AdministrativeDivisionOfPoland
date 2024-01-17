@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCountyPopupController">
+   <children>
+      <VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0">
+         <children>
+            <HBox alignment="TOP_CENTER" prefHeight="103.0" prefWidth="600.0" spacing="10.0">
+               <children>
+                  <Label text="Nazwa:" />
+                  <TextField fx:id="voivodeshipNameTextField" />
+                  <Label text="Wyróżnik tablicy rejestracyjnej:" />
+                  <TextField fx:id="licensePlateDifferentiatorTextField" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets top="25.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="800.0">
+               <children>
+                  <VBox prefHeight="109.0" prefWidth="192.0" spacing="10.0">
+                     <children>
+                        <CheckBox fx:id="addNewAddressCheckBox" mnemonicParsing="false" text="Dodaj nową siedzibę" />
+                        <CheckBox fx:id="chooseExistingAddressCheckBox" mnemonicParsing="false" text="Wybierz istniejącą siedzibę" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <TableView fx:id="existingAddressesTableView" prefHeight="165.0" prefWidth="800.0" visible="false">
+              <columns>
+                <TableColumn prefWidth="75.0" text="C1" />
+                <TableColumn prefWidth="75.0" text="C2" />
+              </columns>
+            </TableView>
+            <Label fx:id="returningLabel" visible="false" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#onConfirmButtonClick" text="Potwierdź" />
+                  <Button mnemonicParsing="false" onAction="#onCancelButtonClick" text="Anuluj" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
