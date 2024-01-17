@@ -140,11 +140,9 @@ public class AddVoivodeshipPopupController implements Initializable{
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) {
-//        Stage stage = new Stage();
-//        FileChooser fileChooser = new FileChooser();
-//        fileChooser.setTitle("Wybierz sb byczku");
-//        fileChooser.showOpenDialog(stage);
+        Stage stage = new Stage();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Wybierz sb byczku");
+        fileChooser.showOpenDialog(stage);
     }
-
-
 }
