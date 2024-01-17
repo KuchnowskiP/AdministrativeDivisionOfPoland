@@ -65,7 +65,12 @@
                     <Tab id="0" text="Województwa">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                             <VBox prefHeight="600.0" prefWidth="800.0">
-                                <TableView fx:id="voivodeshipsTableManage" prefHeight="600.0" prefWidth="800.0" />
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                                      <TableView fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" />
+                              <Button mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+"/>
+                           </children>
+                        </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
                             </VBox>

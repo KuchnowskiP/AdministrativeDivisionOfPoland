@@ -291,22 +291,23 @@ public class MainController implements Initializable {
     public void setRowsFactories(){
         for(int i = 0; i < tables.length; i++){
             for(int j = 0; j < tables[i].length - 1; j++){
+                int finalI = i;
                 tables[i][j].setRowFactory(trf -> {
                     TableRow<?> row = new TableRow<>();
                     row.setOnMouseClicked(event -> {
                         if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0){
                             System.out.println(row.getItem());
-                            if(unitsTreeIndexes[0] < (maxDepth)) {
-                                unitsTreeIndexes[0]++;
+                            if(unitsTreeIndexes[finalI] < (maxDepth)) {
+                                unitsTreeIndexes[finalI]++;
                                 try {
-                                    unitsTree[unitsTreeIndexes[0]] = row.getItem().getClass().getField("id").get(row.getItem());
-                                    masterName[unitsTreeIndexes[0]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
+                                    unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
+                                    masterName[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
                                 } catch (IllegalAccessException | NoSuchFieldException e) {
                                     throw new RuntimeException(e);
                                 }
-                                System.out.println(unitsTree[unitsTreeIndexes[0]]);
-                                System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[0]]);
-                                changeView(unitsTree[unitsTreeIndexes[0]],0);
+                                System.out.println(unitsTree[unitsTreeIndexes[finalI]]);
+                                System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[finalI]]);
+                                changeView(unitsTree[unitsTreeIndexes[finalI]], finalI);
                             }
                         }
                     });
@@ -397,5 +398,9 @@ public class MainController implements Initializable {
         String emblemFileName = "src/main/resources/emblems/" + terytCode + ".png";
         flagImage.setImage(new Image(new File(flagFileName).toURI().toString()));
         emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
+    }
+
+    public void onAddVoivodeshipButtonClick(ActionEvent actionEvent) {
+        System.out.println("Adding voivodeship");
     }
 }
