@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
+import pl.edu.pwr.contract.OfficeAdres.AddOfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
 
@@ -196,5 +197,28 @@ public class Request {
                 response.body(), new TypeReference<>() {
                 });
         return result;
+    }
+
+    public static HttpResponse<String> addOfficeAddress(AddOfficeAddressRequest addOfficeAddressRequest)
+            throws IllegalAccessException, IOException, InterruptedException {
+        HashMap<String, Object> values = new HashMap<String, Object>();
+        for(Field field : addOfficeAddressRequest.getClass().getFields()){
+            Object o = new AddReportRequest();
+            if(field.get(addOfficeAddressRequest) != null) {
+                values.put(field.getName(), field.get(addOfficeAddressRequest).toString());
+            }else{
+                values.put(field.getName(), " ");
+            }
+        }
+
+        String requestBody = objectMapper.writeValueAsString(values);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/address/add"))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return response;
     }
 }

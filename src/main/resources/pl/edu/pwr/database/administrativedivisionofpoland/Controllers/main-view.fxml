@@ -9,7 +9,7 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-    <TabPane fx:id="mainTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+    <TabPane id="pane" fx:id="mainTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
         <Tab id="view" text="Przeglądaj">
             <HBox>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
@@ -17,7 +17,7 @@
                         <Tab id="0" text="Województwa">
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="600.0" prefWidth="800.0">
-                                    <TableView fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0" />
+                                    <TableView id="tableView" fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0" />
                                     <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
                                 </VBox>
@@ -26,7 +26,7 @@
                         <Tab id="1" text="Powiaty">
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="700.0" prefWidth="900.0">
-                                    <TableView fx:id="countiesTable" />
+                                    <TableView id="tableView" fx:id="countiesTable" />
                                     <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
                                 </VBox>
@@ -35,7 +35,7 @@
                         <Tab id="2" text="Gminy">
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="700.0" prefWidth="900.0">
-                                    <TableView fx:id="communesTable" />
+                                    <TableView id="tableView" fx:id="communesTable" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
                                 </VBox>
                             </AnchorPane>
@@ -64,7 +64,7 @@
                             <VBox prefHeight="600.0" prefWidth="800.0">
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
-                               <TableView fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
+                               <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
                               <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+" />
                            </children>
                         </HBox>
@@ -78,7 +78,7 @@
                             <VBox prefHeight="700.0" prefWidth="900.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
-                               <TableView fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
+                               <TableView id="tableView" fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
                               <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCountyButtonClick" />
                            </children>
                         </HBox>
@@ -92,7 +92,7 @@
                             <VBox prefHeight="700.0" prefWidth="900.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
-                                      <TableView fx:id="communesTableManage" prefHeight="500.0" prefWidth="700.0" />
+                                      <TableView id="tableView" fx:id="communesTableManage" prefHeight="500.0" prefWidth="700.0" />
                               <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCommuneButtonClick" />
                            </children>
                         </HBox>
@@ -103,7 +103,7 @@
                     <Tab id="3" text="Przeglądaj zgłoszenia">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                             <VBox prefHeight="700.0" prefWidth="900.0">
-                                <TableView fx:id="reportsTableManage" />
+                                <TableView id="tableView" fx:id="reportsTableManage" />
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
                             </VBox>
                         </AnchorPane>
