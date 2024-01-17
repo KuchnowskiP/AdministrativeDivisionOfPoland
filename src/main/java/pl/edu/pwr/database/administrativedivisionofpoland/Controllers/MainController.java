@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -15,10 +16,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
@@ -42,42 +41,26 @@ public class MainController implements Initializable {
     public ChoiceBox<String> communeReportChoiceBox;
     public ImageView flagImage;
     public ImageView emblemImage;
-    @FXML
-    private Button addVoivodeshipButton;
-    @FXML
-    private CheckBox registeredOfficesCheckBox;
-    @FXML
-    private TextField topicTextField;
-    @FXML
-    private TextArea reportContentTextArea;
-    @FXML
-    private TableView<ReportDto> reportsTableManage;
-    @FXML
-    private TableView<CountyDto> countiesTableManage;
-    @FXML
-    private TableView<CommuneDto> communesTableManage;
-    @FXML
-    private TableView<VoivodeshipDto> voivodeshipsTableManage;
-    @FXML
-    private TabPane manageUnitsTabPane;
-    @FXML
-    private Label loginFeedbackLabel;
-    @FXML
-    private TabPane viewUnitsTabPane;
-    @FXML
-    private TextField loginTextField;
-    @FXML
-    private PasswordField passwordTextField;
-    @FXML
-    private TabPane mainTabPane;
-    @FXML
-    private Tab manageTab;
-    @FXML
-    private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
-    @FXML
-    private TableView<CountyDto> countiesTable = new TableView<>();
-    @FXML
-    private TableView<CommuneDto> communesTable = new TableView<>();
+    @FXML private Button communeTabAddUnitButton;
+    @FXML private Button countyTabAddUnitButton;
+    @FXML private Button voivodeshipTabAddUnitButton;
+    @FXML private CheckBox registeredOfficesCheckBox;
+    @FXML private TextField topicTextField;
+    @FXML private TextArea reportContentTextArea;
+    @FXML private TableView<ReportDto> reportsTableManage;
+    @FXML private TableView<CountyDto> countiesTableManage;
+    @FXML private TableView<CommuneDto> communesTableManage;
+    @FXML private TableView<VoivodeshipDto> voivodeshipsTableManage;
+    @FXML private TabPane manageUnitsTabPane;
+    @FXML private Label loginFeedbackLabel;
+    @FXML private TabPane viewUnitsTabPane;
+    @FXML private TextField loginTextField;
+    @FXML private PasswordField passwordTextField;
+    @FXML private TabPane mainTabPane;
+    @FXML private Tab manageTab;
+    @FXML private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
+    @FXML private TableView<CountyDto> countiesTable = new TableView<>();
+    @FXML private TableView<CommuneDto> communesTable = new TableView<>();
     TableView[][] tables;
     Object[] unitsTree = new Object[]{-1,-1,-1};
     int[] unitsTreeIndexes = new int[2];
@@ -308,7 +291,7 @@ public class MainController implements Initializable {
                             if(unitsTreeIndexes[finalI] < (maxDepth)) {
                                 unitsTreeIndexes[finalI]++;
                                 if(finalI == 1){
-                                    addVoivodeshipButton.setDisable(true);
+                                    setAddButton();
                                 }
                                 try {
                                     unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
@@ -362,13 +345,70 @@ public class MainController implements Initializable {
 
         }
     }
+    public void setAddButton(){
+        if(unitsTreeIndexes[1] == 0){
+            voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        onAddVoivodeshipButtonClick(actionEvent);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            countyTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        onAddCountyButtonClick(actionEvent);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
+        if(unitsTreeIndexes[1] == 1){
+            voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        onAddCountyButtonClick(actionEvent);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            countyTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        onAddCommuneButtonClick(actionEvent);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
+        if(unitsTreeIndexes[1] == 2){
+            voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        onAddCommuneButtonClick(actionEvent);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
+    }
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
+            setAddButton();
         }
-        if(unitsTreeIndexes[1] == 0){
-            addVoivodeshipButton.setDisable(false);
-        }
+
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
         changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
@@ -416,8 +456,38 @@ public class MainController implements Initializable {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-voivodeship-popup.fxml"));
             Parent root = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 800,600));
             stage.setTitle("Podaj dane nowego województwa");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onAddCountyButtonClick(ActionEvent actionEvent) throws IOException {
+        System.out.println("Adding voivodeship");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-county-popup.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root, 800,600));
+            stage.setTitle("Podaj dane nowego powiatu");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onAddCommuneButtonClick(ActionEvent actionEvent) throws IOException {
+        System.out.println("Adding voivodeship");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-commune-popup.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root, 800,600));
+            stage.setTitle("Podaj dane nowej gminy");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         } catch(Exception e) {

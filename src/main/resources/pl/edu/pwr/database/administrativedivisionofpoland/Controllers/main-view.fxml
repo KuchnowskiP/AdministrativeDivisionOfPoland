@@ -36,14 +36,11 @@
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="700.0" prefWidth="900.0">
                                     <TableView fx:id="communesTable" />
-                                    <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
                                 </VBox>
                             </AnchorPane>
                         </Tab>
                     </TabPane>
-
-
                 </AnchorPane>
                 <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
                     <opaqueInsets>
@@ -67,8 +64,8 @@
                             <VBox prefHeight="600.0" prefWidth="800.0">
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
-                                      <TableView fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" />
-                              <Button fx:id="addVoivodeshipButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+"/>
+                               <TableView fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
+                              <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+" />
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
@@ -79,7 +76,12 @@
                     <Tab id="1" text="Powiaty">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                             <VBox prefHeight="700.0" prefWidth="900.0">
-                                <TableView fx:id="countiesTableManage" />
+                        <HBox prefHeight="500.0" prefWidth="900.0">
+                           <children>
+                               <TableView fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
+                              <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCountyButtonClick" />
+                           </children>
+                        </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
                             </VBox>
@@ -88,8 +90,12 @@
                     <Tab id="2" text="Gminy">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                             <VBox prefHeight="700.0" prefWidth="900.0">
-                                <TableView fx:id="communesTableManage" />
-                                <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
+                        <HBox prefHeight="500.0" prefWidth="900.0">
+                           <children>
+                                      <TableView fx:id="communesTableManage" prefHeight="500.0" prefWidth="700.0" />
+                              <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCommuneButtonClick" />
+                           </children>
+                        </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
                             </VBox>
                         </AnchorPane>

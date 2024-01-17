@@ -8,8 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
@@ -23,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AddVoivodeshipPopupController implements Initializable{
+public class AddCommunePopupController implements Initializable {
     @FXML
     private TableView existingAddressesTableView;
     @FXML
@@ -114,29 +112,24 @@ public class AddVoivodeshipPopupController implements Initializable{
     }
 
     public void onConfirmButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException, IllegalAccessException {
-        if(licensePlateDifferentiatorTextField.getText().length() > 1){
-            returningLabel.setText("Wyróżnik musi się składać z jednej litery");
-            returningLabel.setVisible(true);
-        }else{
-            returningLabel.setVisible(false);
-        }
-        AddVoivodeshipRequest addVoivodeshipRequest = new AddVoivodeshipRequest();
-        addVoivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
-        addVoivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-        addVoivodeshipRequest.setTERYTCode("0000001");
-        if(addNewAddressCheckBox.isSelected()){
-            addVoivodeshipRequest.setLocalityFirst("Kraków");
-            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(999);
-        }else{
-            addVoivodeshipRequest.setLocalityFirst(place);
-            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
-        }
 
-        RequestSender.createVoivodeship(addVoivodeshipRequest);
+//        AddVoivodeshipRequest addVoivodeshipRequest = new AddVoivodeshipRequest();
+//        addVoivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
+//        addVoivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
+//        addVoivodeshipRequest.setTERYTCode("0000001");
+//        if(addNewAddressCheckBox.isSelected()){
+//            addVoivodeshipRequest.setLocalityFirst("Kraków");
+//            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
+//            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
+//            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(999);
+//        }else{
+//            addVoivodeshipRequest.setLocalityFirst(place);
+//            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
+//            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
+//            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
+//        }
+
+        RequestSender.createCommune();
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) {
@@ -145,6 +138,4 @@ public class AddVoivodeshipPopupController implements Initializable{
 //        fileChooser.setTitle("Wybierz sb byczku");
 //        fileChooser.showOpenDialog(stage);
     }
-
-
 }
