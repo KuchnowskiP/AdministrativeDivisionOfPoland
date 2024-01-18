@@ -56,7 +56,7 @@
                             <Insets />
                         </opaqueInsets>
                     </CheckBox>
-               <Button mnemonicParsing="false" text="Wyświetl dane historyczne" onAction="#onShowHistoricalDataButtonClick"/>
+               <Button mnemonicParsing="false" onAction="#onShowHistoricalDataButtonClick" text="Wyświetl dane historyczne" />
                 </VBox>
             </HBox>
         </Tab>
@@ -70,6 +70,7 @@
                            <children>
                                <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
                               <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+" />
+                              <Label fx:id="hiddenLabel" text="Im hidden hihi" visible="false" />
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />

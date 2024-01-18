@@ -41,6 +41,7 @@ public class MainController implements Initializable {
     public ChoiceBox<String> communeReportChoiceBox;
     public ImageView flagImage;
     public ImageView emblemImage;
+    public Label hiddenLabel;
     @FXML private Button communeTabAddUnitButton;
     @FXML private Button countyTabAddUnitButton;
     @FXML private Button voivodeshipTabAddUnitButton;
@@ -179,9 +180,9 @@ public class MainController implements Initializable {
             changed = true;
         }
         unitsTreeIndexes[viewOrManage] = 0;
+        if(viewOrManage == 1) setAddButton();
         boolean finalChanged = changed;
         if(finalChanged){
-            unitsTreeIndexes[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
             changeView(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
         }

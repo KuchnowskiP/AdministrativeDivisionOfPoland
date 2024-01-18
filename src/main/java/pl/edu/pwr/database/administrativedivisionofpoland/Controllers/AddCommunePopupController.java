@@ -28,6 +28,22 @@ import java.util.ResourceBundle;
 
 public class AddCommunePopupController implements Initializable {
     @FXML
+    private TextField localityTextField;
+    @FXML
+    private TextField postalCodeTextField;
+    @FXML
+    private TextField postLocalityTextField;
+    @FXML
+    private TextField streetTextField;
+    @FXML
+    private TextField numberOfBuildingTextField;
+    @FXML
+    private TextField apartmentNumberTextField;
+    @FXML
+    private Button confirmButton;
+    @FXML
+    private TabPane addressSelectionTabPane;
+    @FXML
     private ComboBox communeTypeChoiceBox;
     @FXML
     private ChoiceBox countyChoiceBox;
@@ -52,7 +68,7 @@ public class AddCommunePopupController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        initializeCheckBoxesListeners();
+        initializeTabListeners();
         try {
             setChoiceBoxes();
         } catch (Exception e) {
@@ -123,53 +139,55 @@ public class AddCommunePopupController implements Initializable {
         });
     }
 
-    private void initializeCheckBoxesListeners() {
-        chooseExistingAddressCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
-                if(newValue) {
-                    addNewAddressCheckBox.setSelected(false);
-                    try {
-                        PageResult<OfficeAddressDto> requestResult = requestResultsReceiver.getAddresses(1,Integer.MAX_VALUE);
-                        Platform.runLater(() -> {
-                            setColumnsInMainTable(OfficeAddressDto.class);
-                            existingAddressesTableView.getItems().clear();
-                            for(Object o : requestResult.items){
-                                existingAddressesTableView.getItems().add(o);
-                            }
-                            existingAddressesTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-                                @Override
-                                public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                                    if(newValue != null){
-                                        try {
-                                            addressID = (Integer) newValue.getClass().getField("id").get(newValue);
-                                            place = newValue.getClass().getField("locality").get(newValue).toString();
-                                        } catch (IllegalAccessException | NoSuchFieldException e) {
-                                            throw new RuntimeException(e);
-                                        }
+    private void initializeTabListeners() {
+        addressSelectionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            confirmButton.setDisable(true);
+            if(Objects.equals(newValue.getId(), "1")){
+                System.out.println("choosing");
+                try {
+                    PageResult<OfficeAddressDto> requestResult = requestResultsReceiver.getAddresses(1,Integer.MAX_VALUE);
+                    Platform.runLater(() -> {
+                        setColumnsInMainTable(OfficeAddressDto.class);
+                        existingAddressesTableView.getItems().clear();
+                        for(Object o : requestResult.items){
+                            existingAddressesTableView.getItems().add(o);
+                        }
+                        existingAddressesTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+                            @Override
+                            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
+                                if(newValue != null){
+                                    try {
+                                        confirmButton.setDisable(false);
+                                        addressID = (Integer) newValue.getClass().getField("id").get(newValue);
+                                        place = newValue.getClass().getField("locality").get(newValue).toString();
+                                    } catch (IllegalAccessException | NoSuchFieldException e) {
+                                        throw new RuntimeException(e);
                                     }
                                 }
-                            });
-                            existingAddressesTableView.setVisible(true);
+                            }
                         });
-                    } catch (IOException | InterruptedException e) {
-                        throw new RuntimeException(e);
+                        existingAddressesTableView.setVisible(true);
+                    });
+                } catch (IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if(Objects.equals(newValue.getId(),"2")){
+                System.out.println("adding new");
+                postalCodeTextField.textProperty().addListener(new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+                        if(!newValue.matches("[0-9]{2}-[0-9]{3}")){
+                            confirmButton.setDisable(true);
+                        }else{
+                            confirmButton.setDisable(false);
+                        }
                     }
-                } else{
-                    existingAddressesTableView.setVisible(false);
-                }
+                });
             }
         });
-        addNewAddressCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
-                if(newValue) {
-                    chooseExistingAddressCheckBox.setSelected(false);
-
-                    existingAddressesTableView.setVisible(false);
-                }
-            }
-        });
+        addressSelectionTabPane.getSelectionModel().select(1);
+        addressSelectionTabPane.getSelectionModel().select(0);
     }
     public void setColumnsInMainTable(Class<?> passedClass){
         List<TableColumn<?, ?>> columnsToAdd = new ArrayList<>();
