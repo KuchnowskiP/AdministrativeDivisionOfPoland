@@ -1,14 +1,16 @@
 package pl.edu.pwr.database.administrativedivisionofpoland;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
-import pl.edu.pwr.contract.OfficeAdres.AddOfficeAddressRequest;
+import pl.edu.pwr.contract.History.CommuneHistoryDto;
+import pl.edu.pwr.contract.History.CountyHistoryDto;
+import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
+import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
-import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
+import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -165,7 +167,7 @@ public class Request {
         return result;
     }
 
-    public static void createVoivodeship(AddVoivodeshipRequest addVoivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public static void createVoivodeship(VoivodeshipRequest addVoivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : addVoivodeshipRequest.getClass().getFields()){
             Object o = new AddReportRequest();
@@ -199,7 +201,7 @@ public class Request {
         return result;
     }
 
-    public static HttpResponse<String> addOfficeAddress(AddOfficeAddressRequest addOfficeAddressRequest)
+    public static HttpResponse<String> addOfficeAddress(OfficeAddressRequest addOfficeAddressRequest)
             throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : addOfficeAddressRequest.getClass().getFields()){
@@ -220,5 +222,60 @@ public class Request {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         return response;
+    }
+
+    public static String getNewVoivodeshipTeryt() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/voivodeship/teryt"))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        int newTerytInteger = Integer.parseInt(response.body()) + 200000;
+        String result = String.format("%07d", newTerytInteger);
+        return result;
+    }
+
+    public static PageResult<VoivodeshipHistoryDto> getVoivodeshipsHistory(int size, int page) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/history/voivodeships?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<VoivodeshipHistoryDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println("wojewodztwa: " + response.body());
+        return result;
+    }
+
+    public static PageResult<CountyHistoryDto> getCountiesHistory(int size, int page) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/history/counties?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<CountyHistoryDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println("powiaty: " + response.body());
+        return result;
+    }
+
+    public static PageResult<CommuneHistoryDto> getCommunesHistory(int size, int page) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/history/communes?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<CommuneHistoryDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println("gminy: " + response.body());
+        return result;
     }
 }

@@ -72,6 +72,24 @@ public class RequestResultsReceiver extends Request {
         }
         return requestResult;
     }
+    public PageResult<?> getHistoryResult(int table) throws IOException, InterruptedException {
+        PageResult<?> requestResult = null;
+        switch(table){
+            case 0: {
+                requestResult = Request.getVoivodeshipsHistory(1,Integer.MAX_VALUE);
+                break;
+            }
+            case 1: {
+                requestResult = Request.getCountiesHistory(1,Integer.MAX_VALUE);
+                break;
+            }
+            case 2: {
+                requestResult = Request.getCommunesHistory(1,Integer.MAX_VALUE);
+                break;
+            }
+        }
+        return requestResult;
+    }
 
     public PageResult<OfficeAddressDto> getAddresses(int page, int size) throws IOException, InterruptedException {
         return Request.getAllAddresses(page,size);

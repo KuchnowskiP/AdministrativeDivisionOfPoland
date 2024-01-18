@@ -11,9 +11,15 @@
             <HBox alignment="TOP_CENTER" prefHeight="103.0" prefWidth="600.0" spacing="10.0">
                <children>
                   <Label text="Nazwa:" />
-                  <TextField fx:id="voivodeshipNameTextField" />
-                  <Label text="Wyróżnik tablicy rejestracyjnej:" />
-                  <TextField fx:id="licensePlateDifferentiatorTextField" />
+                  <TextField fx:id="communeNameTextField" />
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label text="Województwo" />
+                        <ChoiceBox fx:id="voivodeshipChoiceBox" prefWidth="150.0" />
+                        <Label text="Powiat" />
+                        <ChoiceBox fx:id="countyChoiceBox" prefWidth="150.0" />
+                     </children>
+                  </VBox>
                </children>
                <opaqueInsets>
                   <Insets />
@@ -21,6 +27,16 @@
                <padding>
                   <Insets top="25.0" />
                </padding>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Label text="Liczba ludności" />
+                  <TextField />
+                  <Label text="Powierzchnia" />
+                  <TextField />
+                  <Label text="Typ gminy" />
+                  <ComboBox fx:id="communeTypeChoiceBox" prefWidth="150.0" />
+               </children>
             </HBox>
             <HBox prefHeight="50.0" prefWidth="800.0">
                <children>

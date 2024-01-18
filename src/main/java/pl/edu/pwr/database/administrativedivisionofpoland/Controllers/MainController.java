@@ -214,67 +214,72 @@ public class MainController implements Initializable {
     public void choiceBoxListeners() {
         voivodeshipReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue)  {
-                System.out.println(newValue);
-                if(!Objects.equals(String.valueOf(newValue), "-")){
-                    countyReportChoiceBox.getItems().clear();
-                    countyReportChoiceBox.setDisable(false);
-                    countyReportChoiceBox.getItems().add("-");
-                    countyReportChoiceBox.setValue("-");
-                    reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
-                            .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
-                    try {
-                        requestCounties = request.getCounties(reportSelectedVoivodeship.getId(),1,Integer.MAX_VALUE);
-                        for(int i = 0; i < requestCounties.getItems().size(); i++){
-                            countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
+            public void changed(ObservableValue observable, Object oldValue, Object newValue){
+                if (newValue != null) {
+                    System.out.println(newValue);
+                    if (!Objects.equals(String.valueOf(newValue), "-")) {
+                        countyReportChoiceBox.getItems().clear();
+                        countyReportChoiceBox.setDisable(false);
+                        countyReportChoiceBox.getItems().add("-");
+                        countyReportChoiceBox.setValue("-");
+                        reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
+                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+                        try {
+                            requestCounties = request.getCounties(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            for (int i = 0; i < requestCounties.getItems().size(); i++) {
+                                countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                    } else {
+                        reportSelectedVoivodeship.setId(-1);
+                        countyReportChoiceBox.setValue("-");
+                        countyReportChoiceBox.setDisable(true);
                     }
-                }
-                else{
-                    reportSelectedVoivodeship.setId(-1);
-                    countyReportChoiceBox.setValue("-");
-                    countyReportChoiceBox.setDisable(true);
                 }
             }
         });
         countyReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if(!Objects.equals(String.valueOf(newValue), "-")){
-                    communeReportChoiceBox.getItems().clear();
-                    communeReportChoiceBox.setDisable(false);
-                    communeReportChoiceBox.getItems().add("-");
-                    communeReportChoiceBox.setValue("-");
-                    reportSelectedCounty = requestCounties.getItems().stream()
-                            .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+                if (newValue != null) {
+                    if (!Objects.equals(String.valueOf(newValue), "-")) {
+                        communeReportChoiceBox.getItems().clear();
+                        communeReportChoiceBox.setDisable(false);
+                        communeReportChoiceBox.getItems().add("-");
+                        communeReportChoiceBox.setValue("-");
+                        reportSelectedCounty = requestCounties.getItems().stream()
+                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
 
-                    try {
-                        requestCommunes = request.getCommunes(reportSelectedCounty.getId(),1,Integer.MAX_VALUE);
-                        for(int i = 0; i < requestCommunes.getItems().size(); i++){
-                            communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
+                        try {
+                            requestCommunes = request.getCommunes(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
+                            for (int i = 0; i < requestCommunes.getItems().size(); i++) {
+                                communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
                     }
-                }
-                if(Objects.equals(String.valueOf(newValue), "-")){
-                    reportSelectedCounty.setId(-1);
-                    communeReportChoiceBox.getItems().clear();
-                    communeReportChoiceBox.setDisable(true);
+                    if (Objects.equals(String.valueOf(newValue), "-")) {
+                        reportSelectedCounty.setId(-1);
+                        communeReportChoiceBox.getItems().clear();
+                        communeReportChoiceBox.setDisable(true);
+                    }
                 }
             }
         });
         communeReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if(!Objects.equals(String.valueOf(newValue),"-")){
-                    String[] name = newValue.toString().split("\\(");
-                    reportSelectedCommune = requestCommunes.getItems().stream()
-                            .filter(communeDto -> name[0].trim().equals(communeDto.getName())).findAny().get();
-                }else{
-                    reportSelectedCommune.setId(-1);
+                if(newValue != null) {
+                    if (!Objects.equals(String.valueOf(newValue), "-")) {
+                        String[] name = newValue.toString().split("\\(");
+                        reportSelectedCommune = requestCommunes.getItems().stream()
+                                .filter(communeDto -> name[0].trim().equals(communeDto.getName())).findAny().get();
+                    } else {
+                        reportSelectedCommune.setId(-1);
+                    }
                 }
             }
         });
@@ -458,6 +463,8 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             stage.setScene(new Scene(root, 800,600));
             stage.setTitle("Podaj dane nowego województwa");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
+            stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         } catch(Exception e) {
@@ -473,6 +480,8 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             stage.setScene(new Scene(root, 800,600));
             stage.setTitle("Podaj dane nowego powiatu");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
+            stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         } catch(Exception e) {
@@ -488,8 +497,26 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             stage.setScene(new Scene(root, 800,600));
             stage.setTitle("Podaj dane nowej gminy");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
+            stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onShowHistoricalDataButtonClick(ActionEvent actionEvent) {
+        System.out.println("Showing history");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("history-view.fxml"));
+            Parent root = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root, 1280,720));
+            stage.setTitle("Dane historyczne");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
+            stage.getIcons().add(icon);
+            stage.show();
         } catch(Exception e) {
             e.printStackTrace();
         }

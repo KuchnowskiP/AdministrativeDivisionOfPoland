@@ -9,8 +9,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.CommuneDto;
+import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
-import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
+import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
+import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
+import pl.edu.pwr.database.administrativedivisionofpoland.Request;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
 
@@ -19,9 +23,16 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class AddCommunePopupController implements Initializable {
+    @FXML
+    private ComboBox communeTypeChoiceBox;
+    @FXML
+    private ChoiceBox countyChoiceBox;
+    @FXML
+    private ChoiceBox voivodeshipChoiceBox;
     @FXML
     private TableView existingAddressesTableView;
     @FXML
@@ -42,6 +53,74 @@ public class AddCommunePopupController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeCheckBoxesListeners();
+        try {
+            setChoiceBoxes();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        initializeChoiceBoxesListeners();
+    }
+
+    Request request = new Request();
+    PageResult<VoivodeshipDto> requestVoivodeships;
+    PageResult<CountyDto> requestCounties;
+    VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
+    CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
+
+    public void setChoiceBoxes() throws Exception {
+        requestVoivodeships = request.getVoivodeships(1, Integer.MAX_VALUE);
+        voivodeshipChoiceBox.getItems().add("-");
+        voivodeshipChoiceBox.setValue("-");
+        for(int i = 0; i < requestVoivodeships.items.size(); i++){
+            voivodeshipChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
+        }
+        communeTypeChoiceBox.getItems().addAll(new Object[]{"gmina miejska", "gmina wiejska", "gmina miejsko-wiejska"});
+    }
+
+    private void initializeChoiceBoxesListeners(){
+        voivodeshipChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue)  {
+                if (newValue != null) {
+                    System.out.println(newValue);
+                    if (!Objects.equals(String.valueOf(newValue), "-")) {
+                        countyChoiceBox.getItems().clear();
+                        countyChoiceBox.setDisable(false);
+                        countyChoiceBox.getItems().add("-");
+                        countyChoiceBox.setValue("-");
+                        selectedVoivodeship = requestVoivodeships.getItems().stream()
+                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+                        try {
+                            requestCounties = request.getCounties(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            for (int i = 0; i < requestCounties.getItems().size(); i++) {
+                                countyChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        selectedVoivodeship.setId(-1);
+                        countyChoiceBox.setValue("-");
+                        countyChoiceBox.setDisable(true);
+                    }
+                }
+            }
+        });
+        countyChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if (newValue != null) {
+                    if (!Objects.equals(String.valueOf(newValue), "-")) {
+                        selectedCounty = requestCounties.getItems().stream()
+                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+                    }
+
+                    if (Objects.equals(String.valueOf(newValue), "-")) {
+                        selectedCounty.setId(-1);
+                    }
+                }
+            }
+        });
     }
 
     private void initializeCheckBoxesListeners() {
@@ -112,6 +191,7 @@ public class AddCommunePopupController implements Initializable {
     }
 
     public void onConfirmButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException, IllegalAccessException {
+
 
 //        AddVoivodeshipRequest addVoivodeshipRequest = new AddVoivodeshipRequest();
 //        addVoivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());

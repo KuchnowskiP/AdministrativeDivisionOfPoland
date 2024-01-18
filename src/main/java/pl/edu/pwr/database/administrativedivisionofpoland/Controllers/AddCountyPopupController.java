@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
-import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
+import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
 

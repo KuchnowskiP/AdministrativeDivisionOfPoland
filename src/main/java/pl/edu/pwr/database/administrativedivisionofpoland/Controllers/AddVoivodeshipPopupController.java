@@ -12,8 +12,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
-import pl.edu.pwr.contract.OfficeAdres.AddOfficeAddressRequest;
-import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
+import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
+import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
 
@@ -139,12 +139,13 @@ public class AddVoivodeshipPopupController implements Initializable{
         }else{
             returningLabel.setVisible(false);
         }
-        AddVoivodeshipRequest addVoivodeshipRequest = new AddVoivodeshipRequest();
-        addVoivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
-        addVoivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-        addVoivodeshipRequest.setTERYTCode("0000420");
+        VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
+        voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
+        voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
+        voivodeshipRequest.setTerytCode(requestSender.getMaxTeryt());
+
         if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
-            AddOfficeAddressRequest newAddress = new AddOfficeAddressRequest();
+            OfficeAddressRequest newAddress = new OfficeAddressRequest();
             newAddress.setLocality(postLocalityTextField.getText().trim());
             newAddress.setStreet(streetTextField.getText().trim());
             newAddress.setPostalCode(postalCodeTextField.getText().trim());
@@ -152,25 +153,21 @@ public class AddVoivodeshipPopupController implements Initializable{
             newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
             HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
 
-            addVoivodeshipRequest.setLocalityFirst(localityTextField.getText().trim());
-            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(Integer.parseInt(responseWithIdAsABody.body()));
+            voivodeshipRequest.setLocalityFirst(localityTextField.getText().trim());
+            voivodeshipRequest.setIsSeatOfCouncilFirst(true);
+            voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
+            voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(Integer.parseInt(responseWithIdAsABody.body()));
 
         }else{
-            addVoivodeshipRequest.setLocalityFirst(place);
-            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
+            voivodeshipRequest.setLocalityFirst(place);
+            voivodeshipRequest.setIsSeatOfCouncilFirst(true);
+            voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
+            voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
         }
 
-        RequestSender.createVoivodeship(addVoivodeshipRequest);
+        RequestSender.createVoivodeship(voivodeshipRequest);
     }
 
-    public void onCancelButtonClick(ActionEvent actionEvent) {
-        Stage stage = new Stage();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Wybierz sb byczku");
-        fileChooser.showOpenDialog(stage);
+    public void onCancelButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
     }
 }

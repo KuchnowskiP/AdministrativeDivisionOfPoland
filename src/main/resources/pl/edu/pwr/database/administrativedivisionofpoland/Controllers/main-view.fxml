@@ -16,10 +16,13 @@
                     <TabPane fx:id="viewUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
                         <Tab id="0" text="Województwa">
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                                <VBox prefHeight="600.0" prefWidth="800.0">
+                                <VBox prefHeight="600.0" prefWidth="718.0">
                                     <TableView id="tableView" fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0" />
                                     <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                           <padding>
+                              <Insets left="10.0" top="10.0" />
+                           </padding>
                                 </VBox>
                             </AnchorPane>
                         </Tab>
@@ -53,6 +56,7 @@
                             <Insets />
                         </opaqueInsets>
                     </CheckBox>
+               <Button mnemonicParsing="false" text="Wyświetl dane historyczne" onAction="#onShowHistoricalDataButtonClick"/>
                 </VBox>
             </HBox>
         </Tab>
@@ -61,7 +65,7 @@
                 <TabPane fx:id="manageUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
                     <Tab id="0" text="Województwa">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox prefHeight="600.0" prefWidth="800.0">
+                            <VBox id="vbox" prefHeight="600.0" prefWidth="800.0">
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
                                <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
@@ -75,11 +79,11 @@
                     </Tab>
                     <Tab id="1" text="Powiaty">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
                                <TableView id="tableView" fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
-                              <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCountyButtonClick" />
+                              <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" onAction="#onAddCountyButtonClick" text="+" />
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
@@ -89,11 +93,11 @@
                     </Tab>
                     <Tab id="2" text="Gminy">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
                                       <TableView id="tableView" fx:id="communesTableManage" prefHeight="500.0" prefWidth="700.0" />
-                              <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" text="+" onAction="#onAddCommuneButtonClick" />
+                              <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" onAction="#onAddCommuneButtonClick" text="+" />
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
@@ -102,7 +106,7 @@
                     </Tab>
                     <Tab id="3" text="Przeglądaj zgłoszenia">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
                                 <TableView id="tableView" fx:id="reportsTableManage" />
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
                             </VBox>
@@ -113,7 +117,7 @@
         </Tab>
         <Tab id="login" text="Logowanie">
             <AnchorPane prefHeight="700.0" prefWidth="900.0">
-                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10.0">
+                <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10.0">
                     <TextField fx:id="loginTextField" alignment="CENTER" maxWidth="100.0" />
                     <PasswordField fx:id="passwordTextField" alignment="CENTER" maxWidth="100.0" />
                     <Button alignment="CENTER" onAction="#onLoginButtonClick" text="Login" />
@@ -123,7 +127,7 @@
         </Tab>
         <Tab id="login" text="Zgłoszenia">
             <AnchorPane prefHeight="700.0" prefWidth="900.0">
-                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.topAnchor="20.0">
+                <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.topAnchor="20.0">
                     <HBox prefWidth="900.0" spacing="10.0">
                         <Label text="Temat: " />
                         <TextField fx:id="topicTextField" maxWidth="400.0" />
@@ -145,7 +149,7 @@
                         <TextArea fx:id="reportContentTextArea" maxWidth="400.0" minHeight="200.0" prefHeight="200.0" />
                     </HBox>
                     <HBox prefWidth="900.0" spacing="10.0">
-                        <VBox prefHeight="200.0" prefWidth="400.0">
+                        <VBox id="vbox" prefHeight="200.0" prefWidth="400.0">
                             <HBox.margin>
                                 <Insets left="45.0" />
                             </HBox.margin>

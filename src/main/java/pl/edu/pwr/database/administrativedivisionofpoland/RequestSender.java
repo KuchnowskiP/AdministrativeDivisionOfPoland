@@ -1,10 +1,10 @@
 package pl.edu.pwr.database.administrativedivisionofpoland;
 
-import pl.edu.pwr.contract.OfficeAdres.AddOfficeAddressRequest;
+import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
-import pl.edu.pwr.contract.Voivodeship.AddVoivodeshipRequest;
+import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 
-import java.net.http.HttpRequest;
+import java.io.IOException;
 import java.net.http.HttpResponse;
 
 public class RequestSender extends Request {
@@ -17,11 +17,15 @@ public class RequestSender extends Request {
     public void addReport(AddReportRequest addReportRequest) throws Exception {
         Request.createReport(addReportRequest);
     }
-    public void addVoivodeship(AddVoivodeshipRequest addVoivodeshipRequest) throws Exception {
-        Request.createVoivodeship(addVoivodeshipRequest);
+    public void addVoivodeship(VoivodeshipRequest voivodeshipRequest) throws Exception {
+        Request.createVoivodeship(voivodeshipRequest);
     }
 
-    public HttpResponse<String> addAddress(AddOfficeAddressRequest addOfficeAddressRequest) throws Exception {
-        return Request.addOfficeAddress(addOfficeAddressRequest);
+    public HttpResponse<String> addAddress(OfficeAddressRequest officeAddressRequest) throws Exception {
+        return Request.addOfficeAddress(officeAddressRequest);
+    }
+
+    public String getMaxTeryt() throws IOException, InterruptedException {
+        return Request.getNewVoivodeshipTeryt();
     }
 }
