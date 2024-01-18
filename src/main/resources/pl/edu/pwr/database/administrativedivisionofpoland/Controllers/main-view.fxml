@@ -29,7 +29,7 @@
                         <Tab id="1" text="Powiaty">
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="700.0" prefWidth="900.0">
-                                    <TableView id="tableView" fx:id="countiesTable" />
+                                    <TableView id="tableView" fx:id="countiesTable" prefHeight="400.0" prefWidth="811.0" />
                                     <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
                                 </VBox>
@@ -56,7 +56,7 @@
                             <Insets />
                         </opaqueInsets>
                     </CheckBox>
-               <Button mnemonicParsing="false" text="Wyświetl dane historyczne" onAction="#onShowHistoricalDataButtonClick"/>
+               <Button mnemonicParsing="false" onAction="#onShowHistoricalDataButtonClick" text="Wyświetl dane historyczne" />
                 </VBox>
             </HBox>
         </Tab>
@@ -65,11 +65,29 @@
                 <TabPane fx:id="manageUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
                     <Tab id="0" text="Województwa">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox id="vbox" prefHeight="600.0" prefWidth="800.0">
-                        <HBox prefHeight="100.0" prefWidth="200.0">
+                            <VBox id="vbox" prefHeight="600.0" prefWidth="894.0">
+                        <HBox prefHeight="500.0" prefWidth="856.0">
                            <children>
-                               <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" />
-                              <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+" />
+                               <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="698.0" />
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" onAction="#onAddVoivodeshipButtonClick" text="+" />
+                                    <Button mnemonicParsing="false" text="Usuń" />
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="500.0" prefWidth="160.0" spacing="10">
+                                 <children>
+                                     <HBox>
+                                    <Label prefHeight="17.0" prefWidth="62.0" text="Nazwa" />
+                                    <TextField fx:id="voivodeshipNameChangeTextField" prefHeight="25.0" prefWidth="118.0" />
+                                     </HBox>
+                                     <HBox>
+                                    <Label prefHeight="17.0" prefWidth="59.0" text="Wyróżnik" />
+                                    <TextField fx:id="licensePlateNameChangeTextField" prefHeight="25.0" prefWidth="114.0" />
+                                     </HBox>
+                                    <Button fx:id="confirmChangeVoivodeshipButton" mnemonicParsing="false" text="Potwierdź" />
+                                 </children>
+                              </VBox>
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
@@ -79,11 +97,37 @@
                     </Tab>
                     <Tab id="1" text="Powiaty">
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="700.0" prefWidth="931.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
                                <TableView id="tableView" fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
-                              <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" onAction="#onAddCountyButtonClick" text="+" />
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false" onAction="#onAddCountyButtonClick" prefHeight="25.0" prefWidth="34.0" text="+" />
+                                    <Button mnemonicParsing="false" text="Usuń" />
+                                 </children>
+                              </VBox>
+                               <VBox alignment="CENTER" prefHeight="500.0" prefWidth="222.0" spacing="10">
+                                   <children>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="90.0" text="Województwo" />
+                                       <ChoiceBox prefHeight="25.0" prefWidth="114.0" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="89.0" text="Nazwa" />
+                                           <TextField fx:id="countiesNameChangeTextField" prefHeight="25.0" prefWidth="115.0" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="185.0" text="Czy miasto na prawach powiatu" />
+                                       <CheckBox mnemonicParsing="false" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="90.0" text="Wyróżnik" />
+                                           <TextField fx:id="countiesLicensePlateNameChangeTextField" prefHeight="25.0" prefWidth="114.0" />
+                                       </HBox>
+                                       <Button fx:id="confirmChangeCountiesButton" mnemonicParsing="false" text="Potwierdź" />
+                                   </children>
+                               </VBox>
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" text="Cofnij" />
@@ -96,8 +140,38 @@
                             <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
-                                      <TableView id="tableView" fx:id="communesTableManage" prefHeight="500.0" prefWidth="700.0" />
-                              <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" onAction="#onAddCommuneButtonClick" text="+" />
+                                      <TableView id="tableView" fx:id="communesTableManage" prefHeight="500.0" prefWidth="667.0" />
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" onAction="#onAddCommuneButtonClick" prefHeight="33.0" prefWidth="30.0" text="+" />
+                                    <Button mnemonicParsing="false" text="Usuń" />
+                                 </children>
+                              </VBox>
+                               <VBox alignment="CENTER" prefHeight="500.0" prefWidth="220.0" spacing="10">
+                                   <children>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="90.0" text="Powiat" />
+                                           <ChoiceBox prefHeight="25.0" prefWidth="114.0" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="89.0" text="Nazwa" />
+                                           <TextField fx:id="communesNameChangeTextField" prefHeight="25.0" prefWidth="115.0" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="90.0" text="Rodzaj gminy" />
+                                           <ChoiceBox prefHeight="25.0" prefWidth="115.0" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="90.0" text="Populacja" />
+                                           <TextField fx:id="communesPopulationChangeTextField" prefHeight="25.0" prefWidth="114.0" />
+                                       </HBox>
+                                       <HBox>
+                                           <Label prefHeight="17.0" prefWidth="90.0" text="Powierzchnia" />
+                                           <TextField fx:id="communesAreaChangeTextField" prefHeight="25.0" prefWidth="114.0" />
+                                       </HBox>
+                                       <Button fx:id="confirmChangeCommunesButton" mnemonicParsing="false" text="Potwierdź" />
+                                   </children>
+                               </VBox>
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />

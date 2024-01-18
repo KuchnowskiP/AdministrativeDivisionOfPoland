@@ -41,6 +41,16 @@ public class MainController implements Initializable {
     public ChoiceBox<String> communeReportChoiceBox;
     public ImageView flagImage;
     public ImageView emblemImage;
+    public Button confirmChangeVoivodeshipButton;
+    public TextField voivodeshipNameChangeTextField;
+    public TextField licensePlateNameChangeTextField;
+    public TextField communesNameChangeTextField;
+    public TextField communesPopulationChangeTextField;
+    public Button confirmChangeCommunesButton;
+    public Button confirmChangeCountiesButton;
+    public TextField countiesNameChangeTextField;
+    public TextField countiesLicensePlateNameChangeTextField;
+    public TextField communesAreaChangeTextField;
     @FXML private Button communeTabAddUnitButton;
     @FXML private Button countyTabAddUnitButton;
     @FXML private Button voivodeshipTabAddUnitButton;
