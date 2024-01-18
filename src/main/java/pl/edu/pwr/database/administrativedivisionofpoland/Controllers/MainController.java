@@ -189,6 +189,7 @@ public class MainController implements Initializable {
             changed = true;
         }
         unitsTreeIndexes[viewOrManage] = 0;
+        if(viewOrManage == 1) setAddButton();
         boolean finalChanged = changed;
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
