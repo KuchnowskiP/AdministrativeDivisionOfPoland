@@ -1,9 +1,12 @@
 package pl.edu.pwr.database.administrativedivisionofpoland;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Commune.CommuneRequest;
+import pl.edu.pwr.contract.County.CountyRequest;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.History.CommuneHistoryDto;
 import pl.edu.pwr.contract.History.CountyHistoryDto;
@@ -19,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Request {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
@@ -237,6 +241,40 @@ public class Request {
         return result;
     }
 
+    public static String getNewCountyTeryt(Integer id) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/county/teryt?voivodeshipId=" + id))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        String result = null;
+        if(!Objects.equals(response.body(), "")) {
+            int newTerytInteger = Integer.parseInt(response.body()) + 1000;
+            result = String.format("%07d", newTerytInteger);
+        }
+        return result;
+    }
+
+    public static String getNewCommuneTeryt(Integer id, int type) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/commune/teryt?countyId=" + id))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        String result = null;
+        if(!Objects.equals(response.body(), "")) {
+            int newTerytInteger = Integer.parseInt(response.body()) + 10;
+            newTerytInteger /= 10;
+            newTerytInteger *= 10;
+            newTerytInteger += type;
+            result = String.format("%07d", newTerytInteger);
+        }
+        return result;
+    }
+
     public static PageResult<VoivodeshipHistoryDto> getVoivodeshipsHistory(int size, int page) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/history/voivodeships?page=" + page + "&size=" + size))
@@ -277,5 +315,47 @@ public class Request {
                 });
         System.out.println("gminy: " + response.body());
         return result;
+    }
+
+    protected static void createCounty(CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
+        HashMap<String, Object> values = new HashMap<String, Object>();
+        for(Field field : countyRequest.getClass().getFields()){
+            Object o = new AddReportRequest();
+            if(field.get(countyRequest) != null) {
+                values.put(field.getName(), field.get(countyRequest).toString());
+            }else{
+                values.put(field.getName(), " ");
+            }
+        }
+
+        String requestBody = objectMapper.writeValueAsString(values);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/county/add"))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    protected static void createCommune(CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
+        HashMap<String, Object> values = new HashMap<String, Object>();
+        for(Field field : communeRequest.getClass().getFields()){
+            Object o = new AddReportRequest();
+            if(field.get(communeRequest) != null) {
+                values.put(field.getName(), field.get(communeRequest).toString());
+            }else{
+                values.put(field.getName(), " ");
+            }
+        }
+
+        String requestBody = objectMapper.writeValueAsString(values);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/commune/add"))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }

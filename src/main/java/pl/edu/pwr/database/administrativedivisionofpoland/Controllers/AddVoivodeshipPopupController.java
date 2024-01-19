@@ -8,8 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
@@ -142,7 +140,7 @@ public class AddVoivodeshipPopupController implements Initializable{
         VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
         voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
         voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-        voivodeshipRequest.setTerytCode(requestSender.getMaxTeryt());
+        voivodeshipRequest.setTerytCode(requestSender.newVoivodeshipTeryt());
 
         if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
             OfficeAddressRequest newAddress = new OfficeAddressRequest();
@@ -165,7 +163,7 @@ public class AddVoivodeshipPopupController implements Initializable{
             voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
         }
 
-        RequestSender.createVoivodeship(voivodeshipRequest);
+        requestSender.addVoivodeship(voivodeshipRequest);
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {

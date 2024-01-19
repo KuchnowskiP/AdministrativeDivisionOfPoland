@@ -9,9 +9,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.County.CountyRequest;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
+import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Request;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
@@ -20,6 +22,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,14 +52,9 @@ public class AddCountyPopupController implements Initializable {
     private ChoiceBox voivodeshipChoiceBox;
     @FXML
     private TableView existingAddressesTableView;
-    @FXML
-    private CheckBox chooseExistingAddressCheckBox;
-    @FXML
-    private CheckBox addNewAddressCheckBox;
+
     @FXML
     private Label returningLabel;
-    @FXML
-    private TextField voivodeshipNameTextField;
     @FXML
     private TextField licensePlateDifferentiatorTextField;
     RequestSender requestSender = new RequestSender();
@@ -176,26 +174,37 @@ public class AddCountyPopupController implements Initializable {
 
     }
 
-    public void onConfirmButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException, IllegalAccessException {
+    public void onConfirmButtonClick(ActionEvent actionEvent) throws Exception {
+        CountyRequest countyRequest = new CountyRequest();
+        countyRequest.setName(countyNameTextField.getText().trim());
+        countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
+        countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
+        countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
+        String newTeryt = requestSender.newCountyTeryt(selectedCounty.getId());
+        if(newTeryt == null){
+            int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
+            newTerytInt += 1000;
+            newTeryt = String.format("%07d",newTerytInt);
+        }
+        countyRequest.setTerytCode(newTeryt);
+        if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
+            OfficeAddressRequest newAddress = new OfficeAddressRequest();
+            newAddress.setLocality(postLocalityTextField.getText().trim());
+            newAddress.setStreet(streetTextField.getText().trim());
+            newAddress.setPostalCode(postalCodeTextField.getText().trim());
+            newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
+            newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
+            HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
 
+            countyRequest.setLocality(localityTextField.getText().trim());
 
-//        AddVoivodeshipRequest addVoivodeshipRequest = new AddVoivodeshipRequest();
-//        addVoivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
-//        addVoivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-//        addVoivodeshipRequest.setTERYTCode("0000001");
-//        if(addNewAddressCheckBox.isSelected()){
-//            addVoivodeshipRequest.setLocalityFirst("Kraków");
-//            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-//            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-//            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(999);
-//        }else{
-//            addVoivodeshipRequest.setLocalityFirst(place);
-//            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-//            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-//            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
-//        }
+            countyRequest.setRegisteredOfficeAddressesId(Integer.parseInt(responseWithIdAsABody.body()));
+        }else{
+            countyRequest.setLocality(place);
+            countyRequest.setRegisteredOfficeAddressesId(addressID);
+        }
 
-        RequestSender.createCommune();
+        RequestSender.createCounty(countyRequest);
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) {

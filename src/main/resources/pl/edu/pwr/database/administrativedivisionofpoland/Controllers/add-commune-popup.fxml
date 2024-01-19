@@ -31,11 +31,11 @@
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
                   <Label text="Liczba ludności" />
-                  <TextField />
+                  <TextField fx:id="populationTextField" />
                   <Label text="Powierzchnia" />
-                  <TextField />
+                  <TextField fx:id="areaTextField" />
                   <Label text="Typ gminy" />
-                  <ComboBox fx:id="communeTypeChoiceBox" prefWidth="150.0" />
+                  <ChoiceBox fx:id="communeTypeChoiceBox" prefWidth="150.0" />
                </children>
             </HBox>
             <TabPane fx:id="addressSelectionTabPane" prefHeight="200.0" tabClosingPolicy="UNAVAILABLE">

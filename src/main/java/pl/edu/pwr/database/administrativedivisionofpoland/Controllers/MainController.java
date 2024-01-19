@@ -89,6 +89,7 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out),
                 true, StandardCharsets.UTF_8)); //needed due to polish diacritics
+
         try {
             setInitialView();
         } catch (Exception e) {

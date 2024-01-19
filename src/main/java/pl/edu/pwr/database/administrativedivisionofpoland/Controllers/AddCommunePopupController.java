@@ -9,10 +9,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Commune.CommuneRequest;
 import pl.edu.pwr.contract.Dtos.CommuneDto;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
+import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Request;
 import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
@@ -21,12 +23,19 @@ import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class AddCommunePopupController implements Initializable {
+    @FXML
+    private TextField populationTextField;
+    @FXML
+    private TextField areaTextField;
+    @FXML
+    private TextField communeNameTextField;
     @FXML
     private TextField localityTextField;
     @FXML
@@ -44,7 +53,7 @@ public class AddCommunePopupController implements Initializable {
     @FXML
     private TabPane addressSelectionTabPane;
     @FXML
-    private ComboBox communeTypeChoiceBox;
+    private ChoiceBox communeTypeChoiceBox;
     @FXML
     private ChoiceBox countyChoiceBox;
     @FXML
@@ -208,29 +217,68 @@ public class AddCommunePopupController implements Initializable {
 
     }
 
-    public void onConfirmButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException, IllegalAccessException {
+    public void onConfirmButtonClick(ActionEvent actionEvent) throws Exception {
+        CommuneRequest communeRequest = new CommuneRequest();
 
+        String rodzajGminy = communeTypeChoiceBox.getSelectionModel().selectedItemProperty().getValue().toString();
+        switch(rodzajGminy){
+            case "gmina miejska":{
+                System.out.print("setting ");
+                communeRequest.setCommuneTypeId(1);
+                System.out.println(communeRequest.getCommuneTypeId());
+                break;
+            }
+            case "gmina wiejska":{
+                System.out.print("setting ");
+                communeRequest.setCommuneTypeId(2);
+                System.out.println(communeRequest.getCommuneTypeId());
+                break;
+            }
+            case "gmina miejsko-wiejska":{
+                System.out.print("setting ");
+                communeRequest.setCommuneTypeId(3);
+                System.out.println(communeRequest.getCommuneTypeId());
+                break;
+            }
+        }
 
-//        AddVoivodeshipRequest addVoivodeshipRequest = new AddVoivodeshipRequest();
-//        addVoivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
-//        addVoivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-//        addVoivodeshipRequest.setTERYTCode("0000001");
-//        if(addNewAddressCheckBox.isSelected()){
-//            addVoivodeshipRequest.setLocalityFirst("Kraków");
-//            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-//            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-//            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(999);
-//        }else{
-//            addVoivodeshipRequest.setLocalityFirst(place);
-//            addVoivodeshipRequest.setIsSeatOfCouncilFirst(true);
-//            addVoivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-//            addVoivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
-//        }
+        communeRequest.setName(communeNameTextField.getText().trim());
+        communeRequest.setCountyId(selectedCounty.getId());
+        communeRequest.setArea(Double.valueOf(areaTextField.getText().trim()));
+        communeRequest.setPopulation(Integer.valueOf(populationTextField.getText().trim()));
+        String newTeryt = requestSender.newCommuneTeryt(selectedCounty.getId(), communeRequest.getCommuneTypeId());
+        if(newTeryt == null){
+            int newTerytInt = Integer.parseInt(selectedCounty.getTerytCode());
+            newTerytInt += 10;
+            newTerytInt /= 10;
+            newTerytInt *= 10;
+            newTerytInt += communeRequest.getCommuneTypeId();
+            newTeryt = String.format("%07d",newTerytInt);
+        }
+        communeRequest.setTerytCode(newTeryt);
+        if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
+            OfficeAddressRequest newAddress = new OfficeAddressRequest();
+            newAddress.setLocality(postLocalityTextField.getText().trim());
+            newAddress.setStreet(streetTextField.getText().trim());
+            newAddress.setPostalCode(postalCodeTextField.getText().trim());
+            newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
+            newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
+            HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
 
-        RequestSender.createCommune();
+            communeRequest.setLocality(localityTextField.getText().trim());
+
+            communeRequest.setRegisteredOfficeAddressesId(Integer.parseInt(responseWithIdAsABody.body()));
+        }else{
+            communeRequest.setLocality(place);
+            communeRequest.setRegisteredOfficeAddressesId(addressID);
+        }
+
+        RequestSender.createCommune(communeRequest);
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) {
+        String rodzajGminy = communeTypeChoiceBox.getSelectionModel().selectedItemProperty().getValue().toString();
+        System.out.println(rodzajGminy);
 //        Stage stage = new Stage();
 //        FileChooser fileChooser = new FileChooser();
 //        fileChooser.setTitle("Wybierz sb byczku");
