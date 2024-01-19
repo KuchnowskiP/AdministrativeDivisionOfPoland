@@ -75,7 +75,7 @@
                                     <Button mnemonicParsing="false" text="Usuń" onAction="#onDeleteButtonClick"/>
                                  </children>
                               </VBox>
-                              <VBox alignment="CENTER" prefHeight="500.0" prefWidth="160.0" spacing="10">
+                              <VBox fx:id="manageViewVoivodeshipVBox" alignment="CENTER" prefHeight="500.0" prefWidth="160.0" spacing="10">
                                  <children>
                                      <HBox>
                                     <Label prefHeight="17.0" prefWidth="62.0" text="Nazwa" />
@@ -107,7 +107,7 @@
                                     <Button mnemonicParsing="false" text="Usuń" />
                                  </children>
                               </VBox>
-                               <VBox alignment="CENTER" prefHeight="500.0" prefWidth="222.0" spacing="10">
+                               <VBox fx:id="manageViewCountyVBox" alignment="CENTER" prefHeight="500.0" prefWidth="222.0" spacing="10">
                                    <children>
                                        <HBox>
                                            <Label prefHeight="17.0" prefWidth="90.0" text="Województwo" />
@@ -147,7 +147,7 @@
                                     <Button mnemonicParsing="false" text="Usuń" />
                                  </children>
                               </VBox>
-                               <VBox alignment="CENTER" prefHeight="500.0" prefWidth="220.0" spacing="10">
+                               <VBox fx:id="manageViewCommuneVBox" alignment="CENTER" prefHeight="500.0" prefWidth="220.0" spacing="10">
                                    <children>
                                        <HBox>
                                            <Label prefHeight="17.0" prefWidth="90.0" text="Powiat" />

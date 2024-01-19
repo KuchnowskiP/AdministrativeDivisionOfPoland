@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
@@ -48,6 +49,11 @@ public class MainController implements Initializable {
     public TextField countiesNameChangeTextField;
     public TextField countiesLicensePlateNameChangeTextField;
     public TextField communesAreaChangeTextField;
+    public VBox kinderGarden = new VBox();
+    @FXML private VBox manageViewVoivodeshipVBox;
+    @FXML private VBox manageViewCountyVBox;
+    @FXML private VBox manageViewCommuneVBox;
+    public VBox[] manageVBoxes = new VBox[]{manageViewVoivodeshipVBox,manageViewCountyVBox,manageViewCommuneVBox};
     @FXML private Button communeTabAddUnitButton;
     @FXML private Button countyTabAddUnitButton;
     @FXML private Button voivodeshipTabAddUnitButton;
@@ -322,7 +328,7 @@ public class MainController implements Initializable {
     }
     public void setRowsFactories(){
         for(int i = 0; i < tables.length; i++){
-            for(int j = 0; j < tables[i].length - 1; j++){
+            for(int j = 0; j < tables[i].length - (1+i); j++){
                 int finalI = i;
                 tables[i][j].setRowFactory(trf -> {
                     TableRow<?> row = new TableRow<>();

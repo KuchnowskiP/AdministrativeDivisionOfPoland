@@ -14,6 +14,10 @@
     -fx-background-color:#d2ad8e ;
 
 }
+.tab-pane .tab:selected{
+    -fx-font-family: "Calibri";
+    -fx-font-size: 14px;
+}
 .vbox{
     -fx-alignment: CENTER;
     /*-fx-background-color: orange;*/
