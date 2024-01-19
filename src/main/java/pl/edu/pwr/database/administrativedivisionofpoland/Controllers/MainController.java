@@ -339,6 +339,7 @@ public class MainController implements Initializable {
                                 unitsTreeIndexes[finalI]++;
                                 if(finalI == 1){
                                     setAddButton();
+
                                 }
                                 try {
                                     unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
