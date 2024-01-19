@@ -12,12 +12,12 @@
     <TabPane id="pane" fx:id="mainTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
         <Tab id="view" text="Przeglądaj">
             <HBox>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                     <TabPane fx:id="viewUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
                         <Tab id="0" text="Województwa">
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                                <VBox prefHeight="600.0" prefWidth="718.0">
-                                    <TableView id="tableView" fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0" />
+                            <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                                <VBox>
+                                    <TableView id="tableView" fx:id="voivodeshipsTable" />
                                     <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
                            <padding>
@@ -27,7 +27,7 @@
                             </AnchorPane>
                         </Tab>
                         <Tab id="1" text="Powiaty">
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="700.0" prefWidth="900.0">
                                     <TableView id="tableView" fx:id="countiesTable" prefHeight="400.0" prefWidth="811.0" />
                                     <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
@@ -36,7 +36,7 @@
                             </AnchorPane>
                         </Tab>
                         <Tab id="2" text="Gminy">
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                                 <VBox prefHeight="700.0" prefWidth="900.0">
                                     <TableView id="tableView" fx:id="communesTable" />
                                     <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
@@ -61,11 +61,11 @@
             </HBox>
         </Tab>
         <Tab id="manage" fx:id="manageTab" text="Zarządzaj">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+            <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                 <TabPane fx:id="manageUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
                     <Tab id="0" text="Województwa">
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox id="vbox" prefHeight="600.0" prefWidth="894.0">
+                        <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="600.0" prefWidth="1144.0">
                         <HBox prefHeight="500.0" prefWidth="856.0">
                            <children>
                                <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="698.0" />
@@ -96,8 +96,8 @@
                         </AnchorPane>
                     </Tab>
                     <Tab id="1" text="Powiaty">
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox id="vbox" prefHeight="700.0" prefWidth="931.0">
+                        <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="700.0" prefWidth="1098.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
                                <TableView id="tableView" fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
@@ -136,8 +136,8 @@
                         </AnchorPane>
                     </Tab>
                     <Tab id="2" text="Gminy">
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                            <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
+                        <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                            <VBox id="vbox" prefHeight="700.0" prefWidth="1102.0">
                         <HBox prefHeight="500.0" prefWidth="900.0">
                            <children>
                                       <TableView id="tableView" fx:id="communesTableManage" prefHeight="500.0" prefWidth="667.0" />
@@ -179,7 +179,7 @@
                         </AnchorPane>
                     </Tab>
                     <Tab id="3" text="Przeglądaj zgłoszenia">
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                        <AnchorPane id = "pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                             <VBox id="vbox" prefHeight="700.0" prefWidth="900.0">
                                 <TableView id="tableView" fx:id="reportsTableManage" />
                                 <Button mnemonicParsing="false" onAction="#onManageRefreshButtonClick" text="Odśwież" />
@@ -190,7 +190,7 @@
             </AnchorPane>
         </Tab>
         <Tab id="login" text="Logowanie">
-            <AnchorPane prefHeight="700.0" prefWidth="900.0">
+            <AnchorPane id = "pane" prefHeight="700.0" prefWidth="900.0">
                 <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10.0">
                     <TextField fx:id="loginTextField" alignment="CENTER" maxWidth="100.0" />
                     <PasswordField fx:id="passwordTextField" alignment="CENTER" maxWidth="100.0" />
@@ -200,7 +200,7 @@
             </AnchorPane>
         </Tab>
         <Tab id="login" text="Zgłoszenia">
-            <AnchorPane prefHeight="700.0" prefWidth="900.0">
+            <AnchorPane id = "pane" prefHeight="700.0" prefWidth="900.0">
                 <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.topAnchor="20.0">
                     <HBox prefWidth="900.0" spacing="10.0">
                         <Label text="Temat: " />
