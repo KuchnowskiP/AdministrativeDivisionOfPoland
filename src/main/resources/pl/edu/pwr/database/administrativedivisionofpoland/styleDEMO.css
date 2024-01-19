@@ -13,6 +13,7 @@
 
 .table-view{
     -fx-background-color: transparent;
+
 }
 
 .table-view:focused{

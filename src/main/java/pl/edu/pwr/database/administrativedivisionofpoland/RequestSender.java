@@ -41,4 +41,13 @@ public class RequestSender extends Request {
         return Request.getNewCommuneTeryt(id, type);
     }
 
+    public boolean deleteVoivodeship(int ID) throws IOException, InterruptedException {
+        return Request.voivodeshipDeletion(ID);
+    }
+    public boolean deleteCounty(int ID) throws IOException, InterruptedException {
+        return Request.countyDeletion(ID);
+    }
+    public boolean deleteCommune(int ID) throws IOException, InterruptedException {
+        return Request.communeDeletion(ID);
+    }
 }

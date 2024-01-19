@@ -30,10 +30,7 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainController implements Initializable {
     public ChoiceBox<String> voivodeshipReportChoiceBox;
@@ -182,6 +179,12 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
     }
+    VoivodeshipDto voivodeshipForEditionOrDeletion  = new VoivodeshipDto(-1,"","","");;
+    CountyDto countyForEditionOrDeletion = new CountyDto(-1,-1,"","",false,"","");;
+    CommuneDto communeForEditionOrDeletion = new CommuneDto(-1,-1,"","",-1,-1.0,"","");;
+    PageResult<VoivodeshipDto> requestVoivodeships;
+    PageResult<CountyDto> requestCounties;
+    PageResult<CommuneDto> requestCommunes;
     public void changeTableListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
@@ -198,14 +201,38 @@ public class MainController implements Initializable {
             changeView(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
         }
         currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
-            System.out.println(newValue);
-//            if(newValue != null) {
-//                try {
-//                    setImages(newValue.getClass().getField("terytCode").get(newValue).toString());
-//                } catch (URISyntaxException | IllegalAccessException | NoSuchFieldException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
+            if(viewOrManage == 1){
+                if(((unitsTreeIndexes[1] == 2 && activeTables[1] == 0) || (unitsTreeIndexes[1] == 1 && activeTables[1] == 1) || activeTables[1] == 2) && newValue != null){
+                    try {
+                        communeForEditionOrDeletion.setId((Integer) newValue.getClass().getField("id").get(newValue));
+                    } catch (IllegalAccessException | NoSuchFieldException e) {
+                        throw new RuntimeException(e);
+                    }
+                }else{
+                    communeForEditionOrDeletion.setId(-1);
+                }
+                if(((activeTables[1] == 0 && unitsTreeIndexes[1] == 1) || (activeTables[1] == 1 && unitsTreeIndexes[1] == 0)) && newValue != null){
+                    try {
+                        countyForEditionOrDeletion.setId((Integer) newValue.getClass().getField("id").get(newValue));
+                    } catch (IllegalAccessException | NoSuchFieldException e) {
+                        throw new RuntimeException(e);
+                    }
+                }else{
+                    countyForEditionOrDeletion.setId(-1);
+                }
+                if(newValue != null && activeTables[1] == 0 && unitsTreeIndexes[1] == 0){
+                    try {
+                        voivodeshipForEditionOrDeletion.setId((Integer) newValue.getClass().getField("id").get(newValue));
+                    } catch (IllegalAccessException | NoSuchFieldException e) {
+                        throw new RuntimeException(e);
+                    }
+                }else{
+                    voivodeshipForEditionOrDeletion.setId(-1);
+                }
+                System.out.println("voivodeship " + voivodeshipForEditionOrDeletion.getId());
+                System.out.println("county " + countyForEditionOrDeletion.getId());
+                System.out.println("commune " + communeForEditionOrDeletion.getId());
+            }
         };
 
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
@@ -217,9 +244,6 @@ public class MainController implements Initializable {
             changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
         });
     }
-    PageResult<VoivodeshipDto> requestVoivodeships;
-    PageResult<CountyDto> requestCounties;
-    PageResult<CommuneDto> requestCommunes;
     VoivodeshipDto reportSelectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto reportSelectedCounty = new CountyDto(-1,-1,"","",false,"","");
     CommuneDto reportSelectedCommune = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
@@ -262,7 +286,7 @@ public class MainController implements Initializable {
                         communeReportChoiceBox.getItems().add("-");
                         communeReportChoiceBox.setValue("-");
                         reportSelectedCounty = requestCounties.getItems().stream()
-                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+                                .filter(countyDto -> newValue.equals(countyDto.getName())).findAny().get();
 
                         try {
                             requestCommunes = request.getCommunes(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
@@ -531,6 +555,22 @@ public class MainController implements Initializable {
             stage.show();
         } catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void onDeleteButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
+        if(voivodeshipForEditionOrDeletion.getId() != -1){
+            if(requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId()) == true){
+                changeView(unitsTree[unitsTreeIndexes[1]],1);
+            }
+        }else if(countyForEditionOrDeletion.getId() != -1){
+            if(requestSender.deleteCounty(countyForEditionOrDeletion.getId()) == true){
+                changeView(unitsTree[unitsTreeIndexes[1]],1);
+            }
+        }else if(communeForEditionOrDeletion.getId() != -1){
+            if(requestSender.deleteCommune(communeForEditionOrDeletion.getId()) == true){
+                changeView(unitsTree[unitsTreeIndexes[1]],1);
+            }
         }
     }
 }

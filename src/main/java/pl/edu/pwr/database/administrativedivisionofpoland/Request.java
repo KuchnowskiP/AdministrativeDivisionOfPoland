@@ -275,7 +275,7 @@ public class Request {
         return result;
     }
 
-    public static PageResult<VoivodeshipHistoryDto> getVoivodeshipsHistory(int size, int page) throws IOException, InterruptedException {
+    public static PageResult<VoivodeshipHistoryDto> getVoivodeshipsHistory(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/history/voivodeships?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
@@ -289,7 +289,7 @@ public class Request {
         return result;
     }
 
-    public static PageResult<CountyHistoryDto> getCountiesHistory(int size, int page) throws IOException, InterruptedException {
+    public static PageResult<CountyHistoryDto> getCountiesHistory(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/history/counties?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
@@ -303,7 +303,7 @@ public class Request {
         return result;
     }
 
-    public static PageResult<CommuneHistoryDto> getCommunesHistory(int size, int page) throws IOException, InterruptedException {
+    public static PageResult<CommuneHistoryDto> getCommunesHistory(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8085/api/history/communes?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
@@ -358,4 +358,47 @@ public class Request {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
+
+    protected static boolean voivodeshipDeletion(int ID) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/voivodeship/delete/" + ID))
+                .DELETE()
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if(response.statusCode() == 200){
+            return true;
+        }
+        return false;
+    }
+
+    protected static boolean countyDeletion(int ID) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/county/delete/" + ID))
+                .DELETE()
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if(response.statusCode() == 200){
+            return true;
+        }
+        return false;
+    }
+
+    protected static boolean communeDeletion(int ID) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8085/api/commune/delete/" + ID))
+                .DELETE()
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if(response.statusCode() == 200){
+            return true;
+        }
+        return false;
+    }
+
 }
