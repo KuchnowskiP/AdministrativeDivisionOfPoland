@@ -64,6 +64,6 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
+        return response.statusCode() == 204;
     }
 }

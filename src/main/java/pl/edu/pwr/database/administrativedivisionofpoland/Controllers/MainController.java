@@ -437,19 +437,23 @@ public class MainController implements Initializable {
     }
     public void onSendButtonClick(ActionEvent ignoredActionEvent) throws Exception {
         System.out.println("Click");
-        AddReportRequest addReportRequest = new AddReportRequest();
-        addReportRequest.setTopic(topicTextField.getText().trim());
-        addReportRequest.setContent(reportContentTextArea.getText().trim());
-        if (reportSelectedVoivodeship.getId() != -1) {
-            addReportRequest.setVoivodeshipId(reportSelectedVoivodeship.getId());
+        UserData.prompt ="\nwysłać zgłoszenie?";
+        UserData.getConfirmation();
+        if(UserData.confirmed) {
+            AddReportRequest addReportRequest = new AddReportRequest();
+            addReportRequest.setTopic(topicTextField.getText().trim());
+            addReportRequest.setContent(reportContentTextArea.getText().trim());
+            if (reportSelectedVoivodeship.getId() != -1) {
+                addReportRequest.setVoivodeshipId(reportSelectedVoivodeship.getId());
+            }
+            if (reportSelectedCounty.getId() != -1) {
+                addReportRequest.setCountyId(reportSelectedCounty.getId());
+            }
+            if (reportSelectedCommune.getId() != -1) {
+                addReportRequest.setCommuneId(reportSelectedCommune.getId());
+            }
+            requestSender.addReport(addReportRequest);
         }
-        if (reportSelectedCounty.getId() != -1) {
-            addReportRequest.setCountyId(reportSelectedCounty.getId());
-        }
-        if (reportSelectedCommune.getId() != -1) {
-            addReportRequest.setCommuneId(reportSelectedCommune.getId());
-        }
-        requestSender.addReport(addReportRequest);
     }
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
         changeView(unitsTree[unitsTreeIndexes[0]],0);
@@ -491,6 +495,16 @@ public class MainController implements Initializable {
     }
 
     public void onDeleteButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
+        if(voivodeshipForEditionOrDeletion.getId() != -1){
+            UserData.prompt ="\nusunąć to województwo?";
+        }else if(countyForEditionOrDeletion.getId() != -1){
+            UserData.prompt ="\nusunąć ten powiat?";
+        }else if(communeForEditionOrDeletion.getId() != -1){
+            UserData.prompt ="\nusunąć tą gminę?";
+        }else{
+            return;
+        }
+
         UserData.getConfirmation();
         if(UserData.confirmed) {
             if (voivodeshipForEditionOrDeletion.getId() != -1) {
@@ -499,12 +513,10 @@ public class MainController implements Initializable {
                 }
             } else if (countyForEditionOrDeletion.getId() != -1) {
                 if (requestSender.deleteCounty(countyForEditionOrDeletion.getId())) {
-
                     changeView(unitsTree[unitsTreeIndexes[1]], 1);
                 }
             } else if (communeForEditionOrDeletion.getId() != -1) {
                 if (requestSender.deleteCommune(communeForEditionOrDeletion.getId())) {
-
                     changeView(unitsTree[unitsTreeIndexes[1]], 1);
                 }
             }

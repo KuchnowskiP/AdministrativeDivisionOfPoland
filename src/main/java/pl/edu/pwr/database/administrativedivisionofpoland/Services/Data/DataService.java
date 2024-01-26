@@ -348,7 +348,7 @@ public class DataService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
+        return response.statusCode() == 204;
     }
 
     protected static boolean communeDeletion(int ID) throws IOException, InterruptedException {
@@ -359,7 +359,7 @@ public class DataService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
+        return response.statusCode() == 204;
     }
 
     public static CountyDto countyById(int ID) throws IOException, InterruptedException {

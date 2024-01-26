@@ -25,7 +25,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'pl.edu.pwr.database.administrativedivisionofpoland'
-    mainClass = 'pl.edu.pwr.database.administrativedivisionofpoland.HelloApplication'
+    mainClass = 'pl.edu.pwr.database.administrativedivisionofpoland.Main'
 }
 
 javafx {
@@ -44,6 +44,20 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes(
+                'Class-Path': configurations.collect { it.getName() }.join(' '),
+                'Main-Class': 'pl.edu.pwr.database.administrativedivisionofpoland.Main'
+        )
+    }
+    from sourceSets.main.allSource
+    archiveBaseName = 'adopfront'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 jlink {
