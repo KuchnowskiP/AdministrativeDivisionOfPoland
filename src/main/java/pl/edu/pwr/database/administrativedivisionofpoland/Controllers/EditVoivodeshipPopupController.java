@@ -175,7 +175,8 @@ public class EditVoivodeshipPopupController implements Initializable {
             VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
             voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
             voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-            voivodeshipRequest.setTerytCode("0200000");
+            VoivodeshipDto voivodeshipDto = (VoivodeshipDto) UserData.unit;
+            voivodeshipRequest.setTerytCode(voivodeshipDto.getTerytCode());
 
             if (addressSelectionTabPane.getSelectionModel().isSelected(1)) {
                 OfficeAddressRequest newAddress = new OfficeAddressRequest();
@@ -198,7 +199,7 @@ public class EditVoivodeshipPopupController implements Initializable {
                 voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
             }
 
-            VoivodeshipDto voivodeshipDto = (VoivodeshipDto) UserData.unit;
+
             if(requestSender.editVoivodeship(voivodeshipDto.getId(),voivodeshipRequest)){
                 returningLabel.setVisible(true);
                 returningLabel.setText("Pomyślnie edytowano województwo!");
