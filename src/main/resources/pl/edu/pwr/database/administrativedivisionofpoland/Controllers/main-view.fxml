@@ -71,7 +71,7 @@
                                <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="698.0" />
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" text="+" />
+                                    <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" text="Dodaj" />
                                     <Button fx:id="voivodeshipTabEditUnitButton" mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick" />
                                     <Button mnemonicParsing="false" onAction="#onDeleteButtonClick" text="Usuń" />
                                  </children>
@@ -91,7 +91,7 @@
                                <TableView id="tableView" fx:id="countiesTableManage" prefHeight="500.0" prefWidth="700.0" />
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false"  prefHeight="25.0" prefWidth="34.0" text="+" />
+                                    <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false"  prefHeight="25.0" prefWidth="34.0" text="Dodaj" />
                                     <Button fx:id="countyTabEditUnitButton" mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick" />
                                     <Button mnemonicParsing="false" text="Usuń" onAction="#onDeleteButtonClick"/>
                                  </children>
@@ -111,7 +111,7 @@
                                       <TableView id="tableView" fx:id="communesTableManage" prefHeight="500.0" prefWidth="667.0" />
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="30.0" text="+" />
+                                    <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="30.0" text="Dodaj" />
                                     <Button fx:id="communeTabEditUnitButton" mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick"/>
                                     <Button mnemonicParsing="false" text="Usuń" onAction="#onDeleteButtonClick"/>
                                  </children>

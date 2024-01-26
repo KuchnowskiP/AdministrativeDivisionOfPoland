@@ -362,4 +362,30 @@ public class DataService {
         return response.statusCode() == 200;
     }
 
+    public static CountyDto countyById(int ID) throws IOException, InterruptedException {
+       HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/county/" + ID))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        CountyDto result =  objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println(result);
+        return result;
+    }
+    public static CommuneDto communeById(int ID) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/commune/" + ID))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        CommuneDto result =  objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println(result);
+        return result;
+    }
 }

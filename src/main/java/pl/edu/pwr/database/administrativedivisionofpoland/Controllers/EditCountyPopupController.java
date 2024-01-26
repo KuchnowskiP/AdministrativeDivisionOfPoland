@@ -194,8 +194,10 @@ public class EditCountyPopupController implements Initializable {
             returningLabel.setVisible(false);
         }
 
-        UserData.prompt = "\ndodać powiat o nazwie \"" + countyNameTextField.getText() + "\"?";
+        UserData.prompt = "\npotwierdzić dane powiatu o nazwie \"" + countyNameTextField.getText() + "\"?";
         UserData.getConfirmation();
+
+        CountyDto countyDto = (CountyDto) UserData.unit;
 
         if(UserData.confirmed) {
             CountyRequest countyRequest = new CountyRequest();
@@ -203,13 +205,18 @@ public class EditCountyPopupController implements Initializable {
             countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
             countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
             countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
-            String newTeryt = requestSender.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
-            if(newTeryt == null){
-                int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
-                newTerytInt += 1000;
-                newTeryt = String.format("%07d",newTerytInt);
+            if(Objects.equals(countyDto.getVoivodeshipId(), selectedVoivodeship.getId()) && selectedVoivodeship.getId() != null){
+                countyRequest.setTerytCode(countyDto.getTerytCode());
+            }else {
+                String newTeryt = requestSender.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
+                if (newTeryt == null) {
+                    int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
+                    newTerytInt += 1000;
+                    newTeryt += cityRightsCheckBox.isSelected() ? 1 : 0;
+                    newTeryt = String.format("%07d", newTerytInt);
+                }
+                countyRequest.setTerytCode(newTeryt);
             }
-            countyRequest.setTerytCode(newTeryt);
             if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
                 OfficeAddressRequest newAddress = new OfficeAddressRequest();
                 newAddress.setLocality(postLocalityTextField.getText().trim());
@@ -226,7 +233,6 @@ public class EditCountyPopupController implements Initializable {
                 countyRequest.setLocality(place);
                 countyRequest.setRegisteredOfficeAddressesId(addressID);
             }
-            CountyDto countyDto = (CountyDto) UserData.unit;
             if(requestSender.editCounty(countyDto.getId(),countyRequest)){
                 returningLabel.setVisible(true);
                 returningLabel.setText("Pomyślnie dodano nowy powiat!");

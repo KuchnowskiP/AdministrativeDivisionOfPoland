@@ -11,6 +11,8 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCommune
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCountyPopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddVoivodeshipPopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.MainController;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.util.Objects;
 
 public class EventsHandler {
     MainController mainController;
+    DataReceiver dataReceiver = new DataReceiver();
     public EventsHandler(MainController mainController){
         this.mainController = mainController;
     }
@@ -157,7 +160,7 @@ public class EventsHandler {
         }
         System.out.println("Editing county");
         try {
-            UserData.unit = mainController.countyForEditionOrDeletion;
+            UserData.unit = dataReceiver.getCountyById(mainController.countyForEditionOrDeletion.getId());
             FXMLLoader fxmlLoader = new FXMLLoader(AddCountyPopupController.class.getResource("edit-county-popup.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
@@ -181,7 +184,7 @@ public class EventsHandler {
         }
         System.out.println("Editing commune");
         try {
-            UserData.unit = mainController.communeForEditionOrDeletion;
+            UserData.unit = dataReceiver.getCommuneById(mainController.communeForEditionOrDeletion.getId());
             FXMLLoader fxmlLoader = new FXMLLoader(AddCommunePopupController.class.getResource("edit-commune-popup.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
