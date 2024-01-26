@@ -1,0 +1,25 @@
+.root{
+    -fx-background-color: #f7e7da;
+    -fx-font-family: "Calibri Light";
+}
+
+.vbox{
+    -fx-alignment: CENTER;
+    /*-fx-background-color: orange;*/
+    /*-fx-min-width: 1280;*/
+    /*-fx-min-height: 720;*/
+    /*-fx-padding: 10 0 0 10;*/
+    -fx-spacing: 20;
+}
+.hbox{
+    -fx-alignment: CENTER;
+    -fx-spacing: 10;
+}
+
+.button{
+    -fx-background-color: linear-gradient(to bottom, #d2ad8e, #e9d5c4)
+}
+
+#pane .column-header-background{
+   -fx-background-color: linear-gradient(to bottom, #d2ad8e, #d8bba3);
+}

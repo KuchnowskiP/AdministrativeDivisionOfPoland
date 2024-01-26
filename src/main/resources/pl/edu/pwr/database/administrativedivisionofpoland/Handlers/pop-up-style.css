@@ -4,8 +4,8 @@
 }
 .tab-pane{
     -fx-alignment: CENTER;
-    -fx-min-width: 1280;
-    -fx-min-height: 720;
+    -fx-min-width: 800;
+    -fx-min-height: 400;
     -fx-tab-color:  linear-gradient(to bottom, #d2ad8e, #d8bba3);
 
 }
@@ -31,8 +31,8 @@
 }
 
 .table-view{
-    -fx-min-width: 800;
-    -fx-min-height: 600;
+    -fx-min-width: 650;
+    -fx-min-height: 300;
 }
 .table-row-cell:selected {
     -fx-text-background-color: #945200;
@@ -40,6 +40,11 @@
     -fx-font-size: 14px;
 
 }
+
+.button:pressed{
+    -fx-background-color: linear-gradient(to bottom, #945200, #d2ad8e)
+}
+
 
 .table-view {
     -fx-background-color: transparent;
@@ -102,9 +107,6 @@
 
 .button{
     -fx-background-color: linear-gradient(to bottom, #d2ad8e, #e9d5c4)
-}
-.button:pressed{
-    -fx-background-color: linear-gradient(to bottom, #945200, #d2ad8e)
 }
 
 #pane .column-header-background{

@@ -10,15 +10,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Commune.CommuneRequest;
-import pl.edu.pwr.contract.Dtos.CommuneDto;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Request;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataSender;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -70,8 +68,8 @@ public class AddCommunePopupController implements Initializable {
     private TextField voivodeshipNameTextField;
     @FXML
     private TextField licensePlateDifferentiatorTextField;
-    RequestSender requestSender = new RequestSender();
-    RequestResultsReceiver requestResultsReceiver = new RequestResultsReceiver();
+    DataSender requestSender = new DataSender();
+    DataReceiver requestResultsReceiver = new DataReceiver();
     Integer addressID;
     String place;
 
@@ -86,14 +84,14 @@ public class AddCommunePopupController implements Initializable {
         initializeChoiceBoxesListeners();
     }
 
-    Request request = new Request();
+    DataService dataService = new DataService();
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
 
     public void setChoiceBoxes() throws Exception {
-        requestVoivodeships = request.getVoivodeships(1, Integer.MAX_VALUE);
+        requestVoivodeships = dataService.getVoivodeships(1, Integer.MAX_VALUE);
         voivodeshipChoiceBox.getItems().add("-");
         voivodeshipChoiceBox.setValue("-");
         for(int i = 0; i < requestVoivodeships.items.size(); i++){
@@ -116,7 +114,7 @@ public class AddCommunePopupController implements Initializable {
                         selectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = request.getCounties(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = dataService.getCounties(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
@@ -273,7 +271,7 @@ public class AddCommunePopupController implements Initializable {
             communeRequest.setRegisteredOfficeAddressesId(addressID);
         }
 
-        RequestSender.createCommune(communeRequest);
+        DataSender.addCommune(communeRequest);
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) {

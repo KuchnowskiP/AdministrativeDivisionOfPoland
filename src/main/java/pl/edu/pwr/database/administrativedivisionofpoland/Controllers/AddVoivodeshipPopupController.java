@@ -5,15 +5,22 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataSender;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -24,7 +31,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+
 public class AddVoivodeshipPopupController implements Initializable{
+    public Button closeButton;
+    public Label nameLabel;
     @FXML
     private TextField postLocalityTextField;
     @FXML
@@ -53,8 +63,8 @@ public class AddVoivodeshipPopupController implements Initializable{
     private TextField voivodeshipNameTextField;
     @FXML
     private TextField licensePlateDifferentiatorTextField;
-    RequestSender requestSender = new RequestSender();
-    RequestResultsReceiver requestResultsReceiver = new RequestResultsReceiver();
+    DataSender requestSender = new DataSender();
+    DataReceiver requestResultsReceiver = new DataReceiver();
     Integer addressID;
     String place;
 
@@ -131,41 +141,71 @@ public class AddVoivodeshipPopupController implements Initializable{
     }
 
     public void onConfirmButtonClick(ActionEvent actionEvent) throws Exception {
-        if(licensePlateDifferentiatorTextField.getText().length() > 1){
+        if (licensePlateDifferentiatorTextField.getText().length() > 1) {
             returningLabel.setText("Wyróżnik musi się składać z jednej litery");
             returningLabel.setVisible(true);
-        }else{
+            UserData.confirmed = false;
+            return;
+        } else {
             returningLabel.setVisible(false);
         }
-        VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
-        voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
-        voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-        voivodeshipRequest.setTerytCode(requestSender.newVoivodeshipTeryt());
 
-        if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
-            OfficeAddressRequest newAddress = new OfficeAddressRequest();
-            newAddress.setLocality(postLocalityTextField.getText().trim());
-            newAddress.setStreet(streetTextField.getText().trim());
-            newAddress.setPostalCode(postalCodeTextField.getText().trim());
-            newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
-            newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
-            HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
-
-            voivodeshipRequest.setLocalityFirst(localityTextField.getText().trim());
-            voivodeshipRequest.setIsSeatOfCouncilFirst(true);
-            voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-            voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(Integer.parseInt(responseWithIdAsABody.body()));
-
-        }else{
-            voivodeshipRequest.setLocalityFirst(place);
-            voivodeshipRequest.setIsSeatOfCouncilFirst(true);
-            voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-            voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
+        if (voivodeshipNameTextField.getText().trim().isEmpty()) {
+            returningLabel.setText("Nazwa jest wymagana");
+            returningLabel.setVisible(true);
+            UserData.confirmed = false;
+            return;
+        } else {
+            returningLabel.setVisible(false);
         }
 
-        requestSender.addVoivodeship(voivodeshipRequest);
+        UserData.prompt = "\ndodać województwo o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
+        UserData.getConfirmation();
+
+        if(UserData.confirmed) {
+            VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
+            voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
+            voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
+            voivodeshipRequest.setTerytCode(requestSender.newVoivodeshipTeryt());
+
+            if (addressSelectionTabPane.getSelectionModel().isSelected(1)) {
+                OfficeAddressRequest newAddress = new OfficeAddressRequest();
+                newAddress.setLocality(postLocalityTextField.getText().trim());
+                newAddress.setStreet(streetTextField.getText().trim());
+                newAddress.setPostalCode(postalCodeTextField.getText().trim());
+                newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
+                newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
+                HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
+
+                voivodeshipRequest.setLocalityFirst(localityTextField.getText().trim());
+                voivodeshipRequest.setIsSeatOfCouncilFirst(true);
+                voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
+                voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(Integer.parseInt(responseWithIdAsABody.body()));
+
+            } else {
+                voivodeshipRequest.setLocalityFirst(place);
+                voivodeshipRequest.setIsSeatOfCouncilFirst(true);
+                voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
+                voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
+            }
+
+            if(requestSender.addVoivodeship(voivodeshipRequest)){
+                returningLabel.setVisible(true);
+                returningLabel.setText("Pomyślnie dodano nowe województwo!");
+            }else{
+                returningLabel.setVisible(true);
+                returningLabel.setText("Nie udało się dodać województwa! Wprowadzono niepoprawne dane lub województwo" +
+                        " o podanych atrybutach już istnieje.");
+            }
+            UserData.confirmed = false;
+        }else {
+            returningLabel.setVisible(true);
+            returningLabel.setText("Nie dodano województwa, użytkownik przerwał operację!");
+        }
     }
 
     public void onCancelButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
+        Stage stage = (Stage) closeButton.getScene().getWindow();
+        stage.close();
     }
 }

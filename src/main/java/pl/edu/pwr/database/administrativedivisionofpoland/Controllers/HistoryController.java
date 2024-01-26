@@ -13,7 +13,7 @@ import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.History.CommuneHistoryDto;
 import pl.edu.pwr.contract.History.CountyHistoryDto;
 import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -33,7 +33,7 @@ public class HistoryController implements Initializable {
     @FXML private TableView<CommuneHistoryDto> communesTable = new TableView<>();
     TableView[] tables;
     int activeTable = 0;
-    RequestResultsReceiver requestResultsReceiver = new RequestResultsReceiver();
+    DataReceiver requestResultsReceiver = new DataReceiver();
     Class<?>[] units = new Class[]{VoivodeshipHistoryDto.class, CountyHistoryDto.class, CommuneHistoryDto.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
     Thread tableUpdater = new Thread();

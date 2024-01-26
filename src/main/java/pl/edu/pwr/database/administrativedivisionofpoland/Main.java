@@ -16,7 +16,6 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("Controllers/main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
-
         stage.setTitle("System zarządzania danymi o podziale administracyjnym Polski");
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Controllers/icon.png")));
         stage.getIcons().add(icon);

@@ -3,8 +3,8 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -17,21 +17,26 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Request;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestResultsReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.RequestSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.EventsHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.Main;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataSender;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     public ChoiceBox<String> voivodeshipReportChoiceBox;
@@ -50,13 +55,17 @@ public class MainController implements Initializable {
     public TextField countiesLicensePlateNameChangeTextField;
     public TextField communesAreaChangeTextField;
     public VBox kinderGarden = new VBox();
+    public Button voivodeshipTabEditUnitButton;
     @FXML private VBox manageViewVoivodeshipVBox;
     @FXML private VBox manageViewCountyVBox;
     @FXML private VBox manageViewCommuneVBox;
     public VBox[] manageVBoxes = new VBox[]{manageViewVoivodeshipVBox,manageViewCountyVBox,manageViewCommuneVBox};
-    @FXML private Button communeTabAddUnitButton;
-    @FXML private Button countyTabAddUnitButton;
-    @FXML private Button voivodeshipTabAddUnitButton;
+    @FXML
+    public Button communeTabAddUnitButton;
+    @FXML
+    public Button countyTabAddUnitButton;
+    @FXML
+    public Button voivodeshipTabAddUnitButton;
     @FXML private CheckBox registeredOfficesCheckBox;
     @FXML private TextField topicTextField;
     @FXML private TextArea reportContentTextArea;
@@ -75,39 +84,50 @@ public class MainController implements Initializable {
     @FXML private TableView<CountyDto> countiesTable = new TableView<>();
     @FXML private TableView<CommuneDto> communesTable = new TableView<>();
     TableView[][] tables;
-    Object[] unitsTree = new Object[]{-1,-1,-1};
-    int[] unitsTreeIndexes = new int[2];
+    public Object[] unitsTree = new Object[]{-1,-1,-1};
+    public int[] unitsTreeIndexes = new int[2];
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
     String[] masterName = new String[3];
-    Request request = new Request();
-    RequestResultsReceiver requestResultsReceiver = new RequestResultsReceiver();
-    RequestSender requestSender = new RequestSender();
+    DataService dataService = new DataService();
+    DataReceiver requestResultsReceiver = new DataReceiver();
+    DataSender requestSender = new DataSender();
     Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
     int addressesAreChecked = 0;
     Thread tableUpdater = new Thread();
+    public EventsHandler eventsHandler;
+    UIHandler uiHandler;
+
+    public MainController() {
+        this.eventsHandler = new EventsHandler(this);
+        this.uiHandler = new UIHandler(this);
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        eventsHandler.setupButtons();
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out),
                 true, StandardCharsets.UTF_8)); //needed due to polish diacritics
 
+        initializeStructures();
+        initializeUI();
+        initializeListeners();
+    }
+    public void initializeUI(){
         try {
             setInitialView();
+            setReportTab();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        initializeStructures();
-        initializeListeners();
     }
     public void setInitialView() throws Exception {
         mainTabPane.getTabs().remove(manageTab); //hiding managing tab. Will be open after singing in.
         changeView(-1,0); //setting content of table
-        setReportTab();
     }
     public void setReportTab() throws Exception {
-        requestVoivodeships = request.getVoivodeships(1, Integer.MAX_VALUE);
+        requestVoivodeships = DataService.getVoivodeships(1, Integer.MAX_VALUE);
         voivodeshipReportChoiceBox.getItems().add("-");
         voivodeshipReportChoiceBox.setValue("-");
         for(int i = 0; i < requestVoivodeships.items.size(); i++){
@@ -132,6 +152,9 @@ public class MainController implements Initializable {
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
         choiceBoxListeners();
         setRowsFactories();
+        setEnterKeyPressedEvent();
+    }
+    public void setEnterKeyPressedEvent(){
         passwordTextField.setOnKeyPressed(key -> {
             if(key.getCode().equals(KeyCode.ENTER)){
                 onLoginButtonClick(new ActionEvent());
@@ -141,32 +164,33 @@ public class MainController implements Initializable {
     public void setColumnsInMainTable(Class<?> passedClass, int viewOrManage){
         List<TableColumn<?, ?>> columnsToAdd = new ArrayList<>();
         Field[] fields = passedClass.getFields();
+
         for(Field f : fields){
-            columnsToAdd.add(new TableColumn<>(f.getName()));
+            TableColumn<?,?> column = new TableColumn<>(f.getName());
+            column.setCellValueFactory(new PropertyValueFactory<>(f.getName()));
+            columnsToAdd.add(column);
         }
 
-        int iterator = 0;
-        for(TableColumn t : columnsToAdd){
-            t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
-            iterator++;
-        }
-        Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear());
-        if(unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0){
-            TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]]  + "'");
-            Platform.runLater(() -> {
-                master.getColumns().addAll(columnsToAdd);
-                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-            });
-        }else if(unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1){
-            TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] +  "'");
-            Platform.runLater(() -> {
-                master.getColumns().addAll(columnsToAdd);
-                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-            });
+        ObservableList<TableColumn<?,?>> sortOrder = tables[viewOrManage][activeTables[viewOrManage]].getSortOrder();
 
-        }else{
-            Platform.runLater(() -> tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd));
-        }
+        Platform.runLater(() -> {
+            tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
+
+            if (unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0) {
+                TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                master.getColumns().addAll(columnsToAdd);
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            } else if (unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1) {
+                TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                master.getColumns().addAll(columnsToAdd);
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
+            } else {
+                tables[viewOrManage][activeTables[viewOrManage]].getColumns().addAll(columnsToAdd);
+            }
+
+            tables[viewOrManage][activeTables[viewOrManage]].getSortOrder().setAll(sortOrder);
+        });
+
     }
     public void changeItemsInMainTable(Object id, int viewOrManage){
         try {
@@ -174,6 +198,7 @@ public class MainController implements Initializable {
                     unitsTreeIndexes[viewOrManage], unitsTree[unitsTreeIndexes[viewOrManage]], addressesAreChecked);
             setColumnsInMainTable(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]
                     + addressesAreChecked], viewOrManage);
+
             Platform.runLater(() -> {
                 tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
                 for(Object o : requestResult.items){
@@ -185,9 +210,9 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-    VoivodeshipDto voivodeshipForEditionOrDeletion  = new VoivodeshipDto(-1,"","","");;
-    CountyDto countyForEditionOrDeletion = new CountyDto(-1,-1,"","",false,"","");;
-    CommuneDto communeForEditionOrDeletion = new CommuneDto(-1,-1,"","",-1,-1.0,"","");;
+    public VoivodeshipDto voivodeshipForEditionOrDeletion  = new VoivodeshipDto(-1,"","","");
+    CountyDto countyForEditionOrDeletion = new CountyDto(-1,-1,"","",false,"","");
+    CommuneDto communeForEditionOrDeletion = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
     PageResult<CommuneDto> requestCommunes;
@@ -199,7 +224,7 @@ public class MainController implements Initializable {
             changed = true;
         }
         unitsTreeIndexes[viewOrManage] = 0;
-        if(viewOrManage == 1) setAddButton();
+        if(viewOrManage == 1) uiHandler.setAddButton();
         boolean finalChanged = changed;
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
@@ -267,7 +292,7 @@ public class MainController implements Initializable {
                         reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = request.getCounties(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = DataService.getCounties(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
@@ -295,7 +320,7 @@ public class MainController implements Initializable {
                                 .filter(countyDto -> newValue.equals(countyDto.getName())).findAny().get();
 
                         try {
-                            requestCommunes = request.getCommunes(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
+                            requestCommunes = DataService.getCommunes(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCommunes.getItems().size(); i++) {
                                 communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
                             }
@@ -338,7 +363,7 @@ public class MainController implements Initializable {
                             if(unitsTreeIndexes[finalI] < (maxDepth)) {
                                 unitsTreeIndexes[finalI]++;
                                 if(finalI == 1){
-                                    setAddButton();
+                                    uiHandler.setAddButton();
 
                                 }
                                 try {
@@ -393,68 +418,11 @@ public class MainController implements Initializable {
 
         }
     }
-    public void setAddButton(){
-        if(unitsTreeIndexes[1] == 0){
-            voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    try {
-                        onAddVoivodeshipButtonClick(actionEvent);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            countyTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    try {
-                        onAddCountyButtonClick(actionEvent);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-        }
-        if(unitsTreeIndexes[1] == 1){
-            voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    try {
-                        onAddCountyButtonClick(actionEvent);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            countyTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    try {
-                        onAddCommuneButtonClick(actionEvent);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-        }
-        if(unitsTreeIndexes[1] == 2){
-            voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    try {
-                        onAddCommuneButtonClick(actionEvent);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-        }
-    }
+
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
-            setAddButton();
+            uiHandler.setAddButton();
         }
 
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
@@ -497,65 +465,15 @@ public class MainController implements Initializable {
         flagImage.setImage(new Image(new File(flagFileName).toURI().toString()));
         emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
     }
-
-    public void onAddVoivodeshipButtonClick(ActionEvent actionEvent) throws IOException {
-        System.out.println("Adding voivodeship");
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-voivodeship-popup.fxml"));
-            Parent root = (Parent) fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root, 800,600));
-            stage.setTitle("Podaj dane nowego województwa");
-            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
-            stage.getIcons().add(icon);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onAddCountyButtonClick(ActionEvent actionEvent) throws IOException {
-        System.out.println("Adding voivodeship");
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-county-popup.fxml"));
-            Parent root = (Parent) fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root, 800,600));
-            stage.setTitle("Podaj dane nowego powiatu");
-            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
-            stage.getIcons().add(icon);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onAddCommuneButtonClick(ActionEvent actionEvent) throws IOException {
-        System.out.println("Adding voivodeship");
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-commune-popup.fxml"));
-            Parent root = (Parent) fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root, 800,600));
-            stage.setTitle("Podaj dane nowej gminy");
-            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
-            stage.getIcons().add(icon);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onShowHistoricalDataButtonClick(ActionEvent actionEvent) {
+    public void onShowHistoricalDataButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("Showing history");
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("history-view.fxml"));
-            Parent root = (Parent) fxmlLoader.load();
+            Parent root = fxmlLoader.load();
             Stage stage = new Stage();
-            stage.setScene(new Scene(root, 1280,720));
+            Scene scene = new Scene(root, 1280,720);
+            scene.getStylesheets().addAll(Main.class.getResource("style.css").toExternalForm());
+            stage.setScene(scene);
             stage.setTitle("Dane historyczne");
             Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
             stage.getIcons().add(icon);
@@ -567,17 +485,24 @@ public class MainController implements Initializable {
 
     public void onDeleteButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
         if(voivodeshipForEditionOrDeletion.getId() != -1){
-            if(requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId()) == true){
+            if(requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId())){
                 changeView(unitsTree[unitsTreeIndexes[1]],1);
             }
         }else if(countyForEditionOrDeletion.getId() != -1){
-            if(requestSender.deleteCounty(countyForEditionOrDeletion.getId()) == true){
+            if(requestSender.deleteCounty(countyForEditionOrDeletion.getId())){
+                
                 changeView(unitsTree[unitsTreeIndexes[1]],1);
             }
         }else if(communeForEditionOrDeletion.getId() != -1){
-            if(requestSender.deleteCommune(communeForEditionOrDeletion.getId()) == true){
+            if(requestSender.deleteCommune(communeForEditionOrDeletion.getId())){
+                
                 changeView(unitsTree[unitsTreeIndexes[1]],1);
             }
         }
+    }
+
+    public void onEditButtonClick(ActionEvent ignoredActionEvent) {
+        System.out.println("Editing");
+        changeView(unitsTree[unitsTreeIndexes[1]],1);
     }
 }
