@@ -10,7 +10,7 @@
          <children>
             <HBox alignment="TOP_CENTER" prefHeight="103.0" prefWidth="600.0" spacing="10.0">
                <children>
-                  <Label text="Nazwa:" />
+                  <Label text="Nazwa:*" />
                   <TextField fx:id="countyNameTextField" />
                   <Label text="Województwo:" />
                   <ChoiceBox fx:id="voivodeshipChoiceBox" prefWidth="150.0" />
@@ -24,7 +24,7 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Label text="Wyróżnik tablicy rejestracyjnej:" />
+                  <Label text="Wyróżnik tablicy rejestracyjnej:*" />
                   <TextField fx:id="licensePlateDifferentiatorTextField" />
                   <Label text="Miasto na prawach powiatu:" />
                   <CheckBox fx:id="cityRightsCheckBox" mnemonicParsing="false" />
@@ -54,7 +54,7 @@
                                     </HBox>
                                     <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                                        <children>
-                                          <Label text="Kod pocztowy" />
+                                          <Label text="Kod pocztowy*" />
                                           <TextField fx:id="postalCodeTextField" prefHeight="25.0" prefWidth="108.0" />
                                        </children>
                                     </HBox>
