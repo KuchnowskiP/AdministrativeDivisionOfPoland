@@ -24,9 +24,9 @@ import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.EventsHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -56,6 +56,8 @@ public class MainController implements Initializable {
     public TextField communesAreaChangeTextField;
     public VBox kinderGarden = new VBox();
     public Button voivodeshipTabEditUnitButton;
+    public Button countyTabEditUnitButton;
+    public Button communeTabEditUnitButton;
     @FXML private VBox manageViewVoivodeshipVBox;
     @FXML private VBox manageViewCountyVBox;
     @FXML private VBox manageViewCommuneVBox;
@@ -211,8 +213,8 @@ public class MainController implements Initializable {
         }
     }
     public VoivodeshipDto voivodeshipForEditionOrDeletion  = new VoivodeshipDto(-1,"","","");
-    CountyDto countyForEditionOrDeletion = new CountyDto(-1,-1,"","",false,"","");
-    CommuneDto communeForEditionOrDeletion = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
+    public CountyDto countyForEditionOrDeletion = new CountyDto(-1,-1,"","",false,"","");
+    public CommuneDto communeForEditionOrDeletion = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
     PageResult<CommuneDto> requestCommunes;
@@ -224,7 +226,10 @@ public class MainController implements Initializable {
             changed = true;
         }
         unitsTreeIndexes[viewOrManage] = 0;
-        if(viewOrManage == 1) uiHandler.setAddButton();
+        if(viewOrManage == 1) {
+            uiHandler.setAddButton();
+            uiHandler.setEditButton();
+        };
         boolean finalChanged = changed;
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
@@ -364,7 +369,7 @@ public class MainController implements Initializable {
                                 unitsTreeIndexes[finalI]++;
                                 if(finalI == 1){
                                     uiHandler.setAddButton();
-
+                                    uiHandler.setEditButton();
                                 }
                                 try {
                                     unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
@@ -423,6 +428,7 @@ public class MainController implements Initializable {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
             uiHandler.setAddButton();
+            uiHandler.setEditButton();
         }
 
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);

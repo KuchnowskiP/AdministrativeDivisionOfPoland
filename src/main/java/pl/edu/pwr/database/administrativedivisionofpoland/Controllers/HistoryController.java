@@ -13,7 +13,7 @@ import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.History.CommuneHistoryDto;
 import pl.edu.pwr.contract.History.CountyHistoryDto;
 import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
 
 import java.io.*;
 import java.lang.reflect.Field;

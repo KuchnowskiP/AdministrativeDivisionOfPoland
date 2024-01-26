@@ -85,7 +85,7 @@
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
                   <Button fx:id="confirmButton" mnemonicParsing="false" onAction="#onConfirmButtonClick" text="Potwierdź" />
-                  <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCancelButtonClick" text="Zamknij" />
+                  <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButtonClick" text="Zamknij" />
                </children>
             </HBox>
          </children>

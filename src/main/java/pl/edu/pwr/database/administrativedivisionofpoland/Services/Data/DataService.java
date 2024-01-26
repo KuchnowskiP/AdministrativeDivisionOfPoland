@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.Services;
+package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -219,7 +219,7 @@ public class DataService {
         return result;
     }
 
-    public static String getNewCountyTeryt(Integer id) throws IOException, InterruptedException {
+    public static String getNewCountyTeryt(Integer id, int city) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/county/teryt?voivodeshipId=" + id))
                 .header("Content-Type", "application/json")
@@ -229,6 +229,9 @@ public class DataService {
         String result = null;
         if(!Objects.equals(response.body(), "")) {
             int newTerytInteger = Integer.parseInt(response.body()) + 1000;
+            newTerytInteger /= 10;
+            newTerytInteger *= 10;
+            newTerytInteger += city;
             result = String.format("%07d", newTerytInteger);
         }
         return result;
@@ -295,27 +298,6 @@ public class DataService {
         return result;
     }
 
-    public static boolean createVoivodeship(VoivodeshipRequest addVoivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
-        HashMap<String, Object> values = new HashMap<String, Object>();
-        for(Field field : addVoivodeshipRequest.getClass().getFields()){
-            if(field.get(addVoivodeshipRequest) != null) {
-                values.put(field.getName(), field.get(addVoivodeshipRequest).toString());
-            }else{
-                values.put(field.getName(), " ");
-            }
-        }
-
-        String requestBody = objectMapper.writeValueAsString(values);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/add"))
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
-    }
-
     protected static boolean createCounty(CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : countyRequest.getClass().getFields()){
@@ -358,17 +340,6 @@ public class DataService {
         return response.statusCode() == 200;
     }
 
-    protected static boolean voivodeshipDeletion(int ID) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/delete/" + ID))
-                .DELETE()
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
-    }
-
     protected static boolean countyDeletion(int ID) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/county/delete/" + ID))
@@ -391,24 +362,4 @@ public class DataService {
         return response.statusCode() == 200;
     }
 
-    protected static boolean editVoivodeshipData(int ID, VoivodeshipRequest voivodeshipRequest) throws IOException, InterruptedException, IllegalAccessException {
-        HashMap<String, Object> values = new HashMap<String, Object>();
-        for(Field field : voivodeshipRequest.getClass().getFields()){
-            if(field.get(voivodeshipRequest) != null) {
-                values.put(field.getName(), field.get(voivodeshipRequest).toString());
-            }else{
-                values.put(field.getName(), " ");
-            }
-        }
-
-        String requestBody = objectMapper.writeValueAsString(values);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/update/" + ID))
-                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
-    }
 }

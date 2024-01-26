@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 
-<AnchorPane prefHeight="154.0" prefWidth="278.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.Controllers.Confirmation">
+<AnchorPane prefHeight="154.0" prefWidth="278.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.Controllers.ConfirmationPopupController">
    <children>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="278.0">
          <children>

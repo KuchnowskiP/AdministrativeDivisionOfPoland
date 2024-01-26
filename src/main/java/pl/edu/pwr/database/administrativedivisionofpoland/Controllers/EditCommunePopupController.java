@@ -11,13 +11,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Commune.CommuneRequest;
+import pl.edu.pwr.contract.Dtos.CommuneDto;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class AddCommunePopupController implements Initializable {
+public class EditCommunePopupController implements Initializable {
     public Button closeButton;
     @FXML
     private TextField populationTextField;
@@ -287,19 +288,19 @@ public class AddCommunePopupController implements Initializable {
                 communeRequest.setLocality(place);
                 communeRequest.setRegisteredOfficeAddressesId(addressID);
             }
-
-            if(requestSender.addCommune(communeRequest)){
+            CommuneDto communeDto = (CommuneDto) UserData.unit;
+            if(requestSender.editCommune(communeDto.getId(), communeRequest)){
                 returningLabel.setVisible(true);
-                returningLabel.setText("Pomyślnie dodano nową gminę!");
+                returningLabel.setText("Pomyślnie edytowano gminę!");
             }else{
                 returningLabel.setVisible(true);
-                returningLabel.setText("Nie udało się dodać gminy! Wprowadzono niepoprawne dane lub gmina" +
+                returningLabel.setText("Nie udało się edytować gminy! Wprowadzono niepoprawne dane lub gmina" +
                         " o podanych atrybutach już istnieje.");
             }
             UserData.confirmed = false;
         }else {
             returningLabel.setVisible(true);
-            returningLabel.setText("Nie dodano gminy, użytkownik przerwał operację!");
+            returningLabel.setText("Nie edytowano gminy, użytkownik przerwał operację!");
         }
     }
 

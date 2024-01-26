@@ -8,15 +8,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.County.CountyRequest;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -29,6 +31,7 @@ import java.util.ResourceBundle;
 
 public class AddCountyPopupController implements Initializable {
     public TextField countyNameTextField;
+    public Button closeButton;
     @FXML
     private CheckBox cityRightsCheckBox;
     @FXML
@@ -74,7 +77,6 @@ public class AddCountyPopupController implements Initializable {
 
     DataService dataService = new DataService();
     PageResult<VoivodeshipDto> requestVoivodeships;
-    PageResult<CountyDto> requestCounties;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
 
@@ -174,42 +176,74 @@ public class AddCountyPopupController implements Initializable {
     }
 
     public void onConfirmButtonClick(ActionEvent actionEvent) throws Exception {
-        CountyRequest countyRequest = new CountyRequest();
-        countyRequest.setName(countyNameTextField.getText().trim());
-        countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
-        countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-        countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
-        String newTeryt = requestSender.newCountyTeryt(selectedCounty.getId());
-        if(newTeryt == null){
-            int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
-            newTerytInt += 1000;
-            newTeryt = String.format("%07d",newTerytInt);
-        }
-        countyRequest.setTerytCode(newTeryt);
-        if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
-            OfficeAddressRequest newAddress = new OfficeAddressRequest();
-            newAddress.setLocality(postLocalityTextField.getText().trim());
-            newAddress.setStreet(streetTextField.getText().trim());
-            newAddress.setPostalCode(postalCodeTextField.getText().trim());
-            newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
-            newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
-            HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
-
-            countyRequest.setLocality(localityTextField.getText().trim());
-
-            countyRequest.setRegisteredOfficeAddressesId(Integer.parseInt(responseWithIdAsABody.body()));
-        }else{
-            countyRequest.setLocality(place);
-            countyRequest.setRegisteredOfficeAddressesId(addressID);
+        if (licensePlateDifferentiatorTextField.getText().length() > 2) {
+            returningLabel.setText("Wyróżnik musi się składać z maksymalnie dwóch litery");
+            returningLabel.setVisible(true);
+            UserData.confirmed = false;
+            return;
+        } else {
+            returningLabel.setVisible(false);
         }
 
-        DataSender.addCounty(countyRequest);
+        if (countyNameTextField.getText().trim().isEmpty()) {
+            returningLabel.setText("Nazwa jest wymagana");
+            returningLabel.setVisible(true);
+            UserData.confirmed = false;
+            return;
+        } else {
+            returningLabel.setVisible(false);
+        }
+
+        UserData.prompt = "\ndodać powiat o nazwie \"" + countyNameTextField.getText() + "\"?";
+        UserData.getConfirmation();
+
+        if(UserData.confirmed) {
+            CountyRequest countyRequest = new CountyRequest();
+            countyRequest.setName(countyNameTextField.getText().trim());
+            countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
+            countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
+            countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
+            String newTeryt = requestSender.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
+            if(newTeryt == null){
+                int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
+                newTerytInt += 1000;
+                newTeryt = String.format("%07d",newTerytInt);
+            }
+            countyRequest.setTerytCode(newTeryt);
+            if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
+                OfficeAddressRequest newAddress = new OfficeAddressRequest();
+                newAddress.setLocality(postLocalityTextField.getText().trim());
+                newAddress.setStreet(streetTextField.getText().trim());
+                newAddress.setPostalCode(postalCodeTextField.getText().trim());
+                newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
+                newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
+                HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
+
+                countyRequest.setLocality(localityTextField.getText().trim());
+
+                countyRequest.setRegisteredOfficeAddressesId(Integer.parseInt(responseWithIdAsABody.body()));
+            }else{
+                countyRequest.setLocality(place);
+                countyRequest.setRegisteredOfficeAddressesId(addressID);
+            }
+
+            if(requestSender.addCounty(countyRequest)){
+                returningLabel.setVisible(true);
+                returningLabel.setText("Pomyślnie dodano nowy powiat!");
+            }else{
+                returningLabel.setVisible(true);
+                returningLabel.setText("Nie udało się dodać powiatu! Wprowadzono niepoprawne dane lub powiat" +
+                        " o podanych atrybutach już istnieje.");
+            }
+            UserData.confirmed = false;
+        }else {
+            returningLabel.setVisible(true);
+            returningLabel.setText("Nie dodano powiatu, użytkownik przerwał operację!");
+        }
     }
 
-    public void onCancelButtonClick(ActionEvent actionEvent) {
-//        Stage stage = new Stage();
-//        FileChooser fileChooser = new FileChooser();
-//        fileChooser.setTitle("Wybierz sb byczku");
-//        fileChooser.showOpenDialog(stage);
+    public void onCloseButtonClick(ActionEvent actionEvent) {
+        Stage stage = (Stage) closeButton.getScene().getWindow();
+        stage.close();
     }
 }

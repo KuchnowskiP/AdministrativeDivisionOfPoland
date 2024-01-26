@@ -92,7 +92,7 @@
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
                                     <Button fx:id="countyTabAddUnitButton" mnemonicParsing="false"  prefHeight="25.0" prefWidth="34.0" text="+" />
-                                    <Button mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick" />
+                                    <Button fx:id="countyTabEditUnitButton" mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick" />
                                     <Button mnemonicParsing="false" text="Usuń" onAction="#onDeleteButtonClick"/>
                                  </children>
                               </VBox>
@@ -112,7 +112,7 @@
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
                                     <Button fx:id="communeTabAddUnitButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="30.0" text="+" />
-                                    <Button mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick"/>
+                                    <Button fx:id="communeTabEditUnitButton" mnemonicParsing="false" text="Edytuj" onAction="#onEditButtonClick"/>
                                     <Button mnemonicParsing="false" text="Usuń" onAction="#onDeleteButtonClick"/>
                                  </children>
                               </VBox>

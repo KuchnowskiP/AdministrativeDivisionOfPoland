@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.Services;
+package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
 
 import pl.edu.pwr.contract.Commune.CommuneRequest;
 import pl.edu.pwr.contract.County.CountyRequest;
@@ -9,7 +9,10 @@ import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 
-public class DataSender extends DataService {
+public class DataSender {
+    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
+    CountyDataService countyDataService = new CountyDataService();
+    CommuneDataService communeDataService = new CommuneDataService();
     public static boolean addCounty(CountyRequest countyRequest) throws IOException, InterruptedException, IllegalAccessException {
         return DataService.createCounty(countyRequest);
     }
@@ -22,22 +25,29 @@ public class DataSender extends DataService {
         DataService.createReport(addReportRequest);
     }
     public boolean addVoivodeship(VoivodeshipRequest voivodeshipRequest) throws Exception {
-        return DataService.createVoivodeship(voivodeshipRequest);
+        return voivodeshipDataService.create(voivodeshipRequest);
     }
 
     public HttpResponse<String> addAddress(OfficeAddressRequest officeAddressRequest) throws Exception {
         return DataService.addOfficeAddress(officeAddressRequest);
     }
     public boolean editVoivodeship(int unitID, VoivodeshipRequest voivodeshipRequest) throws IOException, InterruptedException, IllegalAccessException{
-        return DataService.editVoivodeshipData(unitID, voivodeshipRequest);
+        return voivodeshipDataService.edit(unitID, voivodeshipRequest);
+    }
+    public boolean editCounty(int unitID, CountyRequest countyRequest) throws IOException, InterruptedException, IllegalAccessException {
+        return countyDataService.edit(unitID, countyRequest);
+    }
+
+    public boolean editCommune(Integer id, CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
+        return communeDataService.edit(id, communeRequest);
     }
 
     public String newVoivodeshipTeryt() throws IOException, InterruptedException {
         return DataService.getNewVoivodeshipTeryt();
     }
 
-    public String newCountyTeryt(Integer id) throws IOException, InterruptedException {
-        return DataService.getNewCountyTeryt(id);
+    public String newCountyTeryt(Integer id, int city) throws IOException, InterruptedException {
+        return DataService.getNewCountyTeryt(id, city);
     }
 
     public String newCommuneTeryt(Integer id, int type) throws IOException, InterruptedException {
@@ -45,7 +55,7 @@ public class DataSender extends DataService {
     }
 
     public boolean deleteVoivodeship(int ID) throws IOException, InterruptedException {
-        return DataService.voivodeshipDeletion(ID);
+        return voivodeshipDataService.delete(ID);
     }
     public boolean deleteCounty(int ID) throws IOException, InterruptedException {
         return DataService.countyDeletion(ID);

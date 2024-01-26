@@ -5,22 +5,17 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -204,7 +199,7 @@ public class AddVoivodeshipPopupController implements Initializable{
         }
     }
 
-    public void onCancelButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
+    public void onCloseButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
         Stage stage = (Stage) closeButton.getScene().getWindow();
         stage.close();
     }

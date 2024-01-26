@@ -10,7 +10,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class Confirmation implements Initializable{
+public class ConfirmationPopupController implements Initializable{
 
     public Button confirmationButton;
     public Label promptLabel;

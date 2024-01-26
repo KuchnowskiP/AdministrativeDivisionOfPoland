@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.Services;
+package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
 
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;

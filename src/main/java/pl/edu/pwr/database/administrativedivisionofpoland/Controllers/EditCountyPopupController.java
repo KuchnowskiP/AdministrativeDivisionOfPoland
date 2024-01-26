@@ -5,22 +5,19 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.County.CountyRequest;
+import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.IOException;
@@ -32,13 +29,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class EditVoivodeshipPopupController implements Initializable {
+public class EditCountyPopupController implements Initializable {
+    public TextField countyNameTextField;
     public Button closeButton;
-    public Label nameLabel;
     @FXML
-    private TextField postLocalityTextField;
+    private CheckBox cityRightsCheckBox;
     @FXML
     private TextField localityTextField;
+    @FXML
+    private TextField postalCodeTextField;
+    @FXML
+    private TextField postLocalityTextField;
     @FXML
     private TextField streetTextField;
     @FXML
@@ -50,15 +51,12 @@ public class EditVoivodeshipPopupController implements Initializable {
     @FXML
     private TabPane addressSelectionTabPane;
     @FXML
-    private TextField postalCodeTextField;
+    private ChoiceBox voivodeshipChoiceBox;
     @FXML
     private TableView existingAddressesTableView;
-    @FXML
-    private CheckBox chooseExistingAddressCheckBox;
+
     @FXML
     private Label returningLabel;
-    @FXML
-    private TextField voivodeshipNameTextField;
     @FXML
     private TextField licensePlateDifferentiatorTextField;
     DataSender requestSender = new DataSender();
@@ -69,6 +67,43 @@ public class EditVoivodeshipPopupController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeTabListeners();
+        try {
+            setChoiceBoxes();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        initializeChoiceBoxesListeners();
+    }
+
+    DataService dataService = new DataService();
+    PageResult<VoivodeshipDto> requestVoivodeships;
+    VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
+    CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
+
+    public void setChoiceBoxes() throws Exception {
+        requestVoivodeships = dataService.getVoivodeships(1, Integer.MAX_VALUE);
+        voivodeshipChoiceBox.getItems().add("-");
+        voivodeshipChoiceBox.setValue("-");
+        for(int i = 0; i < requestVoivodeships.items.size(); i++){
+            voivodeshipChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
+        }
+    }
+
+    private void initializeChoiceBoxesListeners(){
+        voivodeshipChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue)  {
+                if (newValue != null) {
+                    System.out.println(newValue);
+                    if (!Objects.equals(String.valueOf(newValue), "-")) {
+                        selectedVoivodeship = requestVoivodeships.getItems().stream()
+                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
+                    } else {
+                        selectedVoivodeship.setId(-1);
+                    }
+                }
+            }
+        });
     }
 
     private void initializeTabListeners() {
@@ -127,6 +162,7 @@ public class EditVoivodeshipPopupController implements Initializable {
         for(Field f : fields){
             columnsToAdd.add(new TableColumn<>(f.getName()));
         }
+
         int iterator = 0;
         for(TableColumn t : columnsToAdd){
             t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
@@ -136,11 +172,12 @@ public class EditVoivodeshipPopupController implements Initializable {
             existingAddressesTableView.getColumns().clear();
             existingAddressesTableView.getColumns().addAll(columnsToAdd);
         });
+
     }
 
     public void onConfirmButtonClick(ActionEvent actionEvent) throws Exception {
-        if (licensePlateDifferentiatorTextField.getText().length() > 1) {
-            returningLabel.setText("Wyróżnik musi się składać z jednej litery");
+        if (licensePlateDifferentiatorTextField.getText().length() > 2) {
+            returningLabel.setText("Wyróżnik musi się składać z maksymalnie dwóch litery");
             returningLabel.setVisible(true);
             UserData.confirmed = false;
             return;
@@ -148,7 +185,7 @@ public class EditVoivodeshipPopupController implements Initializable {
             returningLabel.setVisible(false);
         }
 
-        if (voivodeshipNameTextField.getText().trim().isEmpty()) {
+        if (countyNameTextField.getText().trim().isEmpty()) {
             returningLabel.setText("Nazwa jest wymagana");
             returningLabel.setVisible(true);
             UserData.confirmed = false;
@@ -157,27 +194,23 @@ public class EditVoivodeshipPopupController implements Initializable {
             returningLabel.setVisible(false);
         }
 
-
-        UserData.prompt = "\npotiwerdzić nowe dane województwa o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
-        FXMLLoader fxmlLoader = new FXMLLoader(AddVoivodeshipPopupController.class.getResource("confirmation.fxml"));
-        Parent root = fxmlLoader.load();
-        Stage stage = new Stage();
-        Scene scene = new Scene(root, 280,160);
-        scene.getStylesheets().addAll(this.getClass().getResource(("confirmation-style.css")).toExternalForm());
-        stage.setScene(scene);
-        stage.setTitle("Potwierdź operację");
-        Image icon = new Image(Objects.requireNonNull(AddCommunePopupController.class.getResourceAsStream("icon.png")));
-        stage.getIcons().add(icon);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
+        UserData.prompt = "\ndodać powiat o nazwie \"" + countyNameTextField.getText() + "\"?";
+        UserData.getConfirmation();
 
         if(UserData.confirmed) {
-            VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
-            voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
-            voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-            voivodeshipRequest.setTerytCode("0200000");
-
-            if (addressSelectionTabPane.getSelectionModel().isSelected(1)) {
+            CountyRequest countyRequest = new CountyRequest();
+            countyRequest.setName(countyNameTextField.getText().trim());
+            countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
+            countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
+            countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
+            String newTeryt = requestSender.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
+            if(newTeryt == null){
+                int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
+                newTerytInt += 1000;
+                newTeryt = String.format("%07d",newTerytInt);
+            }
+            countyRequest.setTerytCode(newTeryt);
+            if(addressSelectionTabPane.getSelectionModel().isSelected(1)){
                 OfficeAddressRequest newAddress = new OfficeAddressRequest();
                 newAddress.setLocality(postLocalityTextField.getText().trim());
                 newAddress.setStreet(streetTextField.getText().trim());
@@ -186,35 +219,30 @@ public class EditVoivodeshipPopupController implements Initializable {
                 newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
                 HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
 
-                voivodeshipRequest.setLocalityFirst(localityTextField.getText().trim());
-                voivodeshipRequest.setIsSeatOfCouncilFirst(true);
-                voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-                voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(Integer.parseInt(responseWithIdAsABody.body()));
+                countyRequest.setLocality(localityTextField.getText().trim());
 
-            } else {
-                voivodeshipRequest.setLocalityFirst(place);
-                voivodeshipRequest.setIsSeatOfCouncilFirst(true);
-                voivodeshipRequest.setIsSeatOfVoivodeFirst(true);
-                voivodeshipRequest.setRegisteredOfficeAddressesIdFirst(addressID);
+                countyRequest.setRegisteredOfficeAddressesId(Integer.parseInt(responseWithIdAsABody.body()));
+            }else{
+                countyRequest.setLocality(place);
+                countyRequest.setRegisteredOfficeAddressesId(addressID);
             }
-
-            VoivodeshipDto voivodeshipDto = (VoivodeshipDto) UserData.unit;
-            if(requestSender.editVoivodeship(voivodeshipDto.getId(),voivodeshipRequest)){
+            CountyDto countyDto = (CountyDto) UserData.unit;
+            if(requestSender.editCounty(countyDto.getId(),countyRequest)){
                 returningLabel.setVisible(true);
-                returningLabel.setText("Pomyślnie edytowano województwo!");
+                returningLabel.setText("Pomyślnie dodano nowy powiat!");
             }else{
                 returningLabel.setVisible(true);
-                returningLabel.setText("Nie udało się edytować województwa! Wprowadzono niepoprawne dane lub województwo" +
+                returningLabel.setText("Nie udało się dodać powiatu! Wprowadzono niepoprawne dane lub powiat" +
                         " o podanych atrybutach już istnieje.");
             }
             UserData.confirmed = false;
         }else {
             returningLabel.setVisible(true);
-            returningLabel.setText("Nie edytowano województwa, użytkownik przerwał operację!");
+            returningLabel.setText("Nie dodano powiatu, użytkownik przerwał operację!");
         }
     }
 
-    public void onCancelButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
+    public void onCloseButtonClick(ActionEvent actionEvent) {
         Stage stage = (Stage) closeButton.getScene().getWindow();
         stage.close();
     }
