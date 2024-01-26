@@ -147,11 +147,11 @@
             <AnchorPane id="pane" prefHeight="700.0" prefWidth="900.0">
                 <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.topAnchor="20.0">
                     <HBox prefWidth="900.0" spacing="10.0">
-                        <Label text="Temat: " />
+                        <Label text="Temat:* " />
                         <TextField fx:id="topicTextField" maxWidth="400.0" />
                     </HBox>
                     <HBox prefWidth="900.0" spacing="10.0">
-                        <Label text="Wojewodztwo: " />
+                        <Label text="Wojewodztwo:* " />
                         <ChoiceBox fx:id="voivodeshipReportChoiceBox" minWidth="150.0" prefWidth="150.0" />
                     </HBox>
                     <HBox prefWidth="900.0" spacing="50.0">
@@ -163,7 +163,7 @@
                         <ChoiceBox fx:id="communeReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
                     </HBox>
                     <HBox prefWidth="900.0" spacing="10.0">
-                        <Label text="Treść: " />
+                        <Label text="Treść:* " />
                         <TextArea fx:id="reportContentTextArea" maxWidth="400.0" minHeight="200.0" prefHeight="200.0" />
                     </HBox>
                     <HBox prefWidth="900.0" spacing="10.0">

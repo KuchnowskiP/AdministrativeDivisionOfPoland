@@ -10,7 +10,7 @@
          <children>
             <HBox alignment="TOP_CENTER" prefHeight="103.0" prefWidth="600.0" spacing="10.0">
                <children>
-                  <Label text="Nazwa:" />
+                  <Label text="Nazwa:*" />
                   <TextField fx:id="communeNameTextField" />
                   <VBox prefHeight="200.0" prefWidth="100.0">
                      <children>
@@ -62,7 +62,7 @@
                                     </HBox>
                                     <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                                        <children>
-                                          <Label text="Kod pocztowy" />
+                                          <Label text="Kod pocztowy*" />
                                           <TextField fx:id="postalCodeTextField" prefHeight="25.0" prefWidth="108.0" />
                                        </children>
                                     </HBox>
