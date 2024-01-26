@@ -158,7 +158,7 @@ public class EditVoivodeshipPopupController implements Initializable {
         }
 
 
-        UserData.prompt = "\npotiwerdzić nowe dane województwa o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
+        UserData.prompt = "\npotwierdzić dane województwa o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
         FXMLLoader fxmlLoader = new FXMLLoader(AddVoivodeshipPopupController.class.getResource("confirmation.fxml"));
         Parent root = fxmlLoader.load();
         Stage stage = new Stage();

@@ -1,6 +1,9 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
 
+import javafx.scene.chart.PieChart;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.CommuneDto;
+import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 
 import java.io.IOException;
@@ -93,5 +96,11 @@ public class DataReceiver extends DataService {
 
     public PageResult<OfficeAddressDto> getAddresses(int page, int size) throws IOException, InterruptedException {
         return DataService.getAllAddresses(page,size);
+    }
+    public CountyDto getCountyById(int ID) throws IOException, InterruptedException {
+        return DataService.countyById(ID);
+    }
+    public CommuneDto getCommuneById(int ID) throws IOException, InterruptedException {
+        return DataService.communeById(ID);
     }
 }
