@@ -27,6 +27,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Main;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -490,19 +491,22 @@ public class MainController implements Initializable {
     }
 
     public void onDeleteButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
-        if(voivodeshipForEditionOrDeletion.getId() != -1){
-            if(requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId())){
-                changeView(unitsTree[unitsTreeIndexes[1]],1);
-            }
-        }else if(countyForEditionOrDeletion.getId() != -1){
-            if(requestSender.deleteCounty(countyForEditionOrDeletion.getId())){
-                
-                changeView(unitsTree[unitsTreeIndexes[1]],1);
-            }
-        }else if(communeForEditionOrDeletion.getId() != -1){
-            if(requestSender.deleteCommune(communeForEditionOrDeletion.getId())){
-                
-                changeView(unitsTree[unitsTreeIndexes[1]],1);
+        UserData.getConfirmation();
+        if(UserData.confirmed) {
+            if (voivodeshipForEditionOrDeletion.getId() != -1) {
+                if (requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId())) {
+                    changeView(unitsTree[unitsTreeIndexes[1]], 1);
+                }
+            } else if (countyForEditionOrDeletion.getId() != -1) {
+                if (requestSender.deleteCounty(countyForEditionOrDeletion.getId())) {
+
+                    changeView(unitsTree[unitsTreeIndexes[1]], 1);
+                }
+            } else if (communeForEditionOrDeletion.getId() != -1) {
+                if (requestSender.deleteCommune(communeForEditionOrDeletion.getId())) {
+
+                    changeView(unitsTree[unitsTreeIndexes[1]], 1);
+                }
             }
         }
     }
