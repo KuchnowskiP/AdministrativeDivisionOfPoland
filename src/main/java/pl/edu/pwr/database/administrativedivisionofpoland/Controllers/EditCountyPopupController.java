@@ -18,7 +18,9 @@ import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.VoivodeshipDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -75,18 +77,13 @@ public class EditCountyPopupController implements Initializable {
         initializeChoiceBoxesListeners();
     }
 
-    DataService dataService = new DataService();
+    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
     PageResult<VoivodeshipDto> requestVoivodeships;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
 
     public void setChoiceBoxes() throws Exception {
-        requestVoivodeships = dataService.getVoivodeships(1, Integer.MAX_VALUE);
-        voivodeshipChoiceBox.getItems().add("-");
-        voivodeshipChoiceBox.setValue("-");
-        for(int i = 0; i < requestVoivodeships.items.size(); i++){
-            voivodeshipChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
-        }
+        requestVoivodeships = Utils.getVoivodeshipResult(voivodeshipChoiceBox);
     }
 
     private void initializeChoiceBoxesListeners(){

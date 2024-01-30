@@ -13,12 +13,12 @@ public class DataSender {
     VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
     CountyDataService countyDataService = new CountyDataService();
     CommuneDataService communeDataService = new CommuneDataService();
-    public static boolean addCounty(CountyRequest countyRequest) throws IOException, InterruptedException, IllegalAccessException {
-        return DataService.createCounty(countyRequest);
+    public boolean addCounty(CountyRequest countyRequest) throws IOException, InterruptedException, IllegalAccessException {
+        return countyDataService.create(countyRequest);
     }
 
-    public static boolean addCommune(CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
-        return DataService.createCommune(communeRequest);
+    public boolean addCommune(CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
+        return communeDataService.create(communeRequest);
     }
 
     public void addReport(AddReportRequest addReportRequest) throws Exception {
@@ -58,9 +58,9 @@ public class DataSender {
         return voivodeshipDataService.delete(ID);
     }
     public boolean deleteCounty(int ID) throws IOException, InterruptedException {
-        return DataService.countyDeletion(ID);
+        return countyDataService.delete(ID);
     }
     public boolean deleteCommune(int ID) throws IOException, InterruptedException {
-        return DataService.communeDeletion(ID);
+        return countyDataService.delete(ID);
     }
 }

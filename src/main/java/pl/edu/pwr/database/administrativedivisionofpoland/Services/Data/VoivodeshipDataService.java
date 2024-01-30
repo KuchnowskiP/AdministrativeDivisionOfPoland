@@ -1,6 +1,9 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 
 import java.io.IOException;
@@ -10,7 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 
-public class VoivodeshipDataService implements UnitDataServiceInterface<VoivodeshipRequest> {
+public class VoivodeshipDataService implements UnitDataServiceInterface<VoivodeshipRequest, VoivodeshipDto> {
     @Override
     public boolean create(VoivodeshipRequest voivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
@@ -65,5 +68,19 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         return response.statusCode() == 204;
+    }
+
+    @Override
+    public PageResult<VoivodeshipDto> get(Object ID, int page, int size) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/all?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<VoivodeshipDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        return result;
     }
 }

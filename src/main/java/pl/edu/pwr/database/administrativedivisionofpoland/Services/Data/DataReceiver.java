@@ -10,6 +10,9 @@ import java.io.IOException;
 
 
 public class DataReceiver extends DataService {
+    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
+    CountyDataService countyDataService = new CountyDataService();
+    CommuneDataService communeDataService = new CommuneDataService();
     public PageResult<?> getResult(int table, int treeIndex, Object unit, int addressesAreChecked) throws Exception {
         PageResult<?> requestResult = null;
         switch (table){
@@ -19,7 +22,7 @@ public class DataReceiver extends DataService {
                         if(addressesAreChecked == 4){
                             requestResult = DataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
                         }else {
-                            requestResult = DataService.getCounties(unit, 1, Integer.MAX_VALUE);
+                            requestResult = countyDataService.get(unit, 1, Integer.MAX_VALUE);
                         }
                         break;
                     }
@@ -27,7 +30,7 @@ public class DataReceiver extends DataService {
                         if(addressesAreChecked == 4){
                             requestResult = DataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                         }else {
-                            requestResult = DataService.getCommunes(unit, 1, Integer.MAX_VALUE);
+                            requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
                         }
                         break;
                     }
@@ -35,7 +38,7 @@ public class DataReceiver extends DataService {
                         if(addressesAreChecked == 4){
                             requestResult = DataService.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
                         }else {
-                            requestResult = DataService.getVoivodeships(1, Integer.MAX_VALUE);
+                            requestResult = voivodeshipDataService.get(null,1, Integer.MAX_VALUE);
                         }
                         break;
                     }
@@ -48,14 +51,14 @@ public class DataReceiver extends DataService {
                     if(addressesAreChecked == 4){
                         requestResult = DataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                     }else {
-                        requestResult = DataService.getCommunes(unit, 1, Integer.MAX_VALUE);
+                        requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
                     }
                 }
                 else{
                     if(addressesAreChecked == 4){
                         requestResult = DataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
                     }else {
-                        requestResult = DataService.getCounties(unit, 1, Integer.MAX_VALUE);
+                        requestResult = countyDataService.get(unit, 1, Integer.MAX_VALUE);
                     }
                 }
                 break;
@@ -64,7 +67,7 @@ public class DataReceiver extends DataService {
                 if(addressesAreChecked == 4){
                     requestResult = DataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                 }else {
-                    requestResult = DataService.getCommunes(unit, 1, Integer.MAX_VALUE);
+                    requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
                 }
                 break;
             }

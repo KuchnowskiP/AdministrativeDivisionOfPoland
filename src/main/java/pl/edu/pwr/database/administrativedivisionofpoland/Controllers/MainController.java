@@ -24,10 +24,9 @@ import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.EventsHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.*;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -92,7 +91,6 @@ public class MainController implements Initializable {
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
     String[] masterName = new String[3];
-    DataService dataService = new DataService();
     DataReceiver requestResultsReceiver = new DataReceiver();
     DataSender requestSender = new DataSender();
     Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
@@ -130,12 +128,7 @@ public class MainController implements Initializable {
         changeView(-1,0); //setting content of table
     }
     public void setReportTab() throws Exception {
-        requestVoivodeships = DataService.getVoivodeships(1, Integer.MAX_VALUE);
-        voivodeshipReportChoiceBox.getItems().add("-");
-        voivodeshipReportChoiceBox.setValue("-");
-        for(int i = 0; i < requestVoivodeships.items.size(); i++){
-            voivodeshipReportChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
-        }
+        requestVoivodeships = Utils.getVoivodeshipResult(voivodeshipReportChoiceBox);
     }
     public void changeView(Object id, int viewOrManage){
         tableUpdater.interrupt();
@@ -281,6 +274,9 @@ public class MainController implements Initializable {
             changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
         });
     }
+    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
+    CountyDataService countyDataService = new CountyDataService();
+    CommuneDataService communeDataService = new CommuneDataService();
     VoivodeshipDto reportSelectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto reportSelectedCounty = new CountyDto(-1,-1,"","",false,"","");
     CommuneDto reportSelectedCommune = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
@@ -298,7 +294,7 @@ public class MainController implements Initializable {
                         reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = DataService.getCounties(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = countyDataService.get(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
@@ -326,7 +322,7 @@ public class MainController implements Initializable {
                                 .filter(countyDto -> newValue.equals(countyDto.getName())).findAny().get();
 
                         try {
-                            requestCommunes = DataService.getCommunes(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
+                            requestCommunes = communeDataService.get(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCommunes.getItems().size(); i++) {
                                 communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
                             }

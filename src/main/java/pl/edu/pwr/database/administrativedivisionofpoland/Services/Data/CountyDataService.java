@@ -1,6 +1,10 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.County.CountyRequest;
+import pl.edu.pwr.contract.Dtos.CountyDto;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -9,10 +13,27 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 
-public class CountyDataService implements UnitDataServiceInterface<CountyRequest> {
+public class CountyDataService implements UnitDataServiceInterface<CountyRequest, CountyDto> {
     @Override
-    public boolean create(CountyRequest unitRequest) throws IllegalAccessException, IOException, InterruptedException {
-        return false;
+    public boolean create(CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
+        HashMap<String, Object> values = new HashMap<String, Object>();
+        for(Field field : countyRequest.getClass().getFields()){
+            if(field.get(countyRequest) != null) {
+                values.put(field.getName(), field.get(countyRequest).toString());
+            }else{
+                values.put(field.getName(), " ");
+            }
+        }
+
+        String requestBody = objectMapper.writeValueAsString(values);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/county/add"))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return response.statusCode() == 200;
     }
 
     @Override
@@ -39,6 +60,35 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
 
     @Override
     public boolean delete(int ID) throws IOException, InterruptedException {
-        return false;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/county/delete/" + ID))
+                .DELETE()
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return response.statusCode() == 204;
+    }
+
+    @Override
+    public PageResult<CountyDto> get(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
+        HttpRequest request;
+        if (voivodeshipId.equals(-1)) {
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://192.168.196.2:8085/api/county/all?page=" + page + "&size=" + size))
+                    .header("Content-Type", "application/json")
+                    .build();
+        }else{
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://192.168.196.2:8085/api/county/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
+                    .header("Content-Type", "application/json")
+                    .build();
+        }
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<CountyDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        return result;
     }
 }

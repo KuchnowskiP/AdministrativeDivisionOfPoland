@@ -27,38 +27,7 @@ public class DataService {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
 
-    public static PageResult<VoivodeshipDto> getVoivodeships(int page, int size) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/all?page=" + page + "&size=" + size))
-                .header("Content-Type", "application/json")
-                .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        PageResult<VoivodeshipDto> result = objectMapper.readValue(
-                response.body(), new TypeReference<>() {
-                });
-        return result;
-    }
-    public static PageResult<CountyDto> getCounties(Object voivodeshipId, int page, int size) throws Exception {
-        HttpRequest request;
-        if (voivodeshipId.equals(-1)) {
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/all?page=" + page + "&size=" + size))
-                    .header("Content-Type", "application/json")
-                    .build();
-        }else{
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
-                    .header("Content-Type", "application/json")
-                    .build();
-        }
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        PageResult<CountyDto> result = objectMapper.readValue(
-                response.body(), new TypeReference<>() {
-                });
-        return result;
-    }
     public static PageResult<CountyAddressData> getCountiesWithAddresses(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
@@ -75,27 +44,6 @@ public class DataService {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         PageResult<CountyAddressData> result = objectMapper.readValue(
-                response.body(), new TypeReference<>() {
-                });
-        return result;
-    }
-
-    public static PageResult<CommuneDto> getCommunes(Object countyID, int page, int size) throws Exception {
-        HttpRequest request;
-        if (countyID.equals(-1)) {
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/commune/all?page=" + page + "&size=" + size))
-                    .header("Content-Type", "application/json")
-                    .build();
-        }else{
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/commune/byCounty?countyId=" + countyID + "&page=" + page + "&size=" + size))
-                    .header("Content-Type", "application/json")
-                    .build();
-        }
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        PageResult<CommuneDto> result = objectMapper.readValue(
                 response.body(), new TypeReference<>() {
                 });
         return result;
@@ -296,70 +244,6 @@ public class DataService {
                 });
         System.out.println("gminy: " + response.body());
         return result;
-    }
-
-    protected static boolean createCounty(CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
-        HashMap<String, Object> values = new HashMap<String, Object>();
-        for(Field field : countyRequest.getClass().getFields()){
-            if(field.get(countyRequest) != null) {
-                values.put(field.getName(), field.get(countyRequest).toString());
-            }else{
-                values.put(field.getName(), " ");
-            }
-        }
-
-        String requestBody = objectMapper.writeValueAsString(values);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/add"))
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
-    }
-
-    protected static boolean createCommune(CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
-        HashMap<String, Object> values = new HashMap<String, Object>();
-        for(Field field : communeRequest.getClass().getFields()){
-            if(field.get(communeRequest) != null) {
-                values.put(field.getName(), field.get(communeRequest).toString());
-            }else{
-                values.put(field.getName(), " ");
-            }
-        }
-
-        String requestBody = objectMapper.writeValueAsString(values);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/commune/add"))
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 200;
-    }
-
-    protected static boolean countyDeletion(int ID) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/delete/" + ID))
-                .DELETE()
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 204;
-    }
-
-    protected static boolean communeDeletion(int ID) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/commune/delete/" + ID))
-                .DELETE()
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.statusCode() == 204;
     }
 
     public static CountyDto countyById(int ID) throws IOException, InterruptedException {
