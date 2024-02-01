@@ -2,7 +2,6 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -21,16 +20,12 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
-import pl.edu.pwr.contract.Reports.AddReportRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.*;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CommuneDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.StageEventsHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIInteractionHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
-import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -43,9 +38,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-    public ChoiceBox<String> voivodeshipReportChoiceBox;
-    public ChoiceBox<String> countyReportChoiceBox;
-    public ChoiceBox<String> communeReportChoiceBox;
     public ImageView flagImage;
     public ImageView emblemImage;
     public Button voivodeshipTabEditUnitButton;
@@ -56,8 +48,6 @@ public class MainController implements Initializable {
     @FXML public Button showHistoricalDataButton;
     @FXML private Button reportProblemButton;
     @FXML private CheckBox registeredOfficesCheckBox;
-    @FXML private TextField topicTextField;
-    @FXML private TextArea reportContentTextArea;
     @FXML private TableView<ReportDto> reportsTableManage;
     @FXML private TableView<CountyDto> countiesTableManage;
     @FXML private TableView<CommuneDto> communesTableManage;
@@ -105,7 +95,6 @@ public class MainController implements Initializable {
     public void initializeUI(){
         try {
             setInitialView();
-            setReportTab();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -113,9 +102,6 @@ public class MainController implements Initializable {
     public void setInitialView() throws Exception {
         mainTabPane.getTabs().remove(manageTab); //hiding managing tab. Will be open after singing in.
         changeView(-1,0); //setting content of table
-    }
-    public void setReportTab() throws Exception {
-        requestVoivodeships = Utils.getVoivodeshipResult(voivodeshipReportChoiceBox);
     }
     public void changeView(Object id, int viewOrManage){
         tableUpdater.interrupt();
@@ -133,7 +119,6 @@ public class MainController implements Initializable {
     public void initializeListeners(){
         changeTableListener(-1,0,0);
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
-        choiceBoxListeners();
         setRowsFactories();
         setEnterKeyPressedEvent();
     }
@@ -271,85 +256,6 @@ public class MainController implements Initializable {
             changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
         });
     }
-    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
-    CountyDataService countyDataService = new CountyDataService();
-    CommuneDataService communeDataService = new CommuneDataService();
-    VoivodeshipDto reportSelectedVoivodeship = new VoivodeshipDto(-1,"","","");
-    CountyDto reportSelectedCounty = new CountyDto(-1,-1,"","",false,"","");
-    CommuneDto reportSelectedCommune = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
-    public void choiceBoxListeners() {
-        voivodeshipReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue){
-                if (newValue != null) {
-                    System.out.println(newValue);
-                    if (!Objects.equals(String.valueOf(newValue), "-")) {
-                        countyReportChoiceBox.getItems().clear();
-                        countyReportChoiceBox.setDisable(false);
-                        countyReportChoiceBox.getItems().add("-");
-                        countyReportChoiceBox.setValue("-");
-                        reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
-                                .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
-                        try {
-                            requestCounties = countyDataService.get(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
-                            for (int i = 0; i < requestCounties.getItems().size(); i++) {
-                                countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
-                            }
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        reportSelectedVoivodeship.setId(-1);
-                        countyReportChoiceBox.setValue("-");
-                        countyReportChoiceBox.setDisable(true);
-                    }
-                }
-            }
-        });
-        countyReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if (newValue != null) {
-                    if (!Objects.equals(String.valueOf(newValue), "-")) {
-                        communeReportChoiceBox.getItems().clear();
-                        communeReportChoiceBox.setDisable(false);
-                        communeReportChoiceBox.getItems().add("-");
-                        communeReportChoiceBox.setValue("-");
-                        reportSelectedCounty = requestCounties.getItems().stream()
-                                .filter(countyDto -> newValue.equals(countyDto.getName())).findAny().get();
-
-                        try {
-                            requestCommunes = communeDataService.get(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
-                            for (int i = 0; i < requestCommunes.getItems().size(); i++) {
-                                communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
-                            }
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    if (Objects.equals(String.valueOf(newValue), "-")) {
-                        reportSelectedCounty.setId(-1);
-                        communeReportChoiceBox.getItems().clear();
-                        communeReportChoiceBox.setDisable(true);
-                    }
-                }
-            }
-        });
-        communeReportChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if(newValue != null) {
-                    if (!Objects.equals(String.valueOf(newValue), "-")) {
-                        String[] name = newValue.toString().split("\\(");
-                        reportSelectedCommune = requestCommunes.getItems().stream()
-                                .filter(communeDto -> name[0].trim().equals(communeDto.getName())).findAny().get();
-                    } else {
-                        reportSelectedCommune.setId(-1);
-                    }
-                }
-            }
-        });
-    }
     public void setRowsFactories(){
         for(int i = 0; i < tables.length; i++){
             for(int j = 0; j < tables[i].length - (1+i); j++){
@@ -427,26 +333,6 @@ public class MainController implements Initializable {
 
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
         changeView(unitsTree[unitsTreeIndexes[1]],1);
-    }
-    public void onSendButtonClick(ActionEvent ignoredActionEvent) throws Exception {
-        System.out.println("Click");
-        UserData.prompt ="\nwysłać zgłoszenie?";
-        UserData.getConfirmation();
-        if(UserData.confirmed) {
-            AddReportRequest addReportRequest = new AddReportRequest();
-            addReportRequest.setTopic(topicTextField.getText().trim());
-            addReportRequest.setContent(reportContentTextArea.getText().trim());
-            if (reportSelectedVoivodeship.getId() != -1) {
-                addReportRequest.setVoivodeshipId(reportSelectedVoivodeship.getId());
-            }
-            if (reportSelectedCounty.getId() != -1) {
-                addReportRequest.setCountyId(reportSelectedCounty.getId());
-            }
-            if (reportSelectedCommune.getId() != -1) {
-                addReportRequest.setCommuneId(reportSelectedCommune.getId());
-            }
-            requestSender.addReport(addReportRequest);
-        }
     }
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
         changeView(unitsTree[unitsTreeIndexes[0]],0);

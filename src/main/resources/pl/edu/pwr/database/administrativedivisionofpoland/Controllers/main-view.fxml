@@ -11,7 +11,7 @@
     </padding>
    <HBox prefHeight="22.0" prefWidth="900.0">
       <children>
-         <Button fx:id="reportProblemButton" mnemonicParsing="false" text="Zgłoś problem" onAction="#onReportProblemButtonClick"/>
+         <Button fx:id="reportProblemButton" mnemonicParsing="false" onAction="#onReportProblemButtonClick" text="Zgłoś problem" />
       </children>
    </HBox>
     <TabPane id="pane" fx:id="mainTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
@@ -145,49 +145,6 @@
                     <PasswordField fx:id="passwordTextField" alignment="CENTER" maxWidth="100.0" />
                     <Button alignment="CENTER" onAction="#onLoginButtonClick" text="Login" />
                     <Label fx:id="loginFeedbackLabel" visible="false" />
-                </VBox>
-            </AnchorPane>
-        </Tab>
-        <Tab id="login" text="Zgłoszenia">
-            <AnchorPane id="pane" prefHeight="700.0" prefWidth="900.0">
-                <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.topAnchor="20.0">
-                    <HBox prefWidth="900.0" spacing="10.0">
-                        <Label text="Temat:* " />
-                        <TextField fx:id="topicTextField" maxWidth="400.0" />
-                    </HBox>
-                    <HBox prefWidth="900.0" spacing="10.0">
-                        <Label text="Wojewodztwo:* " />
-                        <ChoiceBox fx:id="voivodeshipReportChoiceBox" minWidth="150.0" prefWidth="150.0" />
-                    </HBox>
-                    <HBox prefWidth="900.0" spacing="50.0">
-                        <Label text="Powiat: " />
-                        <ChoiceBox fx:id="countyReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
-                    </HBox>
-                    <HBox prefWidth="900.0" spacing="51.0">
-                        <Label text="Gmina: " />
-                        <ChoiceBox fx:id="communeReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
-                    </HBox>
-                    <HBox prefWidth="900.0" spacing="10.0">
-                        <Label text="Treść:* " />
-                        <TextArea fx:id="reportContentTextArea" maxWidth="400.0" minHeight="200.0" prefHeight="200.0" />
-                    </HBox>
-                    <HBox prefWidth="900.0" spacing="10.0">
-                        <VBox id="vbox" prefHeight="200.0" prefWidth="400.0">
-                            <HBox.margin>
-                                <Insets left="45.0" />
-                            </HBox.margin>
-                            <Button onAction="#onSendButtonClick" text="Wyślij zgłoszenie">
-                                <VBox.margin>
-                                    <Insets left="147.0" />
-                                </VBox.margin>
-                            </Button>
-                            <Label visible="false">
-                                <VBox.margin>
-                                    <Insets left="200.0" />
-                                </VBox.margin>
-                            </Label>
-                        </VBox>
-                    </HBox>
                 </VBox>
             </AnchorPane>
         </Tab>
