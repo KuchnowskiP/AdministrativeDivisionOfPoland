@@ -21,14 +21,25 @@
                     <TabPane fx:id="viewUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
                         <Tab id="0" text="Województwa">
                             <AnchorPane id="pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
-                                <VBox>
-                                    <TableView id="tableView" fx:id="voivodeshipsTable" />
-                                    <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
-                                    <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
-                           <padding>
-                              <Insets left="10.0" top="10.0" />
-                           </padding>
-                                </VBox>
+                        <HBox prefHeight="104.0" prefWidth="900.0">
+                           <children>
+                                      <VBox prefHeight="307.0" prefWidth="464.0">
+                                          <TableView id="tableView" fx:id="voivodeshipsTable" />
+                                          <Button mnemonicParsing="false" onAction="#onBackButtonClick" text="Cofnij" />
+                                          <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                                 <padding>
+                                    <Insets left="10.0" top="10.0" />
+                                 </padding>
+                                      </VBox>
+                              <VBox alignment="TOP_CENTER" prefHeight="104.0" prefWidth="436.0">
+                                 <children>
+                                    <Label visible="false" fx:id="viewingLabel" alignment="CENTER" prefHeight="17.0" prefWidth="192.0" text="Przeglądzasz" />
+                                    <ChoiceBox visible="false" fx:id="communeOrCountyChoiceBox" prefHeight="25.0" prefWidth="69.0" />
+                                    <Label visible="false" fx:id="inVoivodeshipLabel" text="w województwie " />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
                             </AnchorPane>
                         </Tab>
                         <Tab id="1" text="Powiaty">

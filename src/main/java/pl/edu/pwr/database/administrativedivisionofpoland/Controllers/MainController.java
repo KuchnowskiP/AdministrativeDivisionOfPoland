@@ -46,6 +46,9 @@ public class MainController implements Initializable {
     @FXML public Button countyTabAddUnitButton;
     @FXML public Button voivodeshipTabAddUnitButton;
     @FXML public Button showHistoricalDataButton;
+    @FXML private Label viewingLabel;
+    @FXML private Label inVoivodeshipLabel;
+    @FXML private ChoiceBox communeOrCountyChoiceBox;
     @FXML private Button reportProblemButton;
     @FXML private CheckBox registeredOfficesCheckBox;
     @FXML private TableView<ReportDto> reportsTableManage;
@@ -115,6 +118,7 @@ public class MainController implements Initializable {
         tables = new TableView<?>[][]{{voivodeshipsTable, countiesTable, communesTable},
                 {voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
         currentlyActiveTableListeners = new ChangeListener[2];
+        communeOrCountyChoiceBox.getItems().addAll("powiaty", "gminy");
     }
     public void initializeListeners(){
         changeTableListener(-1,0,0);
@@ -267,6 +271,17 @@ public class MainController implements Initializable {
                             System.out.println(row.getItem());
                             if(unitsTreeIndexes[finalI] < (maxDepth)) {
                                 unitsTreeIndexes[finalI]++;
+                                if(unitsTreeIndexes[0] == 1) {
+                                    viewingLabel.setVisible(true);
+                                    communeOrCountyChoiceBox.getSelectionModel().select(0);
+                                    communeOrCountyChoiceBox.setVisible(true);
+                                    inVoivodeshipLabel.setVisible(true);
+                                }
+                                else{
+                                    viewingLabel.setVisible(false);
+                                    communeOrCountyChoiceBox.setVisible(false);
+                                    inVoivodeshipLabel.setVisible(false);
+                                }
                                 if(finalI == 1){
                                     uiInteractionHandler.setAddButton();
                                     uiInteractionHandler.setEditButton();
@@ -291,6 +306,16 @@ public class MainController implements Initializable {
     public void onBackButtonClick(ActionEvent ignoredActionEvent) {
         if(unitsTreeIndexes[0] > 0) {
             unitsTreeIndexes[0]--;
+            if(unitsTreeIndexes[0] == 1) {
+                viewingLabel.setVisible(true);
+                communeOrCountyChoiceBox.getSelectionModel().select(0);
+                communeOrCountyChoiceBox.setVisible(true);
+                inVoivodeshipLabel.setVisible(true);
+            }else {
+                viewingLabel.setVisible(false);
+                communeOrCountyChoiceBox.setVisible(false);
+                inVoivodeshipLabel.setVisible(false);
+            }
         }
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
         changeView(unitsTree[unitsTreeIndexes[0]],0);
@@ -327,6 +352,11 @@ public class MainController implements Initializable {
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
+            if(unitsTreeIndexes[1] == 1) {
+
+            }else {
+
+            }
             uiInteractionHandler.setAddButton();
             uiInteractionHandler.setEditButton();
         }
