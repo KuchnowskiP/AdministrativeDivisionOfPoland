@@ -16,10 +16,12 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -88,22 +90,17 @@ public class EditCommunePopupController implements Initializable {
         initializeChoiceBoxesListeners();
     }
 
-    DataService dataService = new DataService();
+    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
 
     public void setChoiceBoxes() throws Exception {
-        requestVoivodeships = dataService.getVoivodeships(1, Integer.MAX_VALUE);
-        voivodeshipChoiceBox.getItems().add("-");
-        voivodeshipChoiceBox.setValue("-");
-        for(int i = 0; i < requestVoivodeships.items.size(); i++){
-            voivodeshipChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
-        }
+        requestVoivodeships = Utils.getVoivodeshipResult(voivodeshipChoiceBox);
         communeTypeChoiceBox.getItems().addAll(new Object[]{"gmina miejska", "gmina wiejska", "gmina miejsko-wiejska"});
     }
-
+    CountyDataService countyDataService = new CountyDataService();
     private void initializeChoiceBoxesListeners(){
         voivodeshipChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
@@ -118,7 +115,7 @@ public class EditCommunePopupController implements Initializable {
                         selectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = dataService.getCounties(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = countyDataService.get(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
@@ -262,7 +259,7 @@ public class EditCommunePopupController implements Initializable {
             communeRequest.setCountyId(selectedCounty.getId());
             communeRequest.setArea(Double.valueOf(areaTextField.getText().trim()));
             communeRequest.setPopulation(Integer.valueOf(populationTextField.getText().trim()));
-            String newTeryt = requestSender.newCommuneTeryt(selectedCounty.getId(), communeRequest.getCommuneTypeId());
+            String newTeryt = requestResultsReceiver.newCommuneTeryt(selectedCounty.getId(), communeRequest.getCommuneTypeId());
             if (newTeryt == null) {
                 int newTerytInt = Integer.parseInt(selectedCounty.getTerytCode());
                 newTerytInt += 10;

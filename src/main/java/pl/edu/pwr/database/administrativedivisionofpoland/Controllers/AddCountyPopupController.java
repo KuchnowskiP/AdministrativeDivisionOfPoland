@@ -15,10 +15,11 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -75,18 +76,13 @@ public class AddCountyPopupController implements Initializable {
         initializeChoiceBoxesListeners();
     }
 
-    DataService dataService = new DataService();
+    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
     PageResult<VoivodeshipDto> requestVoivodeships;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
 
     public void setChoiceBoxes() throws Exception {
-        requestVoivodeships = dataService.getVoivodeships(1, Integer.MAX_VALUE);
-        voivodeshipChoiceBox.getItems().add("-");
-        voivodeshipChoiceBox.setValue("-");
-        for(int i = 0; i < requestVoivodeships.items.size(); i++){
-            voivodeshipChoiceBox.getItems().add(requestVoivodeships.getItems().get(i).getName());
-        }
+        requestVoivodeships = Utils.getVoivodeshipResult(voivodeshipChoiceBox);
     }
 
     private void initializeChoiceBoxesListeners(){
@@ -203,10 +199,11 @@ public class AddCountyPopupController implements Initializable {
             countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
             countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
             countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
-            String newTeryt = requestSender.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
+            String newTeryt = requestResultsReceiver.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
             if(newTeryt == null){
                 int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
                 newTerytInt += 1000;
+                newTerytInt += cityRightsCheckBox.isSelected() ? 1 : 0;
                 newTeryt = String.format("%07d",newTerytInt);
             }
             countyRequest.setTerytCode(newTeryt);

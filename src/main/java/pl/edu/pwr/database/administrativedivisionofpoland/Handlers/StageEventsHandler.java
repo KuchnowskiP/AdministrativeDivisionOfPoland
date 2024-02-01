@@ -11,17 +11,16 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCommune
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCountyPopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddVoivodeshipPopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.MainController;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.IOException;
 import java.util.Objects;
 
-public class EventsHandler {
+public class StageEventsHandler {
     MainController mainController;
     DataReceiver dataReceiver = new DataReceiver();
-    public EventsHandler(MainController mainController){
+    public StageEventsHandler(MainController mainController){
         this.mainController = mainController;
     }
 
