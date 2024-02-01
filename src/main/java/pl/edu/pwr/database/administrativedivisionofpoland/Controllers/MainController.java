@@ -73,7 +73,7 @@ public class MainController implements Initializable {
     String[] masterName = new String[3];
     DataReceiver requestResultsReceiver = new DataReceiver();
     DataSender requestSender = new DataSender();
-    Class<?>[] units = new Class[]{VoivodeshipDto.class, CountyDto.class, CommuneDto.class, ReportDto.class,
+    Class<?>[] units = new Class[]{VoivodeshipExtended.class, CountyExtended.class, CommuneDto.class, ReportDto.class,
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
     int addressesAreChecked = 0;
@@ -149,6 +149,7 @@ public class MainController implements Initializable {
             tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
 
             if (unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0) {
+                inVoivodeshipLabel.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
                 TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
                 master.getColumns().addAll(columnsToAdd);
                 tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);

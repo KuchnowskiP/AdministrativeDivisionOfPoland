@@ -4,6 +4,7 @@ import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.CommuneDto;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
+import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.*;
 
 import java.io.IOException;
@@ -108,6 +109,12 @@ public class DataReceiver {
     }
     public CommuneDto getCommuneById(int ID) throws IOException, InterruptedException {
         return communeDataService.communeById(ID);
+    }
+    public PageResult<CountyDto> getCountiesDto(Object ID, int page, int size) throws IOException, InterruptedException {
+        return countyDataService.getDto(ID,page,size);
+    }
+    public PageResult<VoivodeshipDto> getVoivodeshipsDto(Object ID, int page, int size) throws IOException, InterruptedException {
+        return voivodeshipDataService.getDto(ID,page,size);
     }
     public String newVoivodeshipTeryt() throws IOException, InterruptedException {
         return voivodeshipDataService.getNewVoivodeshipTeryt();

@@ -2,6 +2,7 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import pl.edu.pwr.contract.Common.PageResult;
+import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipAddressData;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipExtended;
@@ -15,7 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 
-public class VoivodeshipDataService implements UnitDataServiceInterface<VoivodeshipRequest, VoivodeshipDto> {
+public class VoivodeshipDataService implements UnitDataServiceInterface<VoivodeshipRequest, VoivodeshipExtended> {
     @Override
     public boolean create(VoivodeshipRequest voivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
@@ -73,14 +74,14 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
     }
 
     @Override
-    public PageResult<VoivodeshipDto> get(Object ID, int page, int size) throws IOException, InterruptedException {
+    public PageResult<VoivodeshipExtended> get(Object ID, int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/extended/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        PageResult<VoivodeshipDto> result = objectMapper.readValue(
+        PageResult<VoivodeshipExtended> result = objectMapper.readValue(
                 response.body(), new TypeReference<>() {
                 });
         return result;
@@ -126,17 +127,16 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
         return result;
     }
 
-    public PageResult<VoivodeshipExtended> getVoivodeshipsExtended(int page, int size) throws IOException, InterruptedException {
+    public PageResult<VoivodeshipDto> getDto(Object id, int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/extended/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        PageResult<VoivodeshipExtended> result = objectMapper.readValue(
+        PageResult<VoivodeshipDto> result = objectMapper.readValue(
                 response.body(), new TypeReference<>() {
                 });
         return result;
     }
-
 }

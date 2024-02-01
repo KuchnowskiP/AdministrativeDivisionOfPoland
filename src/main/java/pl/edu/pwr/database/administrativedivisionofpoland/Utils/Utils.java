@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Utils {
     static VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
     public static PageResult<VoivodeshipDto> getVoivodeshipResult(ChoiceBox voivodeshipChoiceBox) throws IOException, InterruptedException {
-        PageResult<VoivodeshipDto> requestVoivodeships = voivodeshipDataService.get(null,1, Integer.MAX_VALUE);
+        PageResult<VoivodeshipDto> requestVoivodeships = voivodeshipDataService.getDto(null,1, Integer.MAX_VALUE);
         voivodeshipChoiceBox.getItems().add("-");
         voivodeshipChoiceBox.setValue("-");
         for(int i = 0; i < requestVoivodeships.items.size(); i++){

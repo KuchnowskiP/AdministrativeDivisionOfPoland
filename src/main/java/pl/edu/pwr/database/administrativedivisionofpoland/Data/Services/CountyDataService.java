@@ -16,7 +16,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class CountyDataService implements UnitDataServiceInterface<CountyRequest, CountyDto> {
+public class CountyDataService implements UnitDataServiceInterface<CountyRequest, CountyExtended> {
     @Override
     public boolean create(CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
@@ -74,7 +74,27 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
     }
 
     @Override
-    public PageResult<CountyDto> get(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
+    public PageResult<CountyExtended> get(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
+        HttpRequest request;
+        if (voivodeshipId.equals(-1)) {
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://192.168.196.2:8085/api/county/extended/all?page=" + page + "&size=" + size))
+                    .header("Content-Type", "application/json")
+                    .build();
+        } else {
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://192.168.196.2:8085/api/county/extended/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
+                    .header("Content-Type", "application/json")
+                    .build();
+        }
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<CountyExtended> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        return result;
+    }
+    public PageResult<CountyDto> getDto(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
@@ -161,18 +181,4 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
         System.out.println(result);
         return result;
     }
-
-    public PageResult<CountyExtended> getCountiesExtended(int page, int size) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/extended/all?page=" + page + "&size=" + size))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        PageResult<CountyExtended> result = objectMapper.readValue(
-                response.body(), new TypeReference<>() {
-                });
-        return result;
-    }
-
 }

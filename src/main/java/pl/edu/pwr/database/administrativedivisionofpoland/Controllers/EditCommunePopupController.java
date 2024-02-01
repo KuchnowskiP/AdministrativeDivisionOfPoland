@@ -115,7 +115,7 @@ public class EditCommunePopupController implements Initializable {
                         selectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = countyDataService.get(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = countyDataService.getDto(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }

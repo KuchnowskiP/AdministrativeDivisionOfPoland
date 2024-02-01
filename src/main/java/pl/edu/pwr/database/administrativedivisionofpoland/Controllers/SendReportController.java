@@ -78,7 +78,7 @@ public class SendReportController implements Initializable {
                         reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = countyDataService.get(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = countyDataService.getDto(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
