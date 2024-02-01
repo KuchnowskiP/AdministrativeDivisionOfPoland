@@ -50,7 +50,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes(
                 'Class-Path': configurations.collect { it.getName() }.join(' '),
-                'Main-Class': 'pl.edu.pwr.database.administrativedivisionofpoland.Main'
+                'Main-Class': 'pl.edu.pwr.database.administrativedivisionofpoland.Launcher'
         )
     }
     from sourceSets.main.allSource
