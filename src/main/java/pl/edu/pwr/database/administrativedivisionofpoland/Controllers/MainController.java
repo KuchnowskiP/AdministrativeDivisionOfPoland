@@ -2,6 +2,7 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -20,6 +21,7 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
+import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.AuthenticationService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.StageEventsHandler;
@@ -46,6 +48,7 @@ public class MainController implements Initializable {
     @FXML public Button countyTabAddUnitButton;
     @FXML public Button voivodeshipTabAddUnitButton;
     @FXML public Button showHistoricalDataButton;
+    @FXML private Tab voivodeshipViewTab;
     @FXML private Label viewingLabel;
     @FXML private Label inVoivodeshipLabel;
     @FXML private ChoiceBox communeOrCountyChoiceBox;
@@ -80,6 +83,7 @@ public class MainController implements Initializable {
     Thread tableUpdater = new Thread();
     public StageEventsHandler stageEventsHandler;
     UIInteractionHandler uiInteractionHandler;
+    int showCommunesByVoivodeships = 0;
 
     public MainController() {
         this.stageEventsHandler = new StageEventsHandler(this);
@@ -104,12 +108,12 @@ public class MainController implements Initializable {
     }
     public void setInitialView() throws Exception {
         mainTabPane.getTabs().remove(manageTab); //hiding managing tab. Will be open after singing in.
-        changeView(-1,0); //setting content of table
+        changeView(0); //setting content of table
     }
-    public void changeView(Object id, int viewOrManage){
+    public void changeView(int viewOrManage){
         tableUpdater.interrupt();
         Runnable updateTable = () -> {
-            changeItemsInMainTable(id, viewOrManage);
+            changeItemsInMainTable(viewOrManage);
         };
         tableUpdater = new Thread(updateTable);
         tableUpdater.start();
@@ -125,6 +129,21 @@ public class MainController implements Initializable {
         TabPaneListenerInitializer(viewUnitsTabPane, 0);
         setRowsFactories();
         setEnterKeyPressedEvent();
+        setCommuneOrCountyChoiceBox();
+    }
+    public void setCommuneOrCountyChoiceBox(){
+        communeOrCountyChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
+                if(newValue.toString().equals("gminy")){
+                    showCommunesByVoivodeships = 1;
+                    changeView(0);
+                }else{
+                    showCommunesByVoivodeships = 0;
+                    changeView(0);
+                }
+            }
+        });
     }
     public void setEnterKeyPressedEvent(){
         passwordTextField.setOnKeyPressed(key -> {
@@ -150,7 +169,12 @@ public class MainController implements Initializable {
 
             if (unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0) {
                 inVoivodeshipLabel.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
-                TableColumn master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                TableColumn master;
+                if(showCommunesByVoivodeships == 0) {
+                    master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                }else {
+                    master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                }
                 master.getColumns().addAll(columnsToAdd);
                 tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
             } else if (unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1) {
@@ -165,12 +189,17 @@ public class MainController implements Initializable {
         });
 
     }
-    public void changeItemsInMainTable(Object id, int viewOrManage){
+    public void changeItemsInMainTable(int viewOrManage){
         try {
-            PageResult<?> requestResult = requestResultsReceiver.getResult(activeTables[viewOrManage],
-                    unitsTreeIndexes[viewOrManage], unitsTree[unitsTreeIndexes[viewOrManage]], addressesAreChecked);
+            PageResult<?> requestResult;
+            if(showCommunesByVoivodeships == 0) {
+                requestResult = requestResultsReceiver.getResult(activeTables[viewOrManage],
+                        unitsTreeIndexes[viewOrManage], unitsTree[unitsTreeIndexes[viewOrManage]], addressesAreChecked);
+            }else {
+                requestResult = requestResultsReceiver.communeByVoivodeshipId(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+            }
             setColumnsInMainTable(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]
-                    + addressesAreChecked], viewOrManage);
+                    + addressesAreChecked + showCommunesByVoivodeships], viewOrManage);
 
             Platform.runLater(() -> {
                 tables[viewOrManage][activeTables[viewOrManage]].getItems().clear();
@@ -186,9 +215,6 @@ public class MainController implements Initializable {
     public VoivodeshipDto voivodeshipForEditionOrDeletion  = new VoivodeshipDto(-1,"","","");
     public CountyDto countyForEditionOrDeletion = new CountyDto(-1,-1,"","",false,"","");
     public CommuneDto communeForEditionOrDeletion = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
-    PageResult<VoivodeshipDto> requestVoivodeships;
-    PageResult<CountyDto> requestCounties;
-    PageResult<CommuneDto> requestCommunes;
     public void changeTableListener(int oldTab, int newTab, int viewOrManage){  //nasłuchiwacz zmiany zakładki np z województw na powiaty
         boolean changed = false;
         if(oldTab != -1){
@@ -205,7 +231,7 @@ public class MainController implements Initializable {
         if(finalChanged){
             unitsTreeIndexes[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
-            changeView(unitsTree[unitsTreeIndexes[viewOrManage]], viewOrManage);
+            changeView(viewOrManage);
         }
         currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
             if(viewOrManage == 1){
@@ -254,10 +280,21 @@ public class MainController implements Initializable {
                 }else if(registeredOfficesCheckBox.isSelected()){
                     addressesAreChecked = 4;
                 }
+
+                if(manageTab.isSelected() && showCommunesByVoivodeships == 1){
+                    showCommunesByVoivodeships = 0;
+                }else if(communeOrCountyChoiceBox.getSelectionModel().isSelected(1)){
+                    showCommunesByVoivodeships = 1;
+                }
             }
         });
         TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(oldValue.getId() + " -> " + newValue.getId());
+            if(Objects.equals(newValue.getId(), "0")){
+                viewingLabel.setVisible(false);
+                communeOrCountyChoiceBox.setVisible(false);
+                inVoivodeshipLabel.setVisible(false);
+            }
             changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
         });
     }
@@ -268,11 +305,11 @@ public class MainController implements Initializable {
                 tables[i][j].setRowFactory(trf -> {
                     TableRow<?> row = new TableRow<>();
                     row.setOnMouseClicked(event -> {
-                        if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0){
+                        if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0 && showCommunesByVoivodeships != 1){
                             System.out.println(row.getItem());
                             if(unitsTreeIndexes[finalI] < (maxDepth)) {
                                 unitsTreeIndexes[finalI]++;
-                                if(unitsTreeIndexes[0] == 1) {
+                                if(unitsTreeIndexes[0] == 1 && !manageTab.isSelected() && voivodeshipViewTab.isSelected()) {
                                     viewingLabel.setVisible(true);
                                     communeOrCountyChoiceBox.getSelectionModel().select(0);
                                     communeOrCountyChoiceBox.setVisible(true);
@@ -295,7 +332,7 @@ public class MainController implements Initializable {
                                 }
                                 System.out.println(unitsTree[unitsTreeIndexes[finalI]]);
                                 System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[finalI]]);
-                                changeView(unitsTree[unitsTreeIndexes[finalI]], finalI);
+                                changeView(finalI);
                             }
                         }
                     });
@@ -319,35 +356,47 @@ public class MainController implements Initializable {
             }
         }
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
-        changeView(unitsTree[unitsTreeIndexes[0]],0);
+        changeView(0);
     }
-
+    AuthenticationService authenticationService = AuthenticationService.getInstance();
+    boolean successfulLogin = false;
+    boolean heIsBack = false;
     public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("przycisk wciśnięty");
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
-        if(login.equals("admin") && password.equals("admin")){
 
-            TabPaneListenerInitializer(manageUnitsTabPane, 1);
-            voivodeshipsTableManage.setEditable(true);
-            countiesTableManage.setEditable(true);
-            communesTable.setEditable(true);
 
-            Platform.runLater(() -> {
+
+        Runnable authenticate = new Runnable() {
+            @Override
+            public void run() {
+                if(authenticationService.authenticate(login,password)){
+                    TabPaneListenerInitializer(manageUnitsTabPane, 1);
+                    voivodeshipsTableManage.setEditable(true);
+                    countiesTableManage.setEditable(true);
+                    communesTable.setEditable(true);
+
+                    Platform.runLater(() -> {
                         loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
                         loginFeedbackLabel.setVisible(true);
                         mainTabPane.getTabs().add(manageTab);
-            });
+                    });
 
-            changeTableListener(-1, 0, 1);
-            changeView(-1,1);
-        }else{
-            Platform.runLater(() -> {
-                loginFeedbackLabel.setText("Błędne dane logowania!");
-                loginFeedbackLabel.setVisible(true);
-            });
+                    changeTableListener(-1, 0, 1);
+                    changeView(1);
+                }else{
+                    Platform.runLater(() -> {
+                        loginFeedbackLabel.setText("Błędne dane logowania!");
+                        loginFeedbackLabel.setVisible(true);
+                    });
 
-        }
+                }
+            }
+        };
+        Thread authenticator = new Thread(authenticate);
+        authenticator.start();
+
     }
 
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
@@ -363,13 +412,13 @@ public class MainController implements Initializable {
         }
 
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
-        changeView(unitsTree[unitsTreeIndexes[1]],1);
+        changeView(1);
     }
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
-        changeView(unitsTree[unitsTreeIndexes[0]],0);
+        changeView(0);
     }
     public void onManageRefreshButtonClick(ActionEvent ignoredActionEvent) {
-        changeView(unitsTree[unitsTreeIndexes[1]],1);
+        changeView(1);
     }
     public void onCheckboxChange(ActionEvent ignoredActionEvent) {
         if(registeredOfficesCheckBox.isSelected()){
@@ -377,7 +426,7 @@ public class MainController implements Initializable {
         }else{
             addressesAreChecked = 0;
         }
-        changeView(unitsTree[unitsTreeIndexes[0]],0);
+        changeView(0);
     }
     public void setImages(String terytCode) throws URISyntaxException {
         if(terytCode == null) terytCode = "0000000";
@@ -406,7 +455,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void onDeleteButtonClick(ActionEvent ignoredActionEvent) throws IOException, InterruptedException {
+    public void onDeleteButtonClick(ActionEvent ignoredActionEvent) throws Exception {
         if(voivodeshipForEditionOrDeletion.getId() != -1){
             UserData.prompt ="\nusunąć to województwo?";
         }else if(countyForEditionOrDeletion.getId() != -1){
@@ -421,15 +470,15 @@ public class MainController implements Initializable {
         if(UserData.confirmed) {
             if (voivodeshipForEditionOrDeletion.getId() != -1) {
                 if (requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId())) {
-                    changeView(unitsTree[unitsTreeIndexes[1]], 1);
+                    changeView(1);
                 }
             } else if (countyForEditionOrDeletion.getId() != -1) {
                 if (requestSender.deleteCounty(countyForEditionOrDeletion.getId())) {
-                    changeView(unitsTree[unitsTreeIndexes[1]], 1);
+                    changeView(1);
                 }
             } else if (communeForEditionOrDeletion.getId() != -1) {
                 if (requestSender.deleteCommune(communeForEditionOrDeletion.getId())) {
-                    changeView(unitsTree[unitsTreeIndexes[1]], 1);
+                    changeView(1);
                 }
             }
         }
@@ -437,7 +486,7 @@ public class MainController implements Initializable {
 
     public void onEditButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("Editing");
-        changeView(unitsTree[unitsTreeIndexes[1]],1);
+        changeView(1);
     }
 
     public void onReportProblemButtonClick(ActionEvent ignoredActionEvent) {

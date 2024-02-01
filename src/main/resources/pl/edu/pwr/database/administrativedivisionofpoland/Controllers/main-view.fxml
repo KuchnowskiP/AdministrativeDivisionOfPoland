@@ -19,7 +19,7 @@
             <HBox>
                 <AnchorPane id="pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                     <TabPane fx:id="viewUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
-                        <Tab id="0" text="Województwa">
+                        <Tab fx:id="voivodeshipViewTab" id="0" text="Województwa">
                             <AnchorPane id="pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                         <HBox prefHeight="104.0" prefWidth="900.0">
                            <children>

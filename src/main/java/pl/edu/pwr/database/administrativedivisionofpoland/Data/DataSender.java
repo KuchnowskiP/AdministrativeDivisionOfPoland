@@ -45,13 +45,13 @@ public class DataSender {
     public boolean editCommune(Integer id, CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
         return communeDataService.edit(id, communeRequest);
     }
-    public boolean deleteVoivodeship(int ID) throws IOException, InterruptedException {
+    public boolean deleteVoivodeship(int ID) throws Exception {
         return voivodeshipDataService.delete(ID);
     }
     public boolean deleteCounty(int ID) throws IOException, InterruptedException {
         return countyDataService.delete(ID);
     }
-    public boolean deleteCommune(int ID) throws IOException, InterruptedException {
-        return countyDataService.delete(ID);
+    public boolean deleteCommune(int ID) throws Exception {
+        return communeDataService.delete(ID);
     }
 }

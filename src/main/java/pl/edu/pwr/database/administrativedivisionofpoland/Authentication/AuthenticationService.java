@@ -17,10 +17,15 @@ import java.util.Map;
 public class AuthenticationService {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
-    private static final String authenticationUrl = "http://localhost:8085/api/auth/authenticate";
+    private static final String authenticationUrl = "http://192.168.196.2:8085/api/auth/authenticate";
     private String login;
     private String password;
     private String token;
+    public static AuthenticationService instance = new AuthenticationService();
+
+    public static AuthenticationService getInstance(){
+        return instance;
+    }
 
     public boolean authenticate(String login, String password) {
         this.login = login;

@@ -85,7 +85,7 @@ public class StageEventsHandler {
             stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            mainController.changeView(mainController.unitsTree[mainController.unitsTreeIndexes[1]],1);
+            mainController.changeView(1);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -147,7 +147,7 @@ public class StageEventsHandler {
             stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            mainController.changeView(mainController.unitsTree[mainController.unitsTreeIndexes[1]],1);
+            mainController.changeView(1);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -171,7 +171,7 @@ public class StageEventsHandler {
             stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            mainController.changeView(mainController.unitsTree[mainController.unitsTreeIndexes[1]],1);
+            mainController.changeView(1);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -195,7 +195,7 @@ public class StageEventsHandler {
             stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            mainController.changeView(mainController.unitsTree[mainController.unitsTreeIndexes[1]],1);
+            mainController.changeView(1);
         } catch(Exception e) {
             e.printStackTrace();
         }
