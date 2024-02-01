@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.VoivodeshipAddressData;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
+import pl.edu.pwr.contract.Dtos.VoivodeshipExtended;
 import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 
@@ -18,10 +19,10 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
     @Override
     public boolean create(VoivodeshipRequest voivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
-        for(Field field : voivodeshipRequest.getClass().getFields()){
-            if(field.get(voivodeshipRequest) != null) {
+        for (Field field : voivodeshipRequest.getClass().getFields()) {
+            if (field.get(voivodeshipRequest) != null) {
                 values.put(field.getName(), field.get(voivodeshipRequest).toString());
-            }else{
+            } else {
                 values.put(field.getName(), " ");
             }
         }
@@ -40,10 +41,10 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
     @Override
     public boolean edit(int ID, VoivodeshipRequest voivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
         HashMap<String, Object> values = new HashMap<String, Object>();
-        for(Field field : voivodeshipRequest.getClass().getFields()){
-            if(field.get(voivodeshipRequest) != null) {
+        for (Field field : voivodeshipRequest.getClass().getFields()) {
+            if (field.get(voivodeshipRequest) != null) {
                 values.put(field.getName(), field.get(voivodeshipRequest).toString());
-            }else{
+            } else {
                 values.put(field.getName(), " ");
             }
         }
@@ -84,6 +85,7 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
                 });
         return result;
     }
+
     public PageResult<VoivodeshipAddressData> getVoivodeshipsWithAddresses(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/address/all?page=" + page + "&size=" + size))
@@ -123,4 +125,18 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
         System.out.println("wojewodztwa: " + response.body());
         return result;
     }
+
+    public PageResult<VoivodeshipExtended> getVoivodeshipsExtended(int page, int size) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/extended/all?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<VoivodeshipExtended> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        return result;
+    }
+
 }
