@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +19,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
@@ -26,8 +26,8 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Data.*;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CommuneDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.EventsHandler;
-import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.StageEventsHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIInteractionHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
@@ -54,6 +54,7 @@ public class MainController implements Initializable {
     @FXML public Button countyTabAddUnitButton;
     @FXML public Button voivodeshipTabAddUnitButton;
     @FXML public Button showHistoricalDataButton;
+    @FXML private Button reportProblemButton;
     @FXML private CheckBox registeredOfficesCheckBox;
     @FXML private TextField topicTextField;
     @FXML private TextArea reportContentTextArea;
@@ -84,16 +85,16 @@ public class MainController implements Initializable {
     ChangeListener<?>[] currentlyActiveTableListeners;
     int addressesAreChecked = 0;
     Thread tableUpdater = new Thread();
-    public EventsHandler eventsHandler;
-    UIHandler uiHandler;
+    public StageEventsHandler stageEventsHandler;
+    UIInteractionHandler uiInteractionHandler;
 
     public MainController() {
-        this.eventsHandler = new EventsHandler(this);
-        this.uiHandler = new UIHandler(this);
+        this.stageEventsHandler = new StageEventsHandler(this);
+        this.uiInteractionHandler = new UIInteractionHandler(this);
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        eventsHandler.setupButtons();
+        stageEventsHandler.setupButtons();
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out),
                 true, StandardCharsets.UTF_8)); //needed due to polish diacritics
 
@@ -207,8 +208,8 @@ public class MainController implements Initializable {
         }
         unitsTreeIndexes[viewOrManage] = 0;
         if(viewOrManage == 1) {
-            uiHandler.setAddButton();
-            uiHandler.setEditButton();
+            uiInteractionHandler.setAddButton();
+            uiInteractionHandler.setEditButton();
         };
         boolean finalChanged = changed;
         if(finalChanged){
@@ -255,6 +256,16 @@ public class MainController implements Initializable {
 
     }
     private void TabPaneListenerInitializer(TabPane TabPane, int viewOrManage) {
+        manageTab.setOnSelectionChanged(new EventHandler<Event>() {
+            @Override
+            public void handle(Event event) {
+                if(manageTab.isSelected() && registeredOfficesCheckBox.isSelected()){
+                    addressesAreChecked = 0;
+                }else if(registeredOfficesCheckBox.isSelected()){
+                    addressesAreChecked = 4;
+                }
+            }
+        });
         TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(oldValue.getId() + " -> " + newValue.getId());
             changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
@@ -351,8 +362,8 @@ public class MainController implements Initializable {
                             if(unitsTreeIndexes[finalI] < (maxDepth)) {
                                 unitsTreeIndexes[finalI]++;
                                 if(finalI == 1){
-                                    uiHandler.setAddButton();
-                                    uiHandler.setEditButton();
+                                    uiInteractionHandler.setAddButton();
+                                    uiInteractionHandler.setEditButton();
                                 }
                                 try {
                                     unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
@@ -410,8 +421,8 @@ public class MainController implements Initializable {
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
-            uiHandler.setAddButton();
-            uiHandler.setEditButton();
+            uiInteractionHandler.setAddButton();
+            uiInteractionHandler.setEditButton();
         }
 
         System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
@@ -478,7 +489,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void onDeleteButtonClick(ActionEvent actionEvent) throws IOException, InterruptedException {
+    public void onDeleteButtonClick(ActionEvent ignoredActionEvent) throws IOException, InterruptedException {
         if(voivodeshipForEditionOrDeletion.getId() != -1){
             UserData.prompt ="\nusunąć to województwo?";
         }else if(countyForEditionOrDeletion.getId() != -1){
@@ -510,5 +521,25 @@ public class MainController implements Initializable {
     public void onEditButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("Editing");
         changeView(unitsTree[unitsTreeIndexes[1]],1);
+    }
+
+    public void onReportProblemButtonClick(ActionEvent ignoredActionEvent) {
+        reportProblemButton.setDisable(true);
+        System.out.println("Report problem");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("send-report-popup.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(root, 800,600);
+            scene.getStylesheets().addAll(Main.class.getResource("style.css").toExternalForm());
+            stage.setScene(scene);
+            stage.setTitle("Zgłoś problem");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
+            stage.getIcons().add(icon);
+            stage.setOnCloseRequest(windowEvent -> reportProblemButton.setDisable(false));
+            stage.show();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }

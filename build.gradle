@@ -29,17 +29,30 @@ application {
 }
 
 javafx {
-    version = '17.0.2'
+    version = '17.0.10'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
-dependencies {
+def currentOS = org.gradle.internal.os.OperatingSystem.current()
+def platform
+if (currentOS.isWindows()) {
+    platform = 'win'
+} else if (currentOS.isLinux()) {
+    platform = 'linux'
+} else if (currentOS.isMacOsX()) {
+    platform = 'mac'
+}
 
+dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
     implementation files('libs/Contract.jar')
+    implementation "org.openjfx:javafx-base:17.0.10:${platform}"
+    implementation "org.openjfx:javafx-graphics:17.0.10:${platform}"
+    implementation "org.openjfx:javafx-controls:17.0.10:${platform}"
+    implementation "org.openjfx:javafx-fxml:17.0.10:${platform}"
 }
 
 test {
@@ -50,7 +63,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes(
                 'Class-Path': configurations.collect { it.getName() }.join(' '),
-                'Main-Class': 'pl.edu.pwr.database.administrativedivisionofpoland.Main'
+                'Main-Class': 'pl.edu.pwr.database.administrativedivisionofpoland.Launcher'
         )
     }
     from sourceSets.main.allSource

@@ -17,10 +17,10 @@ import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 import java.io.IOException;
 import java.util.Objects;
 
-public class EventsHandler {
+public class StageEventsHandler {
     MainController mainController;
     DataReceiver dataReceiver = new DataReceiver();
-    public EventsHandler(MainController mainController){
+    public StageEventsHandler(MainController mainController){
         this.mainController = mainController;
     }
 
