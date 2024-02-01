@@ -56,7 +56,7 @@
                             <Insets />
                         </opaqueInsets>
                     </CheckBox>
-               <Button mnemonicParsing="false" onAction="#onShowHistoricalDataButtonClick" text="Wyświetl dane historyczne" />
+               <Button fx:id="showHistoricalDataButton" mnemonicParsing="false" onAction="#onShowHistoricalDataButtonClick" text="Wyświetl dane historyczne" />
                 </VBox>
             </HBox>
         </Tab>

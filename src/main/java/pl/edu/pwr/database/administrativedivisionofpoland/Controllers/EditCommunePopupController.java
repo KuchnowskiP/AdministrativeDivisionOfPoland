@@ -16,7 +16,10 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.*;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
@@ -256,7 +259,7 @@ public class EditCommunePopupController implements Initializable {
             communeRequest.setCountyId(selectedCounty.getId());
             communeRequest.setArea(Double.valueOf(areaTextField.getText().trim()));
             communeRequest.setPopulation(Integer.valueOf(populationTextField.getText().trim()));
-            String newTeryt = requestSender.newCommuneTeryt(selectedCounty.getId(), communeRequest.getCommuneTypeId());
+            String newTeryt = requestResultsReceiver.newCommuneTeryt(selectedCounty.getId(), communeRequest.getCommuneTypeId());
             if (newTeryt == null) {
                 int newTerytInt = Integer.parseInt(selectedCounty.getTerytCode());
                 newTerytInt += 10;

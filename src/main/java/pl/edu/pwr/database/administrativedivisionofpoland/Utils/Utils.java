@@ -3,8 +3,7 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Utils;
 import javafx.scene.control.ChoiceBox;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
-import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.VoivodeshipDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
+package pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

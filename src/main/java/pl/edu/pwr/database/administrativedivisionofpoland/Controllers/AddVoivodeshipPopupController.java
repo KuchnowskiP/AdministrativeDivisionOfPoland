@@ -14,8 +14,8 @@ import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -161,7 +161,7 @@ public class AddVoivodeshipPopupController implements Initializable{
             VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
             voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
             voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-            voivodeshipRequest.setTerytCode(requestSender.newVoivodeshipTeryt());
+            voivodeshipRequest.setTerytCode(requestResultsReceiver.newVoivodeshipTeryt());
 
             if (addressSelectionTabPane.getSelectionModel().isSelected(1)) {
                 OfficeAddressRequest newAddress = new OfficeAddressRequest();

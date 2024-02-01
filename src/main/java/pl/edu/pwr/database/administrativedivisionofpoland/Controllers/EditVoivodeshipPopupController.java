@@ -19,8 +19,8 @@ import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 
 import java.io.IOException;

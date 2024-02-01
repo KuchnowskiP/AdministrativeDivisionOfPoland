@@ -1,9 +1,11 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
+package pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Commune.CommuneRequest;
+import pl.edu.pwr.contract.Dtos.CommuneAddressData;
 import pl.edu.pwr.contract.Dtos.CommuneDto;
+import pl.edu.pwr.contract.History.CommuneHistoryDto;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -11,6 +13,7 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class CommuneDataService implements UnitDataServiceInterface<CommuneRequest, CommuneDto> {
     @Override
@@ -88,6 +91,74 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
         PageResult<CommuneDto> result = objectMapper.readValue(
                 response.body(), new TypeReference<>() {
                 });
+        return result;
+    }
+
+    public PageResult<CommuneAddressData> getCommunesWithAddresses(Object countyID, int page, int size) throws Exception {
+        HttpRequest request;
+        if (countyID.equals(-1)) {
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://192.168.196.2:8085/api/commune/address/all?page=" + page + "&size=" + size))
+                    .header("Content-Type", "application/json")
+                    .build();
+        }else{
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://192.168.196.2:8085/api/commune/address/byCounty?countyId=" + countyID + "&page=" + page + "&size=" + size))
+                    .header("Content-Type", "application/json")
+                    .build();
+        }
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<CommuneAddressData> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        return result;
+    }
+
+    public String getNewCommuneTeryt(Integer id, int type) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/commune/teryt?countyId=" + id))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        String result = null;
+        if(!Objects.equals(response.body(), "")) {
+            int newTerytInteger = Integer.parseInt(response.body()) + 10;
+            newTerytInteger /= 10;
+            newTerytInteger *= 10;
+            newTerytInteger += type;
+            result = String.format("%07d", newTerytInteger);
+        }
+        return result;
+    }
+
+    public PageResult<CommuneHistoryDto> getCommunesHistory(int page, int size) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/history/communes?page=" + page + "&size=" + size))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        PageResult<CommuneHistoryDto> result = objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println("gminy: " + response.body());
+        return result;
+    }
+
+    public CommuneDto communeById(int ID) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/commune/" + ID))
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        CommuneDto result =  objectMapper.readValue(
+                response.body(), new TypeReference<>() {
+                });
+        System.out.println(result);
         return result;
     }
 }

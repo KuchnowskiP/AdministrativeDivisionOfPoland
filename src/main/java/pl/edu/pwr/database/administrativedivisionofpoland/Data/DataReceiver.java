@@ -1,18 +1,21 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
+package pl.edu.pwr.database.administrativedivisionofpoland.Data;
 
-import javafx.scene.chart.PieChart;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.CommuneDto;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.*;
 
 import java.io.IOException;
 
 
-public class DataReceiver extends DataService {
-    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
-    CountyDataService countyDataService = new CountyDataService();
-    CommuneDataService communeDataService = new CommuneDataService();
+public class DataReceiver {
+    private final VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
+    private final CountyDataService countyDataService = new CountyDataService();
+    private final CommuneDataService communeDataService = new CommuneDataService();
+    private final AddressDataService addressDataService = new AddressDataService();
+    private final ReportDataService reportDataService = new ReportDataService();
+
     public PageResult<?> getResult(int table, int treeIndex, Object unit, int addressesAreChecked) throws Exception {
         PageResult<?> requestResult = null;
         switch (table){
@@ -20,7 +23,7 @@ public class DataReceiver extends DataService {
                 switch (treeIndex){
                     case 1:{
                         if(addressesAreChecked == 4){
-                            requestResult = DataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
+                            requestResult = countyDataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
                         }else {
                             requestResult = countyDataService.get(unit, 1, Integer.MAX_VALUE);
                         }
@@ -28,7 +31,7 @@ public class DataReceiver extends DataService {
                     }
                     case 2:{
                         if(addressesAreChecked == 4){
-                            requestResult = DataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
+                            requestResult = communeDataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                         }else {
                             requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
                         }
@@ -36,7 +39,7 @@ public class DataReceiver extends DataService {
                     }
                     default:{
                         if(addressesAreChecked == 4){
-                            requestResult = DataService.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
+                            requestResult = voivodeshipDataService.getVoivodeshipsWithAddresses(1,Integer.MAX_VALUE);
                         }else {
                             requestResult = voivodeshipDataService.get(null,1, Integer.MAX_VALUE);
                         }
@@ -49,14 +52,14 @@ public class DataReceiver extends DataService {
 
                 if(treeIndex == 1){
                     if(addressesAreChecked == 4){
-                        requestResult = DataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
+                        requestResult = communeDataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                     }else {
                         requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
                     }
                 }
                 else{
                     if(addressesAreChecked == 4){
-                        requestResult = DataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
+                        requestResult = countyDataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
                     }else {
                         requestResult = countyDataService.get(unit, 1, Integer.MAX_VALUE);
                     }
@@ -65,14 +68,14 @@ public class DataReceiver extends DataService {
             }
             case 2:{
                 if(addressesAreChecked == 4){
-                    requestResult = DataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
+                    requestResult = communeDataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                 }else {
                     requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
                 }
                 break;
             }
             case 3:{
-                requestResult = DataService.getReports(1,Integer.MAX_VALUE);
+                requestResult = reportDataService.getReports(1,Integer.MAX_VALUE);
                 break;
             }
         }
@@ -82,15 +85,15 @@ public class DataReceiver extends DataService {
         PageResult<?> requestResult = null;
         switch(table){
             case 0: {
-                requestResult = DataService.getVoivodeshipsHistory(1,Integer.MAX_VALUE);
+                requestResult = voivodeshipDataService.getVoivodeshipsHistory(1,Integer.MAX_VALUE);
                 break;
             }
             case 1: {
-                requestResult = DataService.getCountiesHistory(1,Integer.MAX_VALUE);
+                requestResult = countyDataService.getCountiesHistory(1,Integer.MAX_VALUE);
                 break;
             }
             case 2: {
-                requestResult = DataService.getCommunesHistory(1,Integer.MAX_VALUE);
+                requestResult = communeDataService.getCommunesHistory(1,Integer.MAX_VALUE);
                 break;
             }
         }
@@ -98,12 +101,23 @@ public class DataReceiver extends DataService {
     }
 
     public PageResult<OfficeAddressDto> getAddresses(int page, int size) throws IOException, InterruptedException {
-        return DataService.getAllAddresses(page,size);
+        return addressDataService.getAllAddresses(page,size);
     }
     public CountyDto getCountyById(int ID) throws IOException, InterruptedException {
-        return DataService.countyById(ID);
+        return countyDataService.countyById(ID);
     }
     public CommuneDto getCommuneById(int ID) throws IOException, InterruptedException {
-        return DataService.communeById(ID);
+        return communeDataService.communeById(ID);
+    }
+    public String newVoivodeshipTeryt() throws IOException, InterruptedException {
+        return voivodeshipDataService.getNewVoivodeshipTeryt();
+    }
+
+    public String newCountyTeryt(Integer id, int city) throws IOException, InterruptedException {
+        return countyDataService.getNewCountyTeryt(id, city);
+    }
+
+    public String newCommuneTeryt(Integer id, int type) throws IOException, InterruptedException {
+        return communeDataService.getNewCommuneTeryt(id, type);
     }
 }

@@ -11,6 +11,8 @@ module pl.edu.pwr.database.administrativedivisionofpoland {
     exports pl.edu.pwr.database.administrativedivisionofpoland;
     exports pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
     opens pl.edu.pwr.database.administrativedivisionofpoland.Controllers to javafx.fxml;
-    exports pl.edu.pwr.database.administrativedivisionofpoland.Services.Data;
-    opens pl.edu.pwr.database.administrativedivisionofpoland.Services.Data to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.Data;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.Data to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.Data.Services to javafx.fxml;
 }

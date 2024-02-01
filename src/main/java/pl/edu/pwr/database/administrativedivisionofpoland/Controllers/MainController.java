@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,15 +17,18 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.*;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CommuneDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.EventsHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.*;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
@@ -44,30 +48,12 @@ public class MainController implements Initializable {
     public ChoiceBox<String> communeReportChoiceBox;
     public ImageView flagImage;
     public ImageView emblemImage;
-    public Button confirmChangeVoivodeshipButton;
-    public TextField voivodeshipNameChangeTextField;
-    public TextField licensePlateNameChangeTextField;
-    public TextField communesNameChangeTextField;
-    public TextField communesPopulationChangeTextField;
-    public Button confirmChangeCommunesButton;
-    public Button confirmChangeCountiesButton;
-    public TextField countiesNameChangeTextField;
-    public TextField countiesLicensePlateNameChangeTextField;
-    public TextField communesAreaChangeTextField;
-    public VBox kinderGarden = new VBox();
     public Button voivodeshipTabEditUnitButton;
-    public Button countyTabEditUnitButton;
-    public Button communeTabEditUnitButton;
-    @FXML private VBox manageViewVoivodeshipVBox;
-    @FXML private VBox manageViewCountyVBox;
-    @FXML private VBox manageViewCommuneVBox;
-    public VBox[] manageVBoxes = new VBox[]{manageViewVoivodeshipVBox,manageViewCountyVBox,manageViewCommuneVBox};
-    @FXML
-    public Button communeTabAddUnitButton;
-    @FXML
-    public Button countyTabAddUnitButton;
-    @FXML
-    public Button voivodeshipTabAddUnitButton;
+    public Button countyTabEditUnitButton;public Button communeTabEditUnitButton;
+    @FXML public Button communeTabAddUnitButton;
+    @FXML public Button countyTabAddUnitButton;
+    @FXML public Button voivodeshipTabAddUnitButton;
+    @FXML public Button showHistoricalDataButton;
     @FXML private CheckBox registeredOfficesCheckBox;
     @FXML private TextField topicTextField;
     @FXML private TextArea reportContentTextArea;
@@ -473,6 +459,7 @@ public class MainController implements Initializable {
         emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
     }
     public void onShowHistoricalDataButtonClick(ActionEvent ignoredActionEvent) {
+        showHistoricalDataButton.setDisable(true);
         System.out.println("Showing history");
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("history-view.fxml"));
@@ -484,6 +471,7 @@ public class MainController implements Initializable {
             stage.setTitle("Dane historyczne");
             Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
             stage.getIcons().add(icon);
+            stage.setOnCloseRequest(windowEvent -> showHistoricalDataButton.setDisable(false));
             stage.show();
         } catch(Exception e) {
             e.printStackTrace();

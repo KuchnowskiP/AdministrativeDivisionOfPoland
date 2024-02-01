@@ -15,10 +15,9 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.Services.Data.VoivodeshipDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
@@ -200,10 +199,11 @@ public class AddCountyPopupController implements Initializable {
             countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
             countyRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
             countyRequest.setIsCityWithCountyRights(cityRightsCheckBox.isSelected());
-            String newTeryt = requestSender.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
+            String newTeryt = requestResultsReceiver.newCountyTeryt(selectedVoivodeship.getId(), cityRightsCheckBox.isSelected() ? 1 : 0);
             if(newTeryt == null){
                 int newTerytInt = Integer.parseInt(selectedVoivodeship.getTerytCode());
                 newTerytInt += 1000;
+                newTerytInt += cityRightsCheckBox.isSelected() ? 1 : 0;
                 newTeryt = String.format("%07d",newTerytInt);
             }
             countyRequest.setTerytCode(newTeryt);
