@@ -48,6 +48,10 @@ public class MainController implements Initializable {
     @FXML public Button countyTabAddUnitButton;
     @FXML public Button voivodeshipTabAddUnitButton;
     @FXML public Button showHistoricalDataButton;
+    public Label viewingLabelMan;
+    public ChoiceBox communeOrCountyChoiceBoxMan;
+    public Label inVoivodeshipLabelMan;
+    public Tab voivodeshipViewTabMan;
     @FXML private Tab voivodeshipViewTab;
     @FXML private Label viewingLabel;
     @FXML private Label inVoivodeshipLabel;
@@ -123,6 +127,7 @@ public class MainController implements Initializable {
                 {voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
         currentlyActiveTableListeners = new ChangeListener[2];
         communeOrCountyChoiceBox.getItems().addAll("powiaty", "gminy");
+        communeOrCountyChoiceBoxMan.getItems().addAll("powiaty", "gminy");
     }
     public void initializeListeners(){
         changeTableListener(-1,0,0);
@@ -141,6 +146,18 @@ public class MainController implements Initializable {
                 }else{
                     showCommunesByVoivodeships = 0;
                     changeView(0);
+                }
+            }
+        });
+        communeOrCountyChoiceBoxMan.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
+                if(newValue.toString().equals("gminy")){
+                    showCommunesByVoivodeships = 1;
+                    changeView(1);
+                }else{
+                    showCommunesByVoivodeships = 0;
+                    changeView(1);
                 }
             }
         });
@@ -168,7 +185,12 @@ public class MainController implements Initializable {
             tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
 
             if (unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0) {
-                inVoivodeshipLabel.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                if(viewOrManage == 0){
+                    inVoivodeshipLabel.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                }else{
+                    inVoivodeshipLabelMan.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                }
+
                 TableColumn master;
                 if(showCommunesByVoivodeships == 0) {
                     master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
@@ -286,6 +308,8 @@ public class MainController implements Initializable {
                 }else if(communeOrCountyChoiceBox.getSelectionModel().isSelected(1)){
                     showCommunesByVoivodeships = 1;
                 }
+
+
             }
         });
         TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -316,10 +340,18 @@ public class MainController implements Initializable {
                                     communeOrCountyChoiceBox.setVisible(true);
                                     inVoivodeshipLabel.setVisible(true);
                                 }
-                                else{
+                                else if(unitsTreeIndexes[1] == 1 && manageTab.isSelected() && voivodeshipViewTabMan.isSelected()){
                                     viewingLabel.setVisible(false);
                                     communeOrCountyChoiceBox.setVisible(false);
                                     inVoivodeshipLabel.setVisible(false);
+                                    viewingLabelMan.setVisible(true);
+                                    communeOrCountyChoiceBoxMan.getSelectionModel().select(0);
+                                    communeOrCountyChoiceBoxMan.setVisible(true);
+                                    inVoivodeshipLabelMan.setVisible(true);
+                                }else{
+                                    viewingLabelMan.setVisible(false);
+                                    communeOrCountyChoiceBoxMan.setVisible(false);
+                                    inVoivodeshipLabelMan.setVisible(false);
                                 }
                                 if(finalI == 1){
                                     uiInteractionHandler.setAddButton();
@@ -404,9 +436,14 @@ public class MainController implements Initializable {
         if(unitsTreeIndexes[1] > 0) {
             unitsTreeIndexes[1]--;
             if(unitsTreeIndexes[1] == 1) {
-
+                viewingLabelMan.setVisible(true);
+                communeOrCountyChoiceBoxMan.getSelectionModel().select(0);
+                communeOrCountyChoiceBoxMan.setVisible(true);
+                inVoivodeshipLabelMan.setVisible(true);
             }else {
-
+                viewingLabelMan.setVisible(false);
+                communeOrCountyChoiceBoxMan.setVisible(false);
+                inVoivodeshipLabelMan.setVisible(false);
             }
             uiInteractionHandler.setAddButton();
             uiInteractionHandler.setEditButton();

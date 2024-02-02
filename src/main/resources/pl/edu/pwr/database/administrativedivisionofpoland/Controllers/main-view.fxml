@@ -79,19 +79,26 @@
         <Tab id="manage" fx:id="manageTab" text="Zarządzaj">
             <AnchorPane id="pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                 <TabPane fx:id="manageUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
-                    <Tab id="0" text="Województwa">
+                    <Tab fx:id="voivodeshipViewTabMan" id="0" text="Województwa">
                         <AnchorPane id="pane" minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
                             <VBox id="vbox" prefHeight="600.0" prefWidth="1144.0" spacing="5.0">
                         <HBox prefHeight="500.0" prefWidth="856.0">
                            <children>
                                <TableView id="tableView" fx:id="voivodeshipsTableManage" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="698.0" />
-                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
+                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" minWidth="65.0">
                                  <children>
                                     <Button fx:id="voivodeshipTabAddUnitButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Dodaj" />
                                     <Button fx:id="voivodeshipTabEditUnitButton" mnemonicParsing="false" onAction="#onEditButtonClick" prefHeight="25.0" prefWidth="50.0" text="Edytuj" />
                                     <Button mnemonicParsing="false" onAction="#onDeleteButtonClick" prefHeight="25.0" prefWidth="50.0" text="Usuń" />
                                  </children>
                               </VBox>
+                               <VBox alignment="TOP_CENTER" prefHeight="104.0" prefWidth="436.0">
+                                   <children>
+                                       <Label fx:id="viewingLabelMan" alignment="CENTER" prefHeight="17.0" prefWidth="65.0" text="Przeglądzasz" visible="false" />
+                                       <ChoiceBox fx:id="communeOrCountyChoiceBoxMan" prefHeight="25.0" prefWidth="69.0" visible="false" />
+                                       <Label fx:id="inVoivodeshipLabelMan" text="w " visible="false" />
+                                   </children>
+                               </VBox>
                            </children>
                         </HBox>
                                 <Button mnemonicParsing="false" onAction="#onManageBackButtonClick" prefHeight="25.0" prefWidth="65.0" text="Cofnij" />
