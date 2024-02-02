@@ -67,7 +67,7 @@ task fatJar(type: Jar) {
         )
     }
     from sourceSets.main.allSource
-    archiveBaseName = 'adopfront'
+    archiveBaseName = 'SZDOPAPLinux'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar

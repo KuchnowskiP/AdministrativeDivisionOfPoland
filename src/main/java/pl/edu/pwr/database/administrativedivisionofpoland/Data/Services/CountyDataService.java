@@ -14,11 +14,13 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class CountyDataService implements UnitDataServiceInterface<CountyRequest, CountyExtended> {
     @Override
-    public boolean create(CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean create(CountyRequest countyRequest) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for (Field field : countyRequest.getClass().getFields()) {
             if (field.get(countyRequest) != null) {
@@ -33,6 +35,7 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
                 .uri(URI.create("http://192.168.196.2:8085/api/county/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -40,7 +43,8 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
     }
 
     @Override
-    public boolean edit(int ID, CountyRequest countyRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean edit(int ID, CountyRequest countyRequest) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for (Field field : countyRequest.getClass().getFields()) {
             if (field.get(countyRequest) != null) {
@@ -55,6 +59,7 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
                 .uri(URI.create("http://192.168.196.2:8085/api/county/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -62,11 +67,13 @@ public class CountyDataService implements UnitDataServiceInterface<CountyRequest
     }
 
     @Override
-    public boolean delete(int ID) throws IOException, InterruptedException {
+    public boolean delete(int ID) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/county/delete/" + ID))
                 .DELETE()
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());

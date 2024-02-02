@@ -292,6 +292,7 @@ public class MainController implements Initializable {
             System.out.println(oldValue.getId() + " -> " + newValue.getId());
             if(Objects.equals(newValue.getId(), "0")){
                 viewingLabel.setVisible(false);
+                communeOrCountyChoiceBox.getSelectionModel().select(0);
                 communeOrCountyChoiceBox.setVisible(false);
                 inVoivodeshipLabel.setVisible(false);
             }

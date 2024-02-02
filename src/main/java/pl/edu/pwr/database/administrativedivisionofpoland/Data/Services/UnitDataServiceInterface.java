@@ -14,7 +14,7 @@ public interface UnitDataServiceInterface<T1,T2> {
     HttpClient httpClient = HttpClient.newHttpClient();
     ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
     boolean create(T1 unitRequest) throws Exception;
-    boolean edit(int ID, T1 unitRequest) throws IllegalAccessException, IOException, InterruptedException;
+    boolean edit(int ID, T1 unitRequest) throws Exception;
     boolean delete(int ID) throws Exception;
     PageResult<T2> get(Object ID, int page, int size) throws IOException, InterruptedException;
 }

@@ -18,7 +18,8 @@ import java.util.Objects;
 
 public class CommuneDataService implements UnitDataServiceInterface<CommuneRequest, CommuneDto> {
     @Override
-    public boolean create(CommuneRequest communeRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean create(CommuneRequest communeRequest) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : communeRequest.getClass().getFields()){
             if(field.get(communeRequest) != null) {
@@ -33,6 +34,7 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
                 .uri(URI.create("http://192.168.196.2:8085/api/commune/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -40,7 +42,8 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
     }
 
     @Override
-    public boolean edit(int ID, CommuneRequest communeRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean edit(int ID, CommuneRequest communeRequest) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : communeRequest.getClass().getFields()){
             if(field.get(communeRequest) != null) {
@@ -55,6 +58,7 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
                 .uri(URI.create("http://192.168.196.2:8085/api/commune/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(),bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
