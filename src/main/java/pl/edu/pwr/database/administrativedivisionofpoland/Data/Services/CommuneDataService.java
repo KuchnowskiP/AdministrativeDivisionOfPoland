@@ -13,11 +13,13 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class CommuneDataService implements UnitDataServiceInterface<CommuneRequest, CommuneDto> {
     @Override
-    public boolean create(CommuneRequest communeRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean create(CommuneRequest communeRequest) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : communeRequest.getClass().getFields()){
             if(field.get(communeRequest) != null) {
@@ -32,6 +34,7 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
                 .uri(URI.create("http://192.168.196.2:8085/api/commune/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -39,7 +42,8 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
     }
 
     @Override
-    public boolean edit(int ID, CommuneRequest communeRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean edit(int ID, CommuneRequest communeRequest) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : communeRequest.getClass().getFields()){
             if(field.get(communeRequest) != null) {
@@ -54,6 +58,7 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
                 .uri(URI.create("http://192.168.196.2:8085/api/commune/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(),bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -61,11 +66,13 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
     }
 
     @Override
-    public boolean delete(int ID) throws IOException, InterruptedException {
+    public boolean delete(int ID) throws Exception {
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/commune/delete/" + ID))
                 .DELETE()
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -159,6 +166,21 @@ public class CommuneDataService implements UnitDataServiceInterface<CommuneReque
                 response.body(), new TypeReference<>() {
                 });
         System.out.println(result);
+        return result;
+    }
+
+    public PageResult<CommuneDto> communeByVoivodeshipId(Object voivodeshipId, int page, int size) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://192.168.196.2:8085/api/commune/byVoivodeship?page=" + page + "&size=" + size + "&voivodeshipId=" + voivodeshipId))
+                .header("Content-Type", "application/json")
+                .build();
+
+
+    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    PageResult<CommuneDto> result = objectMapper.readValue(
+            response.body(), new TypeReference<>() {
+            });
+
         return result;
     }
 }

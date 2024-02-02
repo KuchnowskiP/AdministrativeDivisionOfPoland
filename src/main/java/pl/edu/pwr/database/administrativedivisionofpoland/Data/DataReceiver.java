@@ -116,6 +116,9 @@ public class DataReceiver {
     public PageResult<VoivodeshipDto> getVoivodeshipsDto(Object ID, int page, int size) throws IOException, InterruptedException {
         return voivodeshipDataService.getDto(ID,page,size);
     }
+    public PageResult<CommuneDto> communeByVoivodeshipId(Object ID, int page, int size) throws IOException, InterruptedException {
+        return communeDataService.communeByVoivodeshipId(ID, page, size);
+    }
     public String newVoivodeshipTeryt() throws IOException, InterruptedException {
         return voivodeshipDataService.getNewVoivodeshipTeryt();
     }

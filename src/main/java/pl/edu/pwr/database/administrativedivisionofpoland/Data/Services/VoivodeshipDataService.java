@@ -15,10 +15,11 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.Map;
 
 public class VoivodeshipDataService implements UnitDataServiceInterface<VoivodeshipRequest, VoivodeshipExtended> {
     @Override
-    public boolean create(VoivodeshipRequest voivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean create(VoivodeshipRequest voivodeshipRequest) throws Exception {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for (Field field : voivodeshipRequest.getClass().getFields()) {
             if (field.get(voivodeshipRequest) != null) {
@@ -29,10 +30,12 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
         }
 
         String requestBody = objectMapper.writeValueAsString(values);
+        Map.Entry<String,String> bearerToken = authenticationService.getBearerTokenHeader();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -40,7 +43,7 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
     }
 
     @Override
-    public boolean edit(int ID, VoivodeshipRequest voivodeshipRequest) throws IllegalAccessException, IOException, InterruptedException {
+    public boolean edit(int ID, VoivodeshipRequest voivodeshipRequest) throws Exception {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for (Field field : voivodeshipRequest.getClass().getFields()) {
             if (field.get(voivodeshipRequest) != null) {
@@ -51,10 +54,12 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
         }
 
         String requestBody = objectMapper.writeValueAsString(values);
+        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -62,11 +67,13 @@ public class VoivodeshipDataService implements UnitDataServiceInterface<Voivodes
     }
 
     @Override
-    public boolean delete(int ID) throws IOException, InterruptedException {
+    public boolean delete(int ID) throws Exception {
+        Map.Entry<String,String> bearerToken = authenticationService.getBearerTokenHeader();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/delete/" + ID))
                 .DELETE()
                 .header("Content-Type", "application/json")
+                .header(bearerToken.getKey(),bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());

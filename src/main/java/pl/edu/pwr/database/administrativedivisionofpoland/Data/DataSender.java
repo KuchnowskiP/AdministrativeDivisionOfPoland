@@ -17,11 +17,11 @@ public class DataSender {
     private final AddressDataService addressDataService = new AddressDataService();
     private final ReportDataService reportDataService = new ReportDataService();
 
-    public boolean addCounty(CountyRequest countyRequest) throws IOException, InterruptedException, IllegalAccessException {
+    public boolean addCounty(CountyRequest countyRequest) throws Exception {
         return countyDataService.create(countyRequest);
     }
 
-    public boolean addCommune(CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
+    public boolean addCommune(CommuneRequest communeRequest) throws Exception {
         return communeDataService.create(communeRequest);
     }
 
@@ -35,23 +35,23 @@ public class DataSender {
     public HttpResponse<String> addAddress(OfficeAddressRequest officeAddressRequest) throws Exception {
         return addressDataService.addOfficeAddress(officeAddressRequest);
     }
-    public boolean editVoivodeship(int unitID, VoivodeshipRequest voivodeshipRequest) throws IOException, InterruptedException, IllegalAccessException{
+    public boolean editVoivodeship(int unitID, VoivodeshipRequest voivodeshipRequest) throws Exception {
         return voivodeshipDataService.edit(unitID, voivodeshipRequest);
     }
-    public boolean editCounty(int unitID, CountyRequest countyRequest) throws IOException, InterruptedException, IllegalAccessException {
+    public boolean editCounty(int unitID, CountyRequest countyRequest) throws Exception {
         return countyDataService.edit(unitID, countyRequest);
     }
 
-    public boolean editCommune(Integer id, CommuneRequest communeRequest) throws IOException, InterruptedException, IllegalAccessException {
+    public boolean editCommune(Integer id, CommuneRequest communeRequest) throws Exception {
         return communeDataService.edit(id, communeRequest);
     }
-    public boolean deleteVoivodeship(int ID) throws IOException, InterruptedException {
+    public boolean deleteVoivodeship(int ID) throws Exception {
         return voivodeshipDataService.delete(ID);
     }
-    public boolean deleteCounty(int ID) throws IOException, InterruptedException {
+    public boolean deleteCounty(int ID) throws Exception {
         return countyDataService.delete(ID);
     }
-    public boolean deleteCommune(int ID) throws IOException, InterruptedException {
-        return countyDataService.delete(ID);
+    public boolean deleteCommune(int ID) throws Exception {
+        return communeDataService.delete(ID);
     }
 }
