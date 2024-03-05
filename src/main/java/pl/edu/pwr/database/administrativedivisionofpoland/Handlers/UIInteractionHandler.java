@@ -13,7 +13,7 @@ public class UIInteractionHandler {
     }
 
     public void setAddButton(){
-        if(mainController.unitsTreeIndexes[1] == 0){
+        if(mainController.tabPaneDepthLevels[1] == 0){
             mainController.voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -35,7 +35,7 @@ public class UIInteractionHandler {
                 }
             });
         }
-        if(mainController.unitsTreeIndexes[1] == 1){
+        if(mainController.tabPaneDepthLevels[1] == 1){
             mainController.voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -57,7 +57,7 @@ public class UIInteractionHandler {
                 }
             });
         }
-        if(mainController.unitsTreeIndexes[1] == 2){
+        if(mainController.tabPaneDepthLevels[1] == 2){
             mainController.voivodeshipTabAddUnitButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -72,7 +72,7 @@ public class UIInteractionHandler {
     }
 
     public void setEditButton() {
-        if(mainController.unitsTreeIndexes[1] == 0){
+        if(mainController.tabPaneDepthLevels[1] == 0){
             mainController.voivodeshipTabEditUnitButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -94,7 +94,7 @@ public class UIInteractionHandler {
                 }
             });
         }
-        if(mainController.unitsTreeIndexes[1] == 1){
+        if(mainController.tabPaneDepthLevels[1] == 1){
             mainController.voivodeshipTabEditUnitButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -116,7 +116,7 @@ public class UIInteractionHandler {
                 }
             });
         }
-        if(mainController.unitsTreeIndexes[1] == 2){
+        if(mainController.tabPaneDepthLevels[1] == 2){
             mainController.voivodeshipTabEditUnitButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {

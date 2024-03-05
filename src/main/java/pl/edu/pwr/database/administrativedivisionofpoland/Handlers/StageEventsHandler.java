@@ -12,7 +12,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCountyP
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddVoivodeshipPopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.MainController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -135,7 +135,7 @@ public class StageEventsHandler {
         }
         System.out.println("Editing voivodeship");
         try {
-            UserData.unit = mainController.voivodeshipForEditionOrDeletion;
+            UserInput.unit = mainController.voivodeshipForEditionOrDeletion;
             FXMLLoader fxmlLoader = new FXMLLoader(AddVoivodeshipPopupController.class.getResource("edit-voivodeship-popup.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
@@ -159,7 +159,7 @@ public class StageEventsHandler {
         }
         System.out.println("Editing county");
         try {
-            UserData.unit = dataReceiver.getCountyById(mainController.countyForEditionOrDeletion.getId());
+            UserInput.unit = dataReceiver.getCountyById(mainController.countyForEditionOrDeletion.getId());
             FXMLLoader fxmlLoader = new FXMLLoader(AddCountyPopupController.class.getResource("edit-county-popup.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
@@ -183,7 +183,7 @@ public class StageEventsHandler {
         }
         System.out.println("Editing commune");
         try {
-            UserData.unit = dataReceiver.getCommuneById(mainController.communeForEditionOrDeletion.getId());
+            UserInput.unit = dataReceiver.getCommuneById(mainController.communeForEditionOrDeletion.getId());
             FXMLLoader fxmlLoader = new FXMLLoader(AddCommunePopupController.class.getResource("edit-commune-popup.fxml"));
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();

@@ -2,7 +2,6 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -10,7 +9,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -20,13 +18,12 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CommuneDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CommuneService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipService;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -39,9 +36,9 @@ public class SendReportController implements Initializable {
     @FXML private ChoiceBox countyReportChoiceBox;
     @FXML private ChoiceBox communeReportChoiceBox;
     @FXML private TextArea reportContentTextArea;
-    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
-    CountyDataService countyDataService = new CountyDataService();
-    CommuneDataService communeDataService = new CommuneDataService();
+    VoivodeshipService voivodeshipDataService = new VoivodeshipService();
+    CountyService countyService = new CountyService();
+    CommuneService communeService = new CommuneService();
     VoivodeshipDto reportSelectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto reportSelectedCounty = new CountyDto(-1,-1,"","",false,"","");
     CommuneDto reportSelectedCommune = new CommuneDto(-1,-1,"","",-1,-1.0,"","");
@@ -78,7 +75,7 @@ public class SendReportController implements Initializable {
                         reportSelectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = countyDataService.getDto(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = countyService.getDto(reportSelectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyReportChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
@@ -106,7 +103,7 @@ public class SendReportController implements Initializable {
                                 .filter(countyDto -> newValue.equals(countyDto.getName())).findAny().get();
 
                         try {
-                            requestCommunes = communeDataService.get(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
+                            requestCommunes = communeService.get(reportSelectedCounty.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCommunes.getItems().size(); i++) {
                                 communeReportChoiceBox.getItems().add(requestCommunes.getItems().get(i).getName() + " (" + requestCommunes.getItems().get(i).getCommuneType() + ")");
                             }
@@ -152,9 +149,9 @@ public class SendReportController implements Initializable {
             responseLabel.setVisible(true);
             return;
         }
-        UserData.prompt ="\nwysłać zgłoszenie?";
-        UserData.getConfirmation();
-        if(UserData.confirmed) {
+        UserInput.prompt ="\nwysłać zgłoszenie?";
+        UserInput.getConfirmation();
+        if(UserInput.confirmed) {
             sendButton.setDisable(true);
             AddReportRequest addReportRequest = new AddReportRequest();
             addReportRequest.setTopic(topicTextField.getText().trim());

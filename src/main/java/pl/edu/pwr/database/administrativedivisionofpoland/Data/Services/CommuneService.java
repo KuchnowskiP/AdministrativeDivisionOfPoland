@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class CommuneDataService implements UnitDataServiceInterface<CommuneRequest, CommuneDto> {
+public class CommuneService implements UnitService<CommuneRequest, CommuneDto> {
     @Override
     public boolean create(CommuneRequest communeRequest) throws Exception {
         Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();

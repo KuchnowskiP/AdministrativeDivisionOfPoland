@@ -17,8 +17,8 @@ import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipService;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class AddCountyPopupController implements Initializable {
         initializeChoiceBoxesListeners();
     }
 
-    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
+    VoivodeshipService voivodeshipDataService = new VoivodeshipService();
     PageResult<VoivodeshipDto> requestVoivodeships;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
     CountyDto selectedCounty = new CountyDto(-1,-1,"","",false,"","");
@@ -175,7 +175,7 @@ public class AddCountyPopupController implements Initializable {
         if (licensePlateDifferentiatorTextField.getText().length() > 2) {
             returningLabel.setText("Wyróżnik musi się składać z maksymalnie dwóch litery");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
@@ -184,16 +184,16 @@ public class AddCountyPopupController implements Initializable {
         if (countyNameTextField.getText().trim().isEmpty()) {
             returningLabel.setText("Nazwa jest wymagana");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
         }
 
-        UserData.prompt = "\ndodać powiat o nazwie \"" + countyNameTextField.getText() + "\"?";
-        UserData.getConfirmation();
+        UserInput.prompt = "\ndodać powiat o nazwie \"" + countyNameTextField.getText() + "\"?";
+        UserInput.getConfirmation();
 
-        if(UserData.confirmed) {
+        if(UserInput.confirmed) {
             CountyRequest countyRequest = new CountyRequest();
             countyRequest.setName(countyNameTextField.getText().trim());
             countyRequest.setVoivodeshipId(selectedVoivodeship.getId());
@@ -232,7 +232,7 @@ public class AddCountyPopupController implements Initializable {
                 returningLabel.setText("Nie udało się dodać powiatu! Wprowadzono niepoprawne dane lub powiat" +
                         " o podanych atrybutach już istnieje.");
             }
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
         }else {
             returningLabel.setVisible(true);
             returningLabel.setText("Nie dodano powiatu, użytkownik przerwał operację!");

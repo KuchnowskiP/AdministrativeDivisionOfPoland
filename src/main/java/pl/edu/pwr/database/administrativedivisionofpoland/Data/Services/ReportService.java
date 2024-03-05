@@ -14,7 +14,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 
-public class ReportDataService {
+public class ReportService {
     HttpClient httpClient = HttpClient.newHttpClient();
     ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
 

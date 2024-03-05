@@ -27,7 +27,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.StageEventsHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIInteractionHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -72,9 +72,14 @@ public class MainController implements Initializable {
     @FXML private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
     @FXML private TableView<CountyDto> countiesTable = new TableView<>();
     @FXML private TableView<CommuneDto> communesTable = new TableView<>();
+    int manage = 1;
+    int view = 0;
     TableView[][] tables;
-    public Object[] unitsTree = new Object[]{-1,-1,-1};
-    public int[] unitsTreeIndexes = new int[2];
+    // Represents the hierarchy of administrative units: voivodeship, county, commune.
+    // Each element stores the ID of the respective unit.
+    public Object[] administrativeUnitHierarchyChain = new Object[]{-1,-1,-1};
+    // Represents the current depth levels when navigating through TabPanes.
+    public int[] tabPaneDepthLevels = new int[2];
     int[] activeTables = new int[]{0,0};
     int maxDepth = 2;
     String[] masterName = new String[3];
@@ -163,8 +168,13 @@ public class MainController implements Initializable {
         });
     }
     public void setEnterKeyPressedEvent(){
-        passwordTextField.setOnKeyPressed(key -> {
-            if(key.getCode().equals(KeyCode.ENTER)){
+        loginTextField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                onLoginButtonClick(new ActionEvent());
+            }
+        });
+        passwordTextField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 onLoginButtonClick(new ActionEvent());
             }
         });
@@ -184,23 +194,23 @@ public class MainController implements Initializable {
         Platform.runLater(() -> {
             tables[viewOrManage][activeTables[viewOrManage]].getColumns().clear();
 
-            if (unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 0) {
+            if (tabPaneDepthLevels[viewOrManage] == 1 && activeTables[viewOrManage] == 0) {
                 if(viewOrManage == 0){
-                    inVoivodeshipLabel.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                    inVoivodeshipLabel.setText("w '" + masterName[tabPaneDepthLevels[viewOrManage]] + "'");
                 }else{
-                    inVoivodeshipLabelMan.setText("w '" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                    inVoivodeshipLabelMan.setText("w '" + masterName[tabPaneDepthLevels[viewOrManage]] + "'");
                 }
 
                 TableColumn master;
                 if(showCommunesByVoivodeships == 0) {
-                    master = new TableColumn<>("Powiaty w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                    master = new TableColumn<>("Powiaty w " + "'" + masterName[tabPaneDepthLevels[viewOrManage]] + "'");
                 }else {
-                    master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+                    master = new TableColumn<>("Gminy w " + "'" + masterName[tabPaneDepthLevels[viewOrManage]] + "'");
                 }
                 master.getColumns().addAll(columnsToAdd);
                 tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
-            } else if (unitsTreeIndexes[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || unitsTreeIndexes[viewOrManage] == 1 && activeTables[viewOrManage] == 1) {
-                TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[unitsTreeIndexes[viewOrManage]] + "'");
+            } else if (tabPaneDepthLevels[viewOrManage] == 2 && activeTables[viewOrManage] == 0 || tabPaneDepthLevels[viewOrManage] == 1 && activeTables[viewOrManage] == 1) {
+                TableColumn master = new TableColumn<>("Gminy w " + "'" + masterName[tabPaneDepthLevels[viewOrManage]] + "'");
                 master.getColumns().addAll(columnsToAdd);
                 tables[viewOrManage][activeTables[viewOrManage]].getColumns().add(master);
             } else {
@@ -216,11 +226,11 @@ public class MainController implements Initializable {
             PageResult<?> requestResult;
             if(showCommunesByVoivodeships == 0) {
                 requestResult = requestResultsReceiver.getResult(activeTables[viewOrManage],
-                        unitsTreeIndexes[viewOrManage], unitsTree[unitsTreeIndexes[viewOrManage]], addressesAreChecked);
+                        tabPaneDepthLevels[viewOrManage], administrativeUnitHierarchyChain[tabPaneDepthLevels[viewOrManage]], addressesAreChecked);
             }else {
-                requestResult = requestResultsReceiver.communeByVoivodeshipId(unitsTree[unitsTreeIndexes[viewOrManage]], 1, Integer.MAX_VALUE);
+                requestResult = requestResultsReceiver.communeByVoivodeshipId(administrativeUnitHierarchyChain[tabPaneDepthLevels[viewOrManage]], 1, Integer.MAX_VALUE);
             }
-            setColumnsInMainTable(units[activeTables[viewOrManage] + unitsTreeIndexes[viewOrManage]
+            setColumnsInMainTable(units[activeTables[viewOrManage] + tabPaneDepthLevels[viewOrManage]
                     + addressesAreChecked + showCommunesByVoivodeships], viewOrManage);
 
             Platform.runLater(() -> {
@@ -244,20 +254,20 @@ public class MainController implements Initializable {
             tables[viewOrManage][oldTab].getSelectionModel().selectedItemProperty().removeListener(currentlyActiveTableListeners[viewOrManage]);
             changed = true;
         }
-        unitsTreeIndexes[viewOrManage] = 0;
+        tabPaneDepthLevels[viewOrManage] = 0;
         if(viewOrManage == 1) {
             uiInteractionHandler.setAddButton();
             uiInteractionHandler.setEditButton();
         };
         boolean finalChanged = changed;
         if(finalChanged){
-            unitsTreeIndexes[viewOrManage] = 0;
+            tabPaneDepthLevels[viewOrManage] = 0;
             activeTables[viewOrManage] = newTab;
             changeView(viewOrManage);
         }
         currentlyActiveTableListeners[viewOrManage] = (ChangeListener<Object>) (observableValue, oldValue, newValue) -> {
             if(viewOrManage == 1){
-                if(((unitsTreeIndexes[1] == 2 && activeTables[1] == 0) || (unitsTreeIndexes[1] == 1 && activeTables[1] == 1) || activeTables[1] == 2) && newValue != null){
+                if(((tabPaneDepthLevels[1] == 2 && activeTables[1] == 0) || (tabPaneDepthLevels[1] == 1 && activeTables[1] == 1) || activeTables[1] == 2) && newValue != null){
                     try {
                         communeForEditionOrDeletion.setId((Integer) newValue.getClass().getField("id").get(newValue));
                     } catch (IllegalAccessException | NoSuchFieldException e) {
@@ -266,7 +276,7 @@ public class MainController implements Initializable {
                 }else{
                     communeForEditionOrDeletion.setId(-1);
                 }
-                if(((activeTables[1] == 0 && unitsTreeIndexes[1] == 1) || (activeTables[1] == 1 && unitsTreeIndexes[1] == 0)) && newValue != null){
+                if(((activeTables[1] == 0 && tabPaneDepthLevels[1] == 1) || (activeTables[1] == 1 && tabPaneDepthLevels[1] == 0)) && newValue != null){
                     try {
                         countyForEditionOrDeletion.setId((Integer) newValue.getClass().getField("id").get(newValue));
                     } catch (IllegalAccessException | NoSuchFieldException e) {
@@ -275,7 +285,7 @@ public class MainController implements Initializable {
                 }else{
                     countyForEditionOrDeletion.setId(-1);
                 }
-                if(newValue != null && activeTables[1] == 0 && unitsTreeIndexes[1] == 0){
+                if(newValue != null && activeTables[1] == 0 && tabPaneDepthLevels[1] == 0){
                     try {
                         voivodeshipForEditionOrDeletion.setId((Integer) newValue.getClass().getField("id").get(newValue));
                     } catch (IllegalAccessException | NoSuchFieldException e) {
@@ -332,41 +342,7 @@ public class MainController implements Initializable {
                     row.setOnMouseClicked(event -> {
                         if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0 && showCommunesByVoivodeships != 1){
                             System.out.println(row.getItem());
-                            if(unitsTreeIndexes[finalI] < (maxDepth)) {
-                                unitsTreeIndexes[finalI]++;
-                                if(unitsTreeIndexes[0] == 1 && !manageTab.isSelected() && voivodeshipViewTab.isSelected()) {
-                                    viewingLabel.setVisible(true);
-                                    communeOrCountyChoiceBox.getSelectionModel().select(0);
-                                    communeOrCountyChoiceBox.setVisible(true);
-                                    inVoivodeshipLabel.setVisible(true);
-                                }
-                                else if(unitsTreeIndexes[1] == 1 && manageTab.isSelected() && voivodeshipViewTabMan.isSelected()){
-                                    viewingLabel.setVisible(false);
-                                    communeOrCountyChoiceBox.setVisible(false);
-                                    inVoivodeshipLabel.setVisible(false);
-                                    viewingLabelMan.setVisible(true);
-                                    communeOrCountyChoiceBoxMan.getSelectionModel().select(0);
-                                    communeOrCountyChoiceBoxMan.setVisible(true);
-                                    inVoivodeshipLabelMan.setVisible(true);
-                                }else{
-                                    viewingLabelMan.setVisible(false);
-                                    communeOrCountyChoiceBoxMan.setVisible(false);
-                                    inVoivodeshipLabelMan.setVisible(false);
-                                }
-                                if(finalI == 1){
-                                    uiInteractionHandler.setAddButton();
-                                    uiInteractionHandler.setEditButton();
-                                }
-                                try {
-                                    unitsTree[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
-                                    masterName[unitsTreeIndexes[finalI]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
-                                } catch (IllegalAccessException | NoSuchFieldException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                System.out.println(unitsTree[unitsTreeIndexes[finalI]]);
-                                System.out.println("Selected item: " + unitsTree[unitsTreeIndexes[finalI]]);
-                                changeView(finalI);
-                            }
+                            increaseDepth(finalI, row);
                         }
                     });
                     return row;
@@ -374,21 +350,63 @@ public class MainController implements Initializable {
             }
         }
     }
-    public void onBackButtonClick(ActionEvent ignoredActionEvent) {
-        if(unitsTreeIndexes[0] > 0) {
-            unitsTreeIndexes[0]--;
-            if(unitsTreeIndexes[0] == 1) {
-                viewingLabel.setVisible(true);
-                communeOrCountyChoiceBox.getSelectionModel().select(0);
-                communeOrCountyChoiceBox.setVisible(true);
-                inVoivodeshipLabel.setVisible(true);
-            }else {
-                viewingLabel.setVisible(false);
-                communeOrCountyChoiceBox.setVisible(false);
-                inVoivodeshipLabel.setVisible(false);
+
+    private void increaseDepth(int finalI, TableRow<?> row) {
+        if(tabPaneDepthLevels[finalI] < maxDepth){
+            tabPaneDepthLevels[finalI]++;
+            changeDepthDependentElements();
+            try {
+                administrativeUnitHierarchyChain[tabPaneDepthLevels[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
+                masterName[tabPaneDepthLevels[finalI]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new RuntimeException(e);
             }
+            System.out.println(administrativeUnitHierarchyChain[tabPaneDepthLevels[finalI]]);
+            System.out.println("Selected item: " + administrativeUnitHierarchyChain[tabPaneDepthLevels[finalI]]);
+            changeView(finalI);
         }
-        System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[0]]);
+    }
+    private void changeDepthDependentElements() {
+        if(manageTab.isSelected()){
+            showOrHideCountyCommuneChoiceBoxInManageTab();
+            uiInteractionHandler.setAddButton();
+            uiInteractionHandler.setEditButton();
+        }else{
+            showOrHideCountyCommuneChoiceBoxInViewTab();
+        }
+    }
+    private void showOrHideCountyCommuneChoiceBoxInManageTab() {
+        if(tabPaneDepthLevels[1] == 1) {
+            viewingLabelMan.setVisible(true);
+            communeOrCountyChoiceBoxMan.getSelectionModel().select(0);
+            communeOrCountyChoiceBoxMan.setVisible(true);
+            inVoivodeshipLabelMan.setVisible(true);
+        }else{
+            viewingLabelMan.setVisible(false);
+            communeOrCountyChoiceBoxMan.setVisible(false);
+            inVoivodeshipLabelMan.setVisible(false);
+        }
+    }
+
+    private void showOrHideCountyCommuneChoiceBoxInViewTab() {
+        if(tabPaneDepthLevels[0] == 1) {
+            viewingLabel.setVisible(true);
+            communeOrCountyChoiceBox.getSelectionModel().select(0);
+            communeOrCountyChoiceBox.setVisible(true);
+            inVoivodeshipLabel.setVisible(true);
+        }else{
+            viewingLabel.setVisible(false);
+            communeOrCountyChoiceBox.setVisible(false);
+            inVoivodeshipLabel.setVisible(false);
+        }
+    }
+    
+    public void onBackButtonClick(ActionEvent ignoredActionEvent) {
+        if(tabPaneDepthLevels[0] > 0) {
+            tabPaneDepthLevels[0]--;
+            showOrHideCountyCommuneChoiceBoxInViewTab();
+        }
+        System.out.println("Wrócono do: " + administrativeUnitHierarchyChain[tabPaneDepthLevels[0]]);
         changeView(0);
     }
     AuthenticationService authenticationService = AuthenticationService.getInstance();
@@ -433,23 +451,14 @@ public class MainController implements Initializable {
     }
 
     public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
-        if(unitsTreeIndexes[1] > 0) {
-            unitsTreeIndexes[1]--;
-            if(unitsTreeIndexes[1] == 1) {
-                viewingLabelMan.setVisible(true);
-                communeOrCountyChoiceBoxMan.getSelectionModel().select(0);
-                communeOrCountyChoiceBoxMan.setVisible(true);
-                inVoivodeshipLabelMan.setVisible(true);
-            }else {
-                viewingLabelMan.setVisible(false);
-                communeOrCountyChoiceBoxMan.setVisible(false);
-                inVoivodeshipLabelMan.setVisible(false);
-            }
+        if(tabPaneDepthLevels[1] > 0) {
+            tabPaneDepthLevels[1]--;
+            showOrHideCountyCommuneChoiceBoxInManageTab();
             uiInteractionHandler.setAddButton();
             uiInteractionHandler.setEditButton();
         }
 
-        System.out.println("Wrócono do: " + unitsTree[unitsTreeIndexes[1]]);
+        System.out.println("Wrócono do: " + administrativeUnitHierarchyChain[tabPaneDepthLevels[1]]);
         changeView(1);
     }
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
@@ -493,31 +502,39 @@ public class MainController implements Initializable {
         }
     }
 
-    public void onDeleteButtonClick(ActionEvent ignoredActionEvent) throws Exception {
-        if(voivodeshipForEditionOrDeletion.getId() != -1){
-            UserData.prompt ="\nusunąć to województwo?";
-        }else if(countyForEditionOrDeletion.getId() != -1){
-            UserData.prompt ="\nusunąć ten powiat?";
-        }else if(communeForEditionOrDeletion.getId() != -1){
-            UserData.prompt ="\nusunąć tą gminę?";
-        }else{
+    public void onDeleteButtonClick(ActionEvent ignoredActionEvent) throws Exception{
+        deletionPrompt();
+        if(UserInput.confirmed) {
+            deleteSelectedUnit();
+        }
+    }
+    
+    private void deletionPrompt() throws Exception {
+        if (voivodeshipForEditionOrDeletion.getId() != -1) {
+            UserInput.prompt = "\nusunąć to województwo?";
+        } else if (countyForEditionOrDeletion.getId() != -1) {
+            UserInput.prompt = "\nusunąć ten powiat?";
+        } else if (communeForEditionOrDeletion.getId() != -1) {
+            UserInput.prompt = "\nusunąć tą gminę?";
+        } else {
             return;
         }
 
-        UserData.getConfirmation();
-        if(UserData.confirmed) {
-            if (voivodeshipForEditionOrDeletion.getId() != -1) {
-                if (requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId())) {
-                    changeView(1);
-                }
-            } else if (countyForEditionOrDeletion.getId() != -1) {
-                if (requestSender.deleteCounty(countyForEditionOrDeletion.getId())) {
-                    changeView(1);
-                }
-            } else if (communeForEditionOrDeletion.getId() != -1) {
-                if (requestSender.deleteCommune(communeForEditionOrDeletion.getId())) {
-                    changeView(1);
-                }
+        UserInput.getConfirmation();
+    }
+        
+    public void deleteSelectedUnit() throws Exception {
+        if (voivodeshipForEditionOrDeletion.getId() != -1) {
+            if (requestSender.deleteVoivodeship(voivodeshipForEditionOrDeletion.getId())) {
+                changeView(1);
+            }
+        } else if (countyForEditionOrDeletion.getId() != -1) {
+            if (requestSender.deleteCounty(countyForEditionOrDeletion.getId())) {
+                changeView(1);
+            }
+        } else if (communeForEditionOrDeletion.getId() != -1) {
+            if (requestSender.deleteCommune(communeForEditionOrDeletion.getId())) {
+                changeView(1);
             }
         }
     }

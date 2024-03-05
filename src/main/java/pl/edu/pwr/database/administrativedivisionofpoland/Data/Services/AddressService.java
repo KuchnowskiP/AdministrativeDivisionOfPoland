@@ -18,7 +18,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddressDataService {
+public class AddressService {
     HttpClient httpClient = HttpClient.newHttpClient();
     ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
 

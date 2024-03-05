@@ -11,11 +11,11 @@ import java.io.IOException;
 
 
 public class DataReceiver {
-    private final VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
-    private final CountyDataService countyDataService = new CountyDataService();
-    private final CommuneDataService communeDataService = new CommuneDataService();
-    private final AddressDataService addressDataService = new AddressDataService();
-    private final ReportDataService reportDataService = new ReportDataService();
+    private final VoivodeshipService voivodeshipDataService = new VoivodeshipService();
+    private final CountyService countyService = new CountyService();
+    private final CommuneService communeService = new CommuneService();
+    private final AddressService addressService = new AddressService();
+    private final ReportService reportService = new ReportService();
 
     public PageResult<?> getResult(int table, int treeIndex, Object unit, int addressesAreChecked) throws Exception {
         PageResult<?> requestResult = null;
@@ -24,17 +24,17 @@ public class DataReceiver {
                 switch (treeIndex){
                     case 1:{
                         if(addressesAreChecked == 4){
-                            requestResult = countyDataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
+                            requestResult = countyService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
                         }else {
-                            requestResult = countyDataService.get(unit, 1, Integer.MAX_VALUE);
+                            requestResult = countyService.get(unit, 1, Integer.MAX_VALUE);
                         }
                         break;
                     }
                     case 2:{
                         if(addressesAreChecked == 4){
-                            requestResult = communeDataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
+                            requestResult = communeService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                         }else {
-                            requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
+                            requestResult = communeService.get(unit, 1, Integer.MAX_VALUE);
                         }
                         break;
                     }
@@ -53,30 +53,30 @@ public class DataReceiver {
 
                 if(treeIndex == 1){
                     if(addressesAreChecked == 4){
-                        requestResult = communeDataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
+                        requestResult = communeService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                     }else {
-                        requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
+                        requestResult = communeService.get(unit, 1, Integer.MAX_VALUE);
                     }
                 }
                 else{
                     if(addressesAreChecked == 4){
-                        requestResult = countyDataService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
+                        requestResult = countyService.getCountiesWithAddresses(unit,1,Integer.MAX_VALUE);
                     }else {
-                        requestResult = countyDataService.get(unit, 1, Integer.MAX_VALUE);
+                        requestResult = countyService.get(unit, 1, Integer.MAX_VALUE);
                     }
                 }
                 break;
             }
             case 2:{
                 if(addressesAreChecked == 4){
-                    requestResult = communeDataService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
+                    requestResult = communeService.getCommunesWithAddresses(unit,1,Integer.MAX_VALUE);
                 }else {
-                    requestResult = communeDataService.get(unit, 1, Integer.MAX_VALUE);
+                    requestResult = communeService.get(unit, 1, Integer.MAX_VALUE);
                 }
                 break;
             }
             case 3:{
-                requestResult = reportDataService.getReports(1,Integer.MAX_VALUE);
+                requestResult = reportService.getReports(1,Integer.MAX_VALUE);
                 break;
             }
         }
@@ -90,11 +90,11 @@ public class DataReceiver {
                 break;
             }
             case 1: {
-                requestResult = countyDataService.getCountiesHistory(1,Integer.MAX_VALUE);
+                requestResult = countyService.getCountiesHistory(1,Integer.MAX_VALUE);
                 break;
             }
             case 2: {
-                requestResult = communeDataService.getCommunesHistory(1,Integer.MAX_VALUE);
+                requestResult = communeService.getCommunesHistory(1,Integer.MAX_VALUE);
                 break;
             }
         }
@@ -102,32 +102,32 @@ public class DataReceiver {
     }
 
     public PageResult<OfficeAddressDto> getAddresses(int page, int size) throws IOException, InterruptedException {
-        return addressDataService.getAllAddresses(page,size);
+        return addressService.getAllAddresses(page,size);
     }
     public CountyDto getCountyById(int ID) throws IOException, InterruptedException {
-        return countyDataService.countyById(ID);
+        return countyService.countyById(ID);
     }
     public CommuneDto getCommuneById(int ID) throws IOException, InterruptedException {
-        return communeDataService.communeById(ID);
+        return communeService.communeById(ID);
     }
     public PageResult<CountyDto> getCountiesDto(Object ID, int page, int size) throws IOException, InterruptedException {
-        return countyDataService.getDto(ID,page,size);
+        return countyService.getDto(ID,page,size);
     }
     public PageResult<VoivodeshipDto> getVoivodeshipsDto(Object ID, int page, int size) throws IOException, InterruptedException {
         return voivodeshipDataService.getDto(ID,page,size);
     }
     public PageResult<CommuneDto> communeByVoivodeshipId(Object ID, int page, int size) throws IOException, InterruptedException {
-        return communeDataService.communeByVoivodeshipId(ID, page, size);
+        return communeService.communeByVoivodeshipId(ID, page, size);
     }
     public String newVoivodeshipTeryt() throws IOException, InterruptedException {
         return voivodeshipDataService.getNewVoivodeshipTeryt();
     }
 
     public String newCountyTeryt(Integer id, int city) throws IOException, InterruptedException {
-        return countyDataService.getNewCountyTeryt(id, city);
+        return countyService.getNewCountyTeryt(id, city);
     }
 
     public String newCommuneTeryt(Integer id, int type) throws IOException, InterruptedException {
-        return communeDataService.getNewCommuneTeryt(id, type);
+        return communeService.getNewCommuneTeryt(id, type);
     }
 }

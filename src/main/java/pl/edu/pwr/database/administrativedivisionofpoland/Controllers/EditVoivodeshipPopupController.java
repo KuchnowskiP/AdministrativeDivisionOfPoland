@@ -21,7 +21,7 @@ import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -142,7 +142,7 @@ public class EditVoivodeshipPopupController implements Initializable {
         if (licensePlateDifferentiatorTextField.getText().length() > 1) {
             returningLabel.setText("Wyróżnik musi się składać z jednej litery");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
@@ -151,14 +151,14 @@ public class EditVoivodeshipPopupController implements Initializable {
         if (voivodeshipNameTextField.getText().trim().isEmpty()) {
             returningLabel.setText("Nazwa jest wymagana");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
         }
 
 
-        UserData.prompt = "\npotwierdzić dane województwa o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
+        UserInput.prompt = "\npotwierdzić dane województwa o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
         FXMLLoader fxmlLoader = new FXMLLoader(AddVoivodeshipPopupController.class.getResource("confirmation.fxml"));
         Parent root = fxmlLoader.load();
         Stage stage = new Stage();
@@ -171,11 +171,11 @@ public class EditVoivodeshipPopupController implements Initializable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
 
-        if(UserData.confirmed) {
+        if(UserInput.confirmed) {
             VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
             voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
             voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
-            VoivodeshipDto voivodeshipDto = (VoivodeshipDto) UserData.unit;
+            VoivodeshipDto voivodeshipDto = (VoivodeshipDto) UserInput.unit;
             voivodeshipRequest.setTerytCode(voivodeshipDto.getTerytCode());
 
             if (addressSelectionTabPane.getSelectionModel().isSelected(1)) {
@@ -208,7 +208,7 @@ public class EditVoivodeshipPopupController implements Initializable {
                 returningLabel.setText("Nie udało się edytować województwa! Wprowadzono niepoprawne dane lub województwo" +
                         " o podanych atrybutach już istnieje.");
             }
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
         }else {
             returningLabel.setVisible(true);
             returningLabel.setText("Nie edytowano województwa, użytkownik przerwał operację!");

@@ -1,6 +1,5 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import pl.edu.pwr.contract.Common.PageResult;
@@ -9,7 +8,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.Authent
 import java.io.IOException;
 import java.net.http.HttpClient;
 
-public interface UnitDataServiceInterface<T1,T2> {
+public interface UnitService<T1,T2> {
     AuthenticationService authenticationService = AuthenticationService.getInstance();
     HttpClient httpClient = HttpClient.newHttpClient();
     ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();

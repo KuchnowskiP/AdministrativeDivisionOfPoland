@@ -95,7 +95,7 @@
                               </VBox>
                                <VBox alignment="TOP_CENTER" prefHeight="104.0" prefWidth="436.0">
                                    <children>
-                                       <Label fx:id="viewingLabelMan" alignment="CENTER" prefHeight="17.0" prefWidth="65.0" text="Przeglądzasz" visible="false" />
+                                       <Label fx:id="viewingLabelMan" alignment="CENTER" prefHeight="17.0" prefWidth="65.0" text="Przeglądasz" visible="false" />
                                        <ChoiceBox fx:id="communeOrCountyChoiceBoxMan" prefHeight="25.0" prefWidth="69.0" visible="false" />
                                        <Label fx:id="inVoivodeshipLabelMan" text="w " visible="false" />
                                    </children>

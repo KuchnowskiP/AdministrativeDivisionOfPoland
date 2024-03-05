@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class CountyDataService implements UnitDataServiceInterface<CountyRequest, CountyExtended> {
+public class CountyService implements UnitService<CountyRequest, CountyExtended> {
     @Override
     public boolean create(CountyRequest countyRequest) throws Exception {
         Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();

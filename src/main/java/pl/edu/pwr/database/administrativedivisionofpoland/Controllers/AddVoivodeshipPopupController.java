@@ -13,7 +13,7 @@ import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
 
@@ -139,7 +139,7 @@ public class AddVoivodeshipPopupController implements Initializable{
         if (licensePlateDifferentiatorTextField.getText().length() > 1) {
             returningLabel.setText("Wyróżnik musi się składać z jednej litery");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
@@ -148,16 +148,16 @@ public class AddVoivodeshipPopupController implements Initializable{
         if (voivodeshipNameTextField.getText().trim().isEmpty()) {
             returningLabel.setText("Nazwa jest wymagana");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
         }
 
-        UserData.prompt = "\ndodać województwo o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
-        UserData.getConfirmation();
+        UserInput.prompt = "\ndodać województwo o nazwie \"" + voivodeshipNameTextField.getText() + "\"?";
+        UserInput.getConfirmation();
 
-        if(UserData.confirmed) {
+        if(UserInput.confirmed) {
             VoivodeshipRequest voivodeshipRequest = new VoivodeshipRequest();
             voivodeshipRequest.setName(voivodeshipNameTextField.getText().trim());
             voivodeshipRequest.setLicensePlateDifferentiator(licensePlateDifferentiatorTextField.getText());
@@ -192,7 +192,7 @@ public class AddVoivodeshipPopupController implements Initializable{
                 returningLabel.setText("Nie udało się dodać województwa! Wprowadzono niepoprawne dane lub województwo" +
                         " o podanych atrybutach już istnieje.");
             }
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
         }else {
             returningLabel.setVisible(true);
             returningLabel.setText("Nie dodano województwa, użytkownik przerwał operację!");

@@ -12,7 +12,7 @@ import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.Confirmati
 import java.io.IOException;
 import java.util.Objects;
 
-public class UserData {
+public class UserInput {
     public static boolean confirmed = false;
     public static String prompt = "blah";
     public static Object unit = -1;

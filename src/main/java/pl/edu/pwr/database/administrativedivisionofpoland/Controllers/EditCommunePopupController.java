@@ -16,11 +16,11 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyDataService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.CountyService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipDataService;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.Data.Services.VoivodeshipService;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 import pl.edu.pwr.database.administrativedivisionofpoland.Utils.Utils;
 
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class EditCommunePopupController implements Initializable {
         initializeChoiceBoxesListeners();
     }
 
-    VoivodeshipDataService voivodeshipDataService = new VoivodeshipDataService();
+    VoivodeshipService voivodeshipDataService = new VoivodeshipService();
     PageResult<VoivodeshipDto> requestVoivodeships;
     PageResult<CountyDto> requestCounties;
     VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1,"","","");
@@ -100,7 +100,7 @@ public class EditCommunePopupController implements Initializable {
         requestVoivodeships = Utils.getVoivodeshipResult(voivodeshipChoiceBox);
         communeTypeChoiceBox.getItems().addAll(new Object[]{"gmina miejska", "gmina wiejska", "gmina miejsko-wiejska"});
     }
-    CountyDataService countyDataService = new CountyDataService();
+    CountyService countyService = new CountyService();
     private void initializeChoiceBoxesListeners(){
         voivodeshipChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
@@ -115,7 +115,7 @@ public class EditCommunePopupController implements Initializable {
                         selectedVoivodeship = requestVoivodeships.getItems().stream()
                                 .filter(voivodeshipDto -> newValue.equals(voivodeshipDto.getName())).findAny().get();
                         try {
-                            requestCounties = countyDataService.getDto(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
+                            requestCounties = countyService.getDto(selectedVoivodeship.getId(), 1, Integer.MAX_VALUE);
                             for (int i = 0; i < requestCounties.getItems().size(); i++) {
                                 countyChoiceBox.getItems().add(requestCounties.getItems().get(i).getName());
                             }
@@ -220,16 +220,16 @@ public class EditCommunePopupController implements Initializable {
         if (communeNameTextField.getText().trim().isEmpty()) {
             returningLabel.setText("Nazwa jest wymagana");
             returningLabel.setVisible(true);
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
             return;
         } else {
             returningLabel.setVisible(false);
         }
 
-        UserData.prompt = "\ndodać gminę o nazwie \"" + communeNameTextField.getText() + "\"?";
-        UserData.getConfirmation();
+        UserInput.prompt = "\ndodać gminę o nazwie \"" + communeNameTextField.getText() + "\"?";
+        UserInput.getConfirmation();
 
-        if(UserData.confirmed) {
+        if(UserInput.confirmed) {
 
             CommuneRequest communeRequest = new CommuneRequest();
 
@@ -285,7 +285,7 @@ public class EditCommunePopupController implements Initializable {
                 communeRequest.setLocality(place);
                 communeRequest.setRegisteredOfficeAddressesId(addressID);
             }
-            CommuneDto communeDto = (CommuneDto) UserData.unit;
+            CommuneDto communeDto = (CommuneDto) UserInput.unit;
             if(requestSender.editCommune(communeDto.getId(), communeRequest)){
                 returningLabel.setVisible(true);
                 returningLabel.setText("Pomyślnie edytowano gminę!");
@@ -294,7 +294,7 @@ public class EditCommunePopupController implements Initializable {
                 returningLabel.setText("Nie udało się edytować gminy! Wprowadzono niepoprawne dane lub gmina" +
                         " o podanych atrybutach już istnieje.");
             }
-            UserData.confirmed = false;
+            UserInput.confirmed = false;
         }else {
             returningLabel.setVisible(true);
             returningLabel.setText("Nie edytowano gminy, użytkownik przerwał operację!");

@@ -2,7 +2,6 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import pl.edu.pwr.contract.Common.PageResult;
-import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipAddressData;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipExtended;
@@ -17,7 +16,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VoivodeshipDataService implements UnitDataServiceInterface<VoivodeshipRequest, VoivodeshipExtended> {
+public class VoivodeshipService implements UnitService<VoivodeshipRequest, VoivodeshipExtended> {
     @Override
     public boolean create(VoivodeshipRequest voivodeshipRequest) throws Exception {
         HashMap<String, Object> values = new HashMap<String, Object>();

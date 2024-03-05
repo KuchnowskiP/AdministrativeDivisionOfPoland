@@ -5,7 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import pl.edu.pwr.database.administrativedivisionofpoland.UserData;
+import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,17 +17,17 @@ public class ConfirmationPopupController implements Initializable{
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        promptLabel.setText("Czy na pewno chcesz " + UserData.prompt);
+        promptLabel.setText("Czy na pewno chcesz " + UserInput.prompt);
     }
 
     public void onConfirmButtonClick(ActionEvent actionEvent) {
-        UserData.confirmed = true;
+        UserInput.confirmed = true;
         Stage stage = (Stage) confirmationButton.getScene().getWindow();
         stage.close();
     }
 
     public void onDeclineButtonClick(ActionEvent actionEvent) {
-        UserData.confirmed = false;
+        UserInput.confirmed = false;
         Stage stage = (Stage) confirmationButton.getScene().getWindow();
         stage.close();
     }
