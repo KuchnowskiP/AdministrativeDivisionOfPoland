@@ -28,7 +28,6 @@ import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -46,13 +45,13 @@ public class MainController implements Initializable {
     @FXML public Button voivodeshipTabAddUnitButton;
     @FXML public Button showHistoricalDataButton;
     public Label viewingLabelMan;
-    public ChoiceBox communeOrCountyChoiceBoxMan;
+    public ChoiceBox<String> communeOrCountyChoiceBoxMan;
     public Label inVoivodeshipLabelMan;
     public Tab voivodeshipViewTabMan;
     @FXML private Tab voivodeshipViewTab;
     @FXML public Label viewingLabel;
     @FXML public Label inVoivodeshipLabel;
-    @FXML public ChoiceBox communeOrCountyChoiceBox;
+    @FXML public ChoiceBox<String> communeOrCountyChoiceBox;
     @FXML private Button reportProblemButton;
     @FXML public CheckBox registeredOfficesCheckBox;
     @FXML public TableView<ReportDto> reportsTableManage;
@@ -69,8 +68,6 @@ public class MainController implements Initializable {
     @FXML public TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
     @FXML public TableView<CountyDto> countiesTable = new TableView<>();
     @FXML public TableView<CommuneDto> communesTable = new TableView<>();
-    int manage = 1;
-    int view = 0;
     public TableView[][] tables;
     // Represents the hierarchy of administrative units: voivodeship, county, commune.
     // Each element stores the ID of the respective unit.
@@ -200,7 +197,7 @@ public class MainController implements Initializable {
         if(viewOrManage == 1) {
             uiInteractionHandler.setAddButton();
             uiInteractionHandler.setEditButton();
-        };
+        }
         boolean finalChanged = changed;
         if(finalChanged){
             tabPaneDepthLevels[viewOrManage] = 0;
@@ -305,8 +302,7 @@ public class MainController implements Initializable {
         changeView(0);
     }
     IAuthenticationService authenticationService = AuthenticationService.getInstance();
-    boolean successfulLogin = false;
-    boolean heIsBack = false;
+
     public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
         System.out.println("przycisk wciśnięty");
         String login = loginTextField.getText();
@@ -314,30 +310,27 @@ public class MainController implements Initializable {
 
 
 
-        Runnable authenticate = new Runnable() {
-            @Override
-            public void run() {
-                if(authenticationService.authenticate(login,password)){
-                    listenerInitializer.setUpTabPaneListener(manageUnitsTabPane, 1);
-                    voivodeshipsTableManage.setEditable(true);
-                    countiesTableManage.setEditable(true);
-                    communesTable.setEditable(true);
+        Runnable authenticate = () -> {
+            if(authenticationService.authenticate(login,password)){
+                listenerInitializer.setUpTabPaneListener(manageUnitsTabPane, 1);
+                voivodeshipsTableManage.setEditable(true);
+                countiesTableManage.setEditable(true);
+                communesTable.setEditable(true);
 
-                    Platform.runLater(() -> {
-                        loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
-                        loginFeedbackLabel.setVisible(true);
-                        mainTabPane.getTabs().add(manageTab);
-                    });
+                Platform.runLater(() -> {
+                    loginFeedbackLabel.setText("Zalogowano jako " + loginTextField.getText());
+                    loginFeedbackLabel.setVisible(true);
+                    mainTabPane.getTabs().add(manageTab);
+                });
 
-                    changeTableListener(-1, 0, 1);
-                    changeView(1);
-                }else{
-                    Platform.runLater(() -> {
-                        loginFeedbackLabel.setText("Błędne dane logowania!");
-                        loginFeedbackLabel.setVisible(true);
-                    });
+                changeTableListener(-1, 0, 1);
+                changeView(1);
+            }else{
+                Platform.runLater(() -> {
+                    loginFeedbackLabel.setText("Błędne dane logowania!");
+                    loginFeedbackLabel.setVisible(true);
+                });
 
-                }
             }
         };
         Thread authenticator = new Thread(authenticate);
@@ -370,13 +363,7 @@ public class MainController implements Initializable {
         }
         changeView(0);
     }
-    public void setImages(String terytCode) throws URISyntaxException {
-        if(terytCode == null) terytCode = "0000000";
-        String flagFileName = "src/main/resources/flags/" + terytCode + ".png";
-        String emblemFileName = "src/main/resources/emblems/" + terytCode + ".png";
-        flagImage.setImage(new Image(new File(flagFileName).toURI().toString()));
-        emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
-    }
+
     public void onShowHistoricalDataButtonClick(ActionEvent ignoredActionEvent) {
         showHistoricalDataButton.setDisable(true);
         System.out.println("Showing history");
@@ -447,7 +434,7 @@ public class MainController implements Initializable {
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();
             Scene scene = new Scene(root, 800,600);
-            scene.getStylesheets().addAll(Main.class.getResource("style.css").toExternalForm());
+            scene.getStylesheets().addAll(Objects.requireNonNull(Main.class.getResource("style.css")).toExternalForm());
             stage.setScene(scene);
             stage.setTitle("Zgłoś problem");
             Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("icon.png")));
