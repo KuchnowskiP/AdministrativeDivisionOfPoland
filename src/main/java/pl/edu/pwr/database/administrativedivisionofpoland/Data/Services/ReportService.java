@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
+import pl.edu.pwr.database.administrativedivisionofpoland.Config;
 
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -18,7 +19,9 @@ public class ReportService {
     HttpClient httpClient = HttpClient.newHttpClient();
     ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
 
-
+    String serverAddress = Config.getProperty("server.address");
+    String serverPort = Config.getProperty("server.port");
+    
     public  void createReport(AddReportRequest addReportRequest) throws Exception {
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : addReportRequest.getClass().getFields()){
@@ -32,7 +35,7 @@ public class ReportService {
 
         String requestBody = objectMapper.writeValueAsString(values);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/report/add"))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/report/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
                 .build();
@@ -43,7 +46,7 @@ public class ReportService {
     public PageResult<ReportDto> getReports(int page, int size) throws Exception {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/report/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/report/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 

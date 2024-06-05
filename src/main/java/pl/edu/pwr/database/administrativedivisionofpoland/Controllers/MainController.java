@@ -58,8 +58,8 @@ public class MainController implements Initializable {
     @FXML public TableView<CountyDto> countiesTableManage;
     @FXML public TableView<CommuneDto> communesTableManage;
     @FXML public TableView<VoivodeshipDto> voivodeshipsTableManage;
-    @FXML private TabPane manageUnitsTabPane;
-    @FXML private Label loginFeedbackLabel;
+    @FXML public TabPane manageUnitsTabPane;
+    @FXML public Label loginFeedbackLabel;
     @FXML public TabPane viewUnitsTabPane;
     @FXML public TextField loginTextField;
     @FXML public PasswordField passwordTextField;
@@ -85,10 +85,10 @@ public class MainController implements Initializable {
     public int addressesAreChecked = 0;
     Thread tableUpdater = new Thread();
     public NavigationHandler navigationHandler;
-    UIInteractionHandler uiInteractionHandler;
+    public UIInteractionHandler uiInteractionHandler;
     public int showCommunesByVoivodeships = 0;
     IInitializer uiInitializer;
-    IListenerInitializer listenerInitializer;
+    public IListenerInitializer listenerInitializer;
     IInitializer structureInitializer;
 
     public MainController() {
@@ -267,7 +267,7 @@ public class MainController implements Initializable {
             showOrHideCountyCommuneChoiceBoxInViewTab();
         }
     }
-    private void showOrHideCountyCommuneChoiceBoxInManageTab() {
+    public void showOrHideCountyCommuneChoiceBoxInManageTab() {
         if(tabPaneDepthLevels[1] == 1) {
             viewingLabelMan.setVisible(true);
             communeOrCountyChoiceBoxMan.getSelectionModel().select(0);
@@ -280,7 +280,7 @@ public class MainController implements Initializable {
         }
     }
 
-    private void showOrHideCountyCommuneChoiceBoxInViewTab() {
+    public void showOrHideCountyCommuneChoiceBoxInViewTab() {
         if(tabPaneDepthLevels[0] == 1) {
             viewingLabel.setVisible(true);
             communeOrCountyChoiceBox.getSelectionModel().select(0);
@@ -292,7 +292,7 @@ public class MainController implements Initializable {
             inVoivodeshipLabel.setVisible(false);
         }
     }
-    
+
     public void onBackButtonClick(ActionEvent ignoredActionEvent) {
         if(tabPaneDepthLevels[0] > 0) {
             tabPaneDepthLevels[0]--;
@@ -307,8 +307,6 @@ public class MainController implements Initializable {
         System.out.println("przycisk wciśnięty");
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
-
-
 
         Runnable authenticate = () -> {
             if(authenticationService.authenticate(login,password)){
@@ -330,7 +328,6 @@ public class MainController implements Initializable {
                     loginFeedbackLabel.setText("Błędne dane logowania!");
                     loginFeedbackLabel.setVisible(true);
                 });
-
             }
         };
         Thread authenticator = new Thread(authenticate);

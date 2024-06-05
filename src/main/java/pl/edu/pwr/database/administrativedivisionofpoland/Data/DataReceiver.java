@@ -120,14 +120,14 @@ public class DataReceiver {
         return communeService.communeByVoivodeshipId(ID, page, size);
     }
     public String newVoivodeshipTeryt() throws IOException, InterruptedException {
-        return voivodeshipDataService.getNewVoivodeshipTeryt();
+        return voivodeshipDataService.getNewTeryt(null);
     }
 
     public String newCountyTeryt(Integer id, int city) throws IOException, InterruptedException {
-        return countyService.getNewCountyTeryt(id, city);
+        return countyService.getNewTeryt(new String[]{id.toString(), String.valueOf(city)});
     }
 
     public String newCommuneTeryt(Integer id, int type) throws IOException, InterruptedException {
-        return communeService.getNewCommuneTeryt(id, type);
+        return communeService.getNewTeryt(new String[]{id.toString(), String.valueOf(type)});
     }
 }

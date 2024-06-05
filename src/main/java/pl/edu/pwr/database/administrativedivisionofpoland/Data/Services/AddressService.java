@@ -9,6 +9,7 @@ import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.AuthenticationService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.IAuthenticationService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Config;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -25,10 +26,13 @@ public class AddressService {
 
     IAuthenticationService authenticationService = AuthenticationService.getInstance();
 
+    String serverAddress = Config.getProperty("server.address");
+    String serverPort = Config.getProperty("server.port");
+
 
     public PageResult<OfficeAddressDto> getAllAddresses(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/address/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/address/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -54,7 +58,7 @@ public class AddressService {
 
         String requestBody = objectMapper.writeValueAsString(values);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/address/add"))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/address/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(), bearerToken.getValue())

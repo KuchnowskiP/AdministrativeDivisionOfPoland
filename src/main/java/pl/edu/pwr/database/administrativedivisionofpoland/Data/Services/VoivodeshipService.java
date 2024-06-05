@@ -7,6 +7,7 @@ import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipExtended;
 import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
+import pl.edu.pwr.database.administrativedivisionofpoland.Config;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VoivodeshipService implements UnitService<VoivodeshipRequest, VoivodeshipExtended> {
+
     @Override
     public boolean create(VoivodeshipRequest voivodeshipRequest) throws Exception {
         HashMap<String, Object> values = new HashMap<String, Object>();
@@ -29,15 +31,17 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
         }
 
         String requestBody = objectMapper.writeValueAsString(values);
+        System.out.println(requestBody);
         Map.Entry<String,String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/add"))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(), bearerToken.getValue())
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
         return response.statusCode() == 200;
     }
 
@@ -55,7 +59,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
         String requestBody = objectMapper.writeValueAsString(values);
         Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/update/" + ID))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(), bearerToken.getValue())
@@ -69,7 +73,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
     public boolean delete(int ID) throws Exception {
         Map.Entry<String,String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/delete/" + ID))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/delete/" + ID))
                 .DELETE()
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(),bearerToken.getValue())
@@ -82,7 +86,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
     @Override
     public PageResult<VoivodeshipExtended> get(Object ID, int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/extended/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/extended/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -95,7 +99,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
 
     public PageResult<VoivodeshipAddressData> getVoivodeshipsWithAddresses(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/address/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/address/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -105,10 +109,10 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
                 });
         return result;
     }
-
-    public String getNewVoivodeshipTeryt() throws IOException, InterruptedException {
+    @Override
+    public String getNewTeryt(String[] args) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/teryt"))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/teryt"))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -121,7 +125,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
 
     public PageResult<VoivodeshipHistoryDto> getVoivodeshipsHistory(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/history/voivodeships?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/history/voivodeships?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -135,7 +139,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
 
     public PageResult<VoivodeshipDto> getDto(Object id, int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/all?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/voivodeship/all?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 

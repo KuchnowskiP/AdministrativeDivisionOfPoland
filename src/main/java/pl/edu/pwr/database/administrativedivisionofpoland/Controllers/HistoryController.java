@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class HistoryController implements Initializable {
-    public ImageView flagImage;
-    public ImageView emblemImage;
     @FXML private TabPane viewUnitsTabPane;
     @FXML private TableView<VoivodeshipHistoryDto> voivodeshipsTable = new TableView<>();
     @FXML private TableView<CountyHistoryDto> countiesTable = new TableView<>();
@@ -74,9 +72,10 @@ public class HistoryController implements Initializable {
             t.setCellValueFactory(new PropertyValueFactory<>(fields[iterator].getName()));
             iterator++;
         }
-        Platform.runLater(() -> tables[activeTable].getColumns().clear());
-        Platform.runLater(() -> tables[activeTable].getColumns().addAll(columnsToAdd));
-
+        Platform.runLater(() -> {
+            tables[activeTable].getColumns().clear();
+            tables[activeTable].getColumns().addAll(columnsToAdd);
+        });
     }
     public void changeItemsInMainTable(){
         try {
@@ -103,13 +102,5 @@ public class HistoryController implements Initializable {
 
     public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
         changeView();
-    }
-
-    public void setImages(String terytCode) throws URISyntaxException {
-        if(terytCode == null) terytCode = "0000000";
-        String flagFileName = "src/main/resources/flags/" + terytCode + ".png";
-        String emblemFileName = "src/main/resources/emblems/" + terytCode + ".png";
-        flagImage.setImage(new Image(new File(flagFileName).toURI().toString()));
-        emblemImage.setImage(new Image(new File(emblemFileName).toURI().toString()));
     }
 }

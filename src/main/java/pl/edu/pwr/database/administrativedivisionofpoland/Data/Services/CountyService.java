@@ -7,6 +7,7 @@ import pl.edu.pwr.contract.Dtos.CountyAddressData;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.CountyExtended;
 import pl.edu.pwr.contract.History.CountyHistoryDto;
+import pl.edu.pwr.database.administrativedivisionofpoland.Config;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CountyService implements UnitService<CountyRequest, CountyExtended> {
+    
     @Override
     public boolean create(CountyRequest countyRequest) throws Exception {
         Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
@@ -32,7 +34,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
 
         String requestBody = objectMapper.writeValueAsString(values);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/add"))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(), bearerToken.getValue())
@@ -56,7 +58,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
 
         String requestBody = objectMapper.writeValueAsString(values);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/update/" + ID))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(), bearerToken.getValue())
@@ -70,7 +72,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
     public boolean delete(int ID) throws Exception {
         Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/delete/" + ID))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/delete/" + ID))
                 .DELETE()
                 .header("Content-Type", "application/json")
                 .header(bearerToken.getKey(), bearerToken.getValue())
@@ -85,12 +87,12 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/extended/all?page=" + page + "&size=" + size))
+                    .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/extended/all?page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
                     .build();
         } else {
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/extended/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
+                    .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/extended/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
                     .build();
         }
@@ -105,12 +107,12 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/all?page=" + page + "&size=" + size))
+                    .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/all?page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
                     .build();
         } else {
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
+                    .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
                     .build();
         }
@@ -126,12 +128,12 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
         HttpRequest request;
         if (voivodeshipId.equals(-1)) {
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/address/all?page=" + page + "&size=" + size))
+                    .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/address/all?page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
                     .build();
         } else {
             request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://192.168.196.2:8085/api/county/address/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
+                    .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/address/byVoivodeship?voivodeshipId=" + voivodeshipId + "&page=" + page + "&size=" + size))
                     .header("Content-Type", "application/json")
                     .build();
         }
@@ -143,9 +145,10 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
         return result;
     }
 
-    public String getNewCountyTeryt(Integer id, int city) throws IOException, InterruptedException {
+    @Override
+    public String getNewTeryt(String[] args) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/teryt?voivodeshipId=" + id))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/teryt?voivodeshipId=" + args[0]))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -155,7 +158,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
             int newTerytInteger = Integer.parseInt(response.body()) + 1000;
             newTerytInteger /= 10;
             newTerytInteger *= 10;
-            newTerytInteger += city;
+            newTerytInteger += Integer.parseInt(args[1]);
             result = String.format("%07d", newTerytInteger);
         }
         return result;
@@ -163,7 +166,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
 
     public PageResult<CountyHistoryDto> getCountiesHistory(int page, int size) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/history/counties?page=" + page + "&size=" + size))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/history/counties?page=" + page + "&size=" + size))
                 .header("Content-Type", "application/json")
                 .build();
 
@@ -177,7 +180,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
 
     public CountyDto countyById(int ID) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://192.168.196.2:8085/api/county/" + ID))
+                .uri(URI.create("http://" + serverAddress + ":" + serverPort + "/api/county/" + ID))
                 .header("Content-Type", "application/json")
                 .build();
 

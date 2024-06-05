@@ -31,7 +31,4 @@ public class ConfirmationPopupController implements Initializable{
         Stage stage = (Stage) confirmationButton.getScene().getWindow();
         stage.close();
     }
-
-
-
 }

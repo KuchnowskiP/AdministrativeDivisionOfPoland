@@ -1,5 +1,6 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.Handlers;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -7,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.AuthenticationService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.IAuthenticationService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCommunePopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCountyPopupController;
 import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddVoivodeshipPopupController;
@@ -199,5 +202,66 @@ public class NavigationHandler {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void onBackButtonClick(ActionEvent ignoredActionEvent) {
+        if(mainController.tabPaneDepthLevels[0] > 0) {
+            mainController.tabPaneDepthLevels[0]--;
+            mainController.showOrHideCountyCommuneChoiceBoxInViewTab();
+        }
+        System.out.println("Wrócono do: " + mainController.administrativeUnitHierarchyChain[mainController.tabPaneDepthLevels[0]]);
+        mainController.changeView(0);
+    }
+    IAuthenticationService authenticationService = AuthenticationService.getInstance();
+
+    public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
+        System.out.println("przycisk wciśnięty");
+        String login = mainController.loginTextField.getText();
+        String password = mainController.passwordTextField.getText();
+
+        Runnable authenticate = () -> {
+            if(authenticationService.authenticate(login,password)){
+                mainController.listenerInitializer.setUpTabPaneListener(mainController.manageUnitsTabPane, 1);
+                mainController.voivodeshipsTableManage.setEditable(true);
+                mainController.countiesTableManage.setEditable(true);
+                mainController.communesTable.setEditable(true);
+
+                Platform.runLater(() -> {
+                    mainController.loginFeedbackLabel.setText("Zalogowano jako " + mainController.loginTextField.getText());
+                    mainController.loginFeedbackLabel.setVisible(true);
+                    mainController.mainTabPane.getTabs().add(mainController.manageTab);
+                });
+
+                mainController.changeTableListener(-1, 0, 1);
+                mainController.changeView(1);
+            }else{
+                Platform.runLater(() -> {
+                    mainController.loginFeedbackLabel.setText("Błędne dane logowania!");
+                    mainController.loginFeedbackLabel.setVisible(true);
+                });
+
+            }
+        };
+        Thread authenticator = new Thread(authenticate);
+        authenticator.start();
+
+    }
+
+    public void onManageBackButtonClick(ActionEvent ignoredActionEvent) {
+        if(mainController.tabPaneDepthLevels[1] > 0) {
+            mainController.tabPaneDepthLevels[1]--;
+            mainController.showOrHideCountyCommuneChoiceBoxInManageTab();
+            mainController.uiInteractionHandler.setAddButton();
+            mainController.uiInteractionHandler.setEditButton();
+        }
+
+        System.out.println("Wrócono do: " + mainController.administrativeUnitHierarchyChain[mainController.tabPaneDepthLevels[1]]);
+        mainController.changeView(1);
+    }
+    public void onRefreshButtonClick(ActionEvent ignoredActionEvent) {
+        mainController.changeView(0);
+    }
+    public void onManageRefreshButtonClick(ActionEvent ignoredActionEvent) {
+        mainController.changeView(1);
     }
 }
