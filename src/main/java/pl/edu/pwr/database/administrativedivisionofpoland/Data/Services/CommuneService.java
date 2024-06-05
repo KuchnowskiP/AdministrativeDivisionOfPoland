@@ -19,7 +19,7 @@ import java.util.Objects;
 public class CommuneService implements UnitService<CommuneRequest, CommuneDto> {
     @Override
     public boolean create(CommuneRequest communeRequest) throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : communeRequest.getClass().getFields()){
             if(field.get(communeRequest) != null) {
@@ -43,7 +43,7 @@ public class CommuneService implements UnitService<CommuneRequest, CommuneDto> {
 
     @Override
     public boolean edit(int ID, CommuneRequest communeRequest) throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : communeRequest.getClass().getFields()){
             if(field.get(communeRequest) != null) {
@@ -67,7 +67,7 @@ public class CommuneService implements UnitService<CommuneRequest, CommuneDto> {
 
     @Override
     public boolean delete(int ID) throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/commune/delete/" + ID))
                 .DELETE()

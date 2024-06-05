@@ -20,7 +20,7 @@ import java.util.Objects;
 public class CountyService implements UnitService<CountyRequest, CountyExtended> {
     @Override
     public boolean create(CountyRequest countyRequest) throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for (Field field : countyRequest.getClass().getFields()) {
             if (field.get(countyRequest) != null) {
@@ -44,7 +44,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
 
     @Override
     public boolean edit(int ID, CountyRequest countyRequest) throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for (Field field : countyRequest.getClass().getFields()) {
             if (field.get(countyRequest) != null) {
@@ -68,7 +68,7 @@ public class CountyService implements UnitService<CountyRequest, CountyExtended>
 
     @Override
     public boolean delete(int ID) throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/county/delete/" + ID))
                 .DELETE()

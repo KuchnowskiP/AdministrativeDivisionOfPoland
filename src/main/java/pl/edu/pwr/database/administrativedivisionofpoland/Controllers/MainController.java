@@ -2,11 +2,8 @@ package pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,16 +13,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.*;
 import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.AuthenticationService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.IAuthenticationService;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.Data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.StageEventsHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.NavigationHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.Handlers.UIInteractionHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.Initializers.*;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 
@@ -53,28 +50,28 @@ public class MainController implements Initializable {
     public Label inVoivodeshipLabelMan;
     public Tab voivodeshipViewTabMan;
     @FXML private Tab voivodeshipViewTab;
-    @FXML private Label viewingLabel;
-    @FXML private Label inVoivodeshipLabel;
-    @FXML private ChoiceBox communeOrCountyChoiceBox;
+    @FXML public Label viewingLabel;
+    @FXML public Label inVoivodeshipLabel;
+    @FXML public ChoiceBox communeOrCountyChoiceBox;
     @FXML private Button reportProblemButton;
-    @FXML private CheckBox registeredOfficesCheckBox;
-    @FXML private TableView<ReportDto> reportsTableManage;
-    @FXML private TableView<CountyDto> countiesTableManage;
-    @FXML private TableView<CommuneDto> communesTableManage;
-    @FXML private TableView<VoivodeshipDto> voivodeshipsTableManage;
+    @FXML public CheckBox registeredOfficesCheckBox;
+    @FXML public TableView<ReportDto> reportsTableManage;
+    @FXML public TableView<CountyDto> countiesTableManage;
+    @FXML public TableView<CommuneDto> communesTableManage;
+    @FXML public TableView<VoivodeshipDto> voivodeshipsTableManage;
     @FXML private TabPane manageUnitsTabPane;
     @FXML private Label loginFeedbackLabel;
-    @FXML private TabPane viewUnitsTabPane;
-    @FXML private TextField loginTextField;
-    @FXML private PasswordField passwordTextField;
-    @FXML private TabPane mainTabPane;
-    @FXML private Tab manageTab;
-    @FXML private TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
-    @FXML private TableView<CountyDto> countiesTable = new TableView<>();
-    @FXML private TableView<CommuneDto> communesTable = new TableView<>();
+    @FXML public TabPane viewUnitsTabPane;
+    @FXML public TextField loginTextField;
+    @FXML public PasswordField passwordTextField;
+    @FXML public TabPane mainTabPane;
+    @FXML public Tab manageTab;
+    @FXML public TableView<VoivodeshipDto> voivodeshipsTable = new TableView<>();
+    @FXML public TableView<CountyDto> countiesTable = new TableView<>();
+    @FXML public TableView<CommuneDto> communesTable = new TableView<>();
     int manage = 1;
     int view = 0;
-    TableView[][] tables;
+    public TableView[][] tables;
     // Represents the hierarchy of administrative units: voivodeship, county, commune.
     // Each element stores the ID of the respective unit.
     public Object[] administrativeUnitHierarchyChain = new Object[]{-1,-1,-1};
@@ -87,38 +84,34 @@ public class MainController implements Initializable {
     DataSender requestSender = new DataSender();
     Class<?>[] units = new Class[]{VoivodeshipExtended.class, CountyExtended.class, CommuneDto.class, ReportDto.class,
             VoivodeshipAddressData.class, CountyAddressData.class, CommuneAddressData.class};
-    ChangeListener<?>[] currentlyActiveTableListeners;
-    int addressesAreChecked = 0;
+    public ChangeListener<?>[] currentlyActiveTableListeners;
+    public int addressesAreChecked = 0;
     Thread tableUpdater = new Thread();
-    public StageEventsHandler stageEventsHandler;
+    public NavigationHandler navigationHandler;
     UIInteractionHandler uiInteractionHandler;
-    int showCommunesByVoivodeships = 0;
+    public int showCommunesByVoivodeships = 0;
+    IInitializer uiInitializer;
+    IListenerInitializer listenerInitializer;
+    IInitializer structureInitializer;
 
     public MainController() {
-        this.stageEventsHandler = new StageEventsHandler(this);
+        this.navigationHandler = new NavigationHandler(this);
         this.uiInteractionHandler = new UIInteractionHandler(this);
+        this.uiInitializer = new UIInitializer(this);
+        this.listenerInitializer = new ListenerInitializer(this);
+        this.structureInitializer = new StructureInitializer(this);
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        stageEventsHandler.setupButtons();
+        navigationHandler.setupButtons();
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out),
                 true, StandardCharsets.UTF_8)); //needed due to polish diacritics
 
-        initializeStructures();
-        initializeUI();
-        initializeListeners();
+        structureInitializer.initialize();
+        uiInitializer.initialize();
+        listenerInitializer.initialize();
     }
-    public void initializeUI(){
-        try {
-            setInitialView();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public void setInitialView() throws Exception {
-        mainTabPane.getTabs().remove(manageTab); //hiding managing tab. Will be open after singing in.
-        changeView(0); //setting content of table
-    }
+
     public void changeView(int viewOrManage){
         tableUpdater.interrupt();
         Runnable updateTable = () -> {
@@ -127,58 +120,7 @@ public class MainController implements Initializable {
         tableUpdater = new Thread(updateTable);
         tableUpdater.start();
     }
-    public void initializeStructures(){
-        tables = new TableView<?>[][]{{voivodeshipsTable, countiesTable, communesTable},
-                {voivodeshipsTableManage, countiesTableManage, communesTableManage, reportsTableManage}};
-        currentlyActiveTableListeners = new ChangeListener[2];
-        communeOrCountyChoiceBox.getItems().addAll("powiaty", "gminy");
-        communeOrCountyChoiceBoxMan.getItems().addAll("powiaty", "gminy");
-    }
-    public void initializeListeners(){
-        changeTableListener(-1,0,0);
-        TabPaneListenerInitializer(viewUnitsTabPane, 0);
-        setRowsFactories();
-        setEnterKeyPressedEvent();
-        setCommuneOrCountyChoiceBox();
-    }
-    public void setCommuneOrCountyChoiceBox(){
-        communeOrCountyChoiceBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                if(newValue.toString().equals("gminy")){
-                    showCommunesByVoivodeships = 1;
-                    changeView(0);
-                }else{
-                    showCommunesByVoivodeships = 0;
-                    changeView(0);
-                }
-            }
-        });
-        communeOrCountyChoiceBoxMan.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                if(newValue.toString().equals("gminy")){
-                    showCommunesByVoivodeships = 1;
-                    changeView(1);
-                }else{
-                    showCommunesByVoivodeships = 0;
-                    changeView(1);
-                }
-            }
-        });
-    }
-    public void setEnterKeyPressedEvent(){
-        loginTextField.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                onLoginButtonClick(new ActionEvent());
-            }
-        });
-        passwordTextField.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                onLoginButtonClick(new ActionEvent());
-            }
-        });
-    }
+
     public void setColumnsInMainTable(Class<?> passedClass, int viewOrManage){
         List<TableColumn<?, ?>> columnsToAdd = new ArrayList<>();
         Field[] fields = passedClass.getFields();
@@ -303,55 +245,8 @@ public class MainController implements Initializable {
         tables[viewOrManage][newTab].getSelectionModel().selectedItemProperty().addListener(currentlyActiveTableListeners[viewOrManage]);
 
     }
-    private void TabPaneListenerInitializer(TabPane TabPane, int viewOrManage) {
-        manageTab.setOnSelectionChanged(new EventHandler<Event>() {
-            @Override
-            public void handle(Event event) {
-                if(manageTab.isSelected() && registeredOfficesCheckBox.isSelected()){
-                    addressesAreChecked = 0;
-                }else if(registeredOfficesCheckBox.isSelected()){
-                    addressesAreChecked = 4;
-                }
 
-                if(manageTab.isSelected() && showCommunesByVoivodeships == 1){
-                    showCommunesByVoivodeships = 0;
-                }else if(communeOrCountyChoiceBox.getSelectionModel().isSelected(1)){
-                    showCommunesByVoivodeships = 1;
-                }
-
-
-            }
-        });
-        TabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(oldValue.getId() + " -> " + newValue.getId());
-            if(Objects.equals(newValue.getId(), "0")){
-                viewingLabel.setVisible(false);
-                communeOrCountyChoiceBox.getSelectionModel().select(0);
-                communeOrCountyChoiceBox.setVisible(false);
-                inVoivodeshipLabel.setVisible(false);
-            }
-            changeTableListener(Integer.parseInt(oldValue.getId()), Integer.parseInt(newValue.getId()), viewOrManage);
-        });
-    }
-    public void setRowsFactories(){
-        for(int i = 0; i < tables.length; i++){
-            for(int j = 0; j < tables[i].length - (1+i); j++){
-                int finalI = i;
-                tables[i][j].setRowFactory(trf -> {
-                    TableRow<?> row = new TableRow<>();
-                    row.setOnMouseClicked(event -> {
-                        if(!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() % 2 == 0 && showCommunesByVoivodeships != 1){
-                            System.out.println(row.getItem());
-                            increaseDepth(finalI, row);
-                        }
-                    });
-                    return row;
-                });
-            }
-        }
-    }
-
-    private void increaseDepth(int finalI, TableRow<?> row) {
+    public void increaseDepth(int finalI, TableRow<?> row) {
         if(tabPaneDepthLevels[finalI] < maxDepth){
             tabPaneDepthLevels[finalI]++;
             changeDepthDependentElements();
@@ -409,7 +304,7 @@ public class MainController implements Initializable {
         System.out.println("Wrócono do: " + administrativeUnitHierarchyChain[tabPaneDepthLevels[0]]);
         changeView(0);
     }
-    AuthenticationService authenticationService = AuthenticationService.getInstance();
+    IAuthenticationService authenticationService = AuthenticationService.getInstance();
     boolean successfulLogin = false;
     boolean heIsBack = false;
     public void onLoginButtonClick(ActionEvent ignoredActionEvent) {
@@ -423,7 +318,7 @@ public class MainController implements Initializable {
             @Override
             public void run() {
                 if(authenticationService.authenticate(login,password)){
-                    TabPaneListenerInitializer(manageUnitsTabPane, 1);
+                    listenerInitializer.setUpTabPaneListener(manageUnitsTabPane, 1);
                     voivodeshipsTableManage.setEditable(true);
                     countiesTableManage.setEditable(true);
                     communesTable.setEditable(true);

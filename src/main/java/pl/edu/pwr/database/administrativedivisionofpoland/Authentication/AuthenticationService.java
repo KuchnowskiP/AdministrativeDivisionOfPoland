@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthenticationService {
+public class AuthenticationService implements IAuthenticationService {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
     private static final String authenticationUrl = "http://192.168.196.2:8085/api/auth/authenticate";
@@ -27,6 +27,7 @@ public class AuthenticationService {
         return instance;
     }
 
+    @Override
     public boolean authenticate(String login, String password) {
         this.login = login;
         this.password = password;
@@ -70,7 +71,8 @@ public class AuthenticationService {
         return true;
     }
 
-    public Map.Entry<String, String> getBearerTokenHeader() throws Exception {
+    @Override
+    public Map.Entry<String, String> getCredentials() throws Exception {
         if (token == null) {
             if (login == null || password == null) {
                 throw new Exception("No login or password provided");

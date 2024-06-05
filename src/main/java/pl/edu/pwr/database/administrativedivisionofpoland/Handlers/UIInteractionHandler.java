@@ -18,7 +18,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onAddVoivodeshipButtonClick(actionEvent);
+                        mainController.navigationHandler.onAddVoivodeshipButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -28,7 +28,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onAddCountyButtonClick(actionEvent);
+                        mainController.navigationHandler.onAddCountyButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -40,7 +40,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onAddCountyButtonClick(actionEvent);
+                        mainController.navigationHandler.onAddCountyButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -50,7 +50,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onAddCommuneButtonClick(actionEvent);
+                        mainController.navigationHandler.onAddCommuneButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -62,7 +62,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onAddCommuneButtonClick(actionEvent);
+                        mainController.navigationHandler.onAddCommuneButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -77,7 +77,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onEditVoivodeshipButtonClick(actionEvent);
+                        mainController.navigationHandler.onEditVoivodeshipButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -87,7 +87,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onEditCountyButtonClick(actionEvent);
+                        mainController.navigationHandler.onEditCountyButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -99,7 +99,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onEditCountyButtonClick(actionEvent);
+                        mainController.navigationHandler.onEditCountyButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -109,7 +109,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onEditCommuneButtonClick(actionEvent);
+                        mainController.navigationHandler.onEditCommuneButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -121,7 +121,7 @@ public class UIInteractionHandler {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     try {
-                        mainController.stageEventsHandler.onEditCommuneButtonClick(actionEvent);
+                        mainController.navigationHandler.onEditCommuneButtonClick(actionEvent);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

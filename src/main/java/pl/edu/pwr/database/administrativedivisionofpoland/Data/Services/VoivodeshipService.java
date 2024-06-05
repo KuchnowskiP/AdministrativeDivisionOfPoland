@@ -29,7 +29,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
         }
 
         String requestBody = objectMapper.writeValueAsString(values);
-        Map.Entry<String,String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String,String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/add"))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -53,7 +53,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
         }
 
         String requestBody = objectMapper.writeValueAsString(values);
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/update/" + ID))
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -67,7 +67,7 @@ public class VoivodeshipService implements UnitService<VoivodeshipRequest, Voivo
 
     @Override
     public boolean delete(int ID) throws Exception {
-        Map.Entry<String,String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String,String> bearerToken = authenticationService.getCredentials();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://192.168.196.2:8085/api/voivodeship/delete/" + ID))
                 .DELETE()

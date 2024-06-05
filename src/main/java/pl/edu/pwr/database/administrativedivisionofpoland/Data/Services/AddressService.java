@@ -8,6 +8,7 @@ import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.AuthenticationService;
+import pl.edu.pwr.database.administrativedivisionofpoland.Authentication.IAuthenticationService;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -22,7 +23,7 @@ public class AddressService {
     HttpClient httpClient = HttpClient.newHttpClient();
     ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
 
-    AuthenticationService authenticationService = AuthenticationService.getInstance();
+    IAuthenticationService authenticationService = AuthenticationService.getInstance();
 
 
     public PageResult<OfficeAddressDto> getAllAddresses(int page, int size) throws IOException, InterruptedException {
@@ -40,7 +41,7 @@ public class AddressService {
 
     public HttpResponse<String> addOfficeAddress(OfficeAddressRequest addOfficeAddressRequest)
             throws Exception {
-        Map.Entry<String, String> bearerToken = authenticationService.getBearerTokenHeader();
+        Map.Entry<String, String> bearerToken = authenticationService.getCredentials();
         HashMap<String, Object> values = new HashMap<String, Object>();
         for(Field field : addOfficeAddressRequest.getClass().getFields()){
             Object o = new AddReportRequest();
