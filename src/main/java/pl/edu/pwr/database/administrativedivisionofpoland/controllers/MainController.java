@@ -1,7 +1,6 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -21,8 +20,6 @@ import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.Config;
-import pl.edu.pwr.database.administrativedivisionofpoland.authentication.AuthenticationService;
 import pl.edu.pwr.database.administrativedivisionofpoland.authentication.IAuthenticationService;
 import pl.edu.pwr.database.administrativedivisionofpoland.data.DataSender;
 import pl.edu.pwr.database.administrativedivisionofpoland.data.ResultFetcher;
@@ -117,12 +114,12 @@ public class MainController implements Initializable {
     IInitializer uiInitializer;
     public IListenerInitializer listenerInitializer;
     IInitializer structureInitializer;
-    public IAuthenticationService authenticationService = AuthenticationService.getInstance();
+    public IAuthenticationService authenticationService;
+    HttpClient httpClient;
+    ObjectMapper objectMapper;
+    String serverAddress;
+    String serverPort;
     IDeletionHandler deletionHandler;
-    HttpClient httpClient = HttpClient.newHttpClient();
-    ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
-    String serverAddress = Config.getProperty("server.address");
-    String serverPort = Config.getProperty("server.port");
 
     Gettable<VoivodeshipDto> voivodeshipGetter;
     GettableExtended<VoivodeshipExtended> voivodeshipExtendedGetter;
@@ -163,47 +160,71 @@ public class MainController implements Initializable {
     IDataSender dataSender;
     IResultFetcher resultFetcher;
 
-    public MainController() {
+    public MainController(
+            IAuthenticationService authenticationService, HttpClient httpClient, ObjectMapper objectMapper,
+            String serverAddress, String serverPort, Gettable<VoivodeshipDto> voivodeshipGetter,
+            GettableExtended<VoivodeshipExtended> voivodeshipExtendedGetter,
+            GettableAddress<VoivodeshipAddressData> voivodeshipAddressGetter,
+            Trackable<VoivodeshipHistoryDto> voivodeshipHistorian, TerytProvider voivodeshipTerytProvider,
+            GettableExtended<CountyExtended> countyExtendedGetter,
+            GettableAddress<CountyAddressData> countyAddressGetter,
+            Trackable<CountyHistoryDto> countyHistorian, TerytProvider countyTerytProvider,
+            GettableById<CountyDto> countyByIdGetter, Gettable<CommuneDto> communeGetter,
+            GettableAddress<CommuneAddressData> communeAddressGetter,
+            Trackable<CommuneHistoryDto> communeHistorian, TerytProvider communeTerytProvider,
+            GettableById<CommuneDto> communeByIdGetter,
+            GettableByGrandparentUnit<CommuneDto> communeByGPGetter, Gettable<ReportDto> reportGetter,
+            Gettable<OfficeAddressDto> addressGetter,
+            Creatable<VoivodeshipRequest, Boolean> voivodeshipCreator,
+            Creatable<CountyRequest, Boolean> countyCreator,
+            Creatable<CommuneRequest, Boolean> communeCreator,
+            Creatable<AddReportRequest, HttpResponse<String>> reportCreator,
+            Creatable<OfficeAddressRequest, HttpResponse<String>> addressCreator,
+            Editable<VoivodeshipRequest> voivodeshipEditor, Editable<CountyRequest> countyEditor,
+            Editable<CommuneRequest> communeEditor, Deletable voivodeshipDeleter, Deletable countyDeleter,
+            Deletable communeDeleter, IDataSender dataSender, IResultFetcher resultFetcher
+    ) {
         this.uiInteractionHandler = new UIInteractionHandler(this);
         this.uiInitializer = new UIInitializer(this);
         this.listenerInitializer = new ListenerInitializer(this);
         this.structureInitializer = new StructureInitializer(this);
-        this.voivodeshipExtendedGetter = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.voivodeshipAddressGetter = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.voivodeshipHistorian = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.voivodeshipTerytProvider = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyExtendedGetter = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyAddressGetter = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyHistorian = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyTerytProvider = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyByIdGetter = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeGetter = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeAddressGetter = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeHistorian = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeTerytProvider = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeByIdGetter = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeByGPGetter = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.reportGetter = new ReportService(httpClient, objectMapper, serverAddress, serverPort);
-        this.addressGetter = new AddressService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.voivodeshipCreator = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyCreator = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeCreator = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.reportCreator = new ReportService(httpClient, objectMapper, serverAddress, serverPort);
-        this.addressCreator = new AddressService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.voivodeshipEditor = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyEditor = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeEditor = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.voivodeshipDeleter = new VoivodeshipService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.countyDeleter = new CountyService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.communeDeleter = new CommuneService(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
-        this.dataSender = new DataSender(voivodeshipCreator, countyCreator, communeCreator, reportCreator, addressCreator,
-                voivodeshipEditor, countyEditor, communeEditor, voivodeshipDeleter, countyDeleter, communeDeleter);
-        this.resultFetcher = new ResultFetcher(voivodeshipGetter, voivodeshipExtendedGetter, voivodeshipAddressGetter, voivodeshipHistorian, voivodeshipTerytProvider,
-                countyExtendedGetter, countyAddressGetter, countyHistorian, countyTerytProvider, countyByIdGetter,
-                communeGetter, communeAddressGetter, communeHistorian, communeTerytProvider, communeByIdGetter, communeByGPGetter,
-                reportGetter, addressGetter);
-        this.navigationHandler = new NavigationHandler(this, resultFetcher, dataSender);
-        this.deletionHandler = new DeletionHandler(this, dataSender);
+        this.authenticationService = authenticationService;
+        this.httpClient = httpClient;
+        this.objectMapper = objectMapper;
+        this.serverAddress = serverAddress;
+        this.voivodeshipGetter = voivodeshipGetter;
+        this.voivodeshipExtendedGetter = voivodeshipExtendedGetter;
+        this.voivodeshipAddressGetter = voivodeshipAddressGetter;
+        this.voivodeshipHistorian = voivodeshipHistorian;
+        this.voivodeshipTerytProvider = voivodeshipTerytProvider;
+        this.countyExtendedGetter = countyExtendedGetter;
+        this.countyAddressGetter = countyAddressGetter;
+        this.countyHistorian = countyHistorian;
+        this.countyTerytProvider = countyTerytProvider;
+        this.countyByIdGetter = countyByIdGetter;
+        this.communeGetter = communeGetter;
+        this.communeAddressGetter = communeAddressGetter;
+        this.communeHistorian = communeHistorian;
+        this.communeTerytProvider = communeTerytProvider;
+        this.communeByIdGetter = communeByIdGetter;
+        this.communeByGPGetter = communeByGPGetter;
+        this.reportGetter = reportGetter;
+        this.addressGetter = addressGetter;
+        this.voivodeshipCreator = voivodeshipCreator;
+        this.countyCreator = countyCreator;
+        this.communeCreator = communeCreator;
+        this.reportCreator = reportCreator;
+        this.addressCreator = addressCreator;
+        this.voivodeshipEditor = voivodeshipEditor;
+        this.countyEditor = countyEditor;
+        this.communeEditor = communeEditor;
+        this.voivodeshipDeleter = voivodeshipDeleter;
+        this.countyDeleter = countyDeleter;
+        this.communeDeleter = communeDeleter;
+        this.dataSender = dataSender;
+        this.resultFetcher = resultFetcher;
+        this.navigationHandler = new NavigationHandler(this, this.resultFetcher, this.dataSender);
+        this.deletionHandler = new DeletionHandler(this, this.dataSender);
     }
 
     @Override
