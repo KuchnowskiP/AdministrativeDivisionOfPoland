@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="154.0" prefWidth="278.0"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.controllers.ConfirmationPopupController">
+   <children>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="278.0">
+         <children>
+            <Label fx:id="promptLabel" text="Czy jesteś pewien, że chcesz " />
+            <HBox alignment="CENTER" prefHeight="71.0" prefWidth="278.0" spacing="10.0">
+               <children>
+                  <Button fx:id="confirmationButton" mnemonicParsing="false" text="Tak" onAction="#onConfirmButtonClick"/>
+                  <Button mnemonicParsing="false" text="Nie" onAction="#onDeclineButtonClick" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

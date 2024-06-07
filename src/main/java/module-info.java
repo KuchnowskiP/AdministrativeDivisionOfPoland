@@ -9,12 +9,16 @@ module pl.edu.pwr.database.administrativedivisionofpoland {
 
     opens pl.edu.pwr.database.administrativedivisionofpoland to javafx.fxml;
     exports pl.edu.pwr.database.administrativedivisionofpoland;
-    exports pl.edu.pwr.database.administrativedivisionofpoland.Controllers;
-    opens pl.edu.pwr.database.administrativedivisionofpoland.Controllers to javafx.fxml;
-    exports pl.edu.pwr.database.administrativedivisionofpoland.Data;
-    opens pl.edu.pwr.database.administrativedivisionofpoland.Data to javafx.fxml;
-    exports pl.edu.pwr.database.administrativedivisionofpoland.Data.Services;
-    opens pl.edu.pwr.database.administrativedivisionofpoland.Data.Services to javafx.fxml;
-    exports pl.edu.pwr.database.administrativedivisionofpoland.Handlers;
-    opens pl.edu.pwr.database.administrativedivisionofpoland.Handlers to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.controllers;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.controllers to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.data;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.data to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.data.services;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.data.services to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.handlers;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.handlers to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.data.api;
+    opens pl.edu.pwr.database.administrativedivisionofpoland.data.api to javafx.fxml;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.authentication;
+    exports pl.edu.pwr.database.administrativedivisionofpoland.data.services.api;
 }

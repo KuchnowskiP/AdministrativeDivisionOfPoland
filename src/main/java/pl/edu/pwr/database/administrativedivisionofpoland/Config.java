@@ -8,7 +8,7 @@ public class Config {
         try {
             properties.load(Config.class.getClassLoader().getResourceAsStream("config.properties"));
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         }
     }
 

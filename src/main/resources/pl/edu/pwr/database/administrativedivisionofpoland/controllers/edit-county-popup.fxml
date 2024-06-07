@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="500.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.controllers.EditCountyPopupController">
+   <children>
+      <VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0">
+         <children>
+            <HBox alignment="TOP_CENTER" prefHeight="103.0" prefWidth="600.0" spacing="10.0">
+               <children>
+                  <Label text="Nazwa:*" />
+                  <TextField fx:id="countyNameTextField" />
+                  <Label text="Województwo:" />
+                  <ChoiceBox fx:id="voivodeshipChoiceBox" prefWidth="150.0" />
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets top="25.0" />
+               </padding>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Label text="Wyróżnik tablicy rejestracyjnej:*" />
+                  <TextField fx:id="licensePlateDifferentiatorTextField" />
+                  <Label text="Miasto na prawach powiatu:" />
+                  <CheckBox fx:id="cityRightsCheckBox" mnemonicParsing="false" />
+               </children>
+            </HBox>
+            <TabPane fx:id="addressSelectionTabPane" prefHeight="200.0" tabClosingPolicy="UNAVAILABLE">
+               <tabs>
+                  <Tab id="1" text="Wybierz z listy adresów siedzib">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="400.0">
+                           <children>
+                              <TableView fx:id="existingAddressesTableView" prefHeight="165.0" prefWidth="800.0" visible="false" />
+                           </children></AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab id="2" text="Dodaj nowy adres">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="400.0">
+                           <children>
+                              <VBox prefHeight="171.0" prefWidth="800.0">
+                                 <children>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Miejscowość" />
+                                          <TextField fx:id="localityTextField" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Kod pocztowy*" />
+                                          <TextField fx:id="postalCodeTextField" prefHeight="25.0" prefWidth="108.0" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Miejscowość urzędu pocztowego" />
+                                          <TextField fx:id="postLocalityTextField" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Ulica" />
+                                          <TextField fx:id="streetTextField" prefHeight="25.0" prefWidth="112.0" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Numer budynku" />
+                                          <TextField fx:id="numberOfBuildingTextField" prefHeight="25.0" prefWidth="174.0" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Numer lokalu" />
+                                          <TextField fx:id="apartmentNumberTextField" prefHeight="25.0" prefWidth="156.0" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
+                     </content>
+                  </Tab>
+               </tabs>
+            </TabPane>
+            <Label fx:id="returningLabel" visible="false" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="confirmButton" mnemonicParsing="false" onAction="#onConfirmButtonClick" text="Potwierdź" />
+                  <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButtonClick" text="Zamknij" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

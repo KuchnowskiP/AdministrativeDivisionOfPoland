@@ -6,8 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.AddCommunePopupController;
-import pl.edu.pwr.database.administrativedivisionofpoland.Controllers.ConfirmationPopupController;
+import pl.edu.pwr.database.administrativedivisionofpoland.controllers.AddCommunePopupController;
+import pl.edu.pwr.database.administrativedivisionofpoland.controllers.ConfirmationPopupController;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -21,7 +21,7 @@ public class UserInput {
         Parent root = fxmlLoader.load();
         Stage stage = new Stage();
         Scene scene = new Scene(root, 280,160);
-        scene.getStylesheets().addAll(ConfirmationPopupController.class.getResource(("confirmation-style.css")).toExternalForm());
+        scene.getStylesheets().addAll(Objects.requireNonNull(ConfirmationPopupController.class.getResource(("confirmation-style.css"))).toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Potwierdź operację");
         Image icon = new Image(Objects.requireNonNull(AddCommunePopupController.class.getResourceAsStream("icon.png")));

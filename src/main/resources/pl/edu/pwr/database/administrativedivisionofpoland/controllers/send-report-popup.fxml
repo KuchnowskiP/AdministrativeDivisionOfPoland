@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.controllers.SendReportController">
+
+    <VBox id="vbox" alignment="CENTER" prefHeight="200.0" prefWidth="900.0" spacing="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
+        <HBox prefHeight="25.0" prefWidth="900.0" spacing="10.0">
+            <Label text="Temat:* " />
+            <TextField fx:id="topicTextField" maxWidth="400.0" />
+        </HBox>
+        <HBox prefWidth="900.0" spacing="10.0">
+            <Label text="Wojewodztwo:* " />
+            <ChoiceBox fx:id="voivodeshipReportChoiceBox" minWidth="150.0" prefWidth="150.0" />
+        </HBox>
+        <HBox prefWidth="900.0" spacing="50.0">
+            <Label text="Powiat: " />
+            <ChoiceBox fx:id="countyReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
+        </HBox>
+        <HBox prefWidth="900.0" spacing="51.0">
+            <Label text="Gmina: " />
+            <ChoiceBox fx:id="communeReportChoiceBox" disable="true" minWidth="150.0" prefWidth="150.0" />
+        </HBox>
+        <HBox prefWidth="900.0" spacing="10.0">
+            <Label text="Treść:* " />
+            <TextArea fx:id="reportContentTextArea" maxWidth="400.0" minHeight="200.0" prefHeight="200.0" />
+        </HBox>
+        <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="42.0" prefWidth="440.0" spacing="10.0">
+             <Button fx:id="sendButton" alignment="CENTER" onAction="#onSendButtonClick" text="Wyślij zgłoszenie" />
+             <Label fx:id="responseLabel" visible="false" />
+        </HBox>
+    </VBox>
+</AnchorPane>

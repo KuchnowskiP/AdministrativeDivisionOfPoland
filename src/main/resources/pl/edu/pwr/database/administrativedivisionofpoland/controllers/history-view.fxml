@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      fx:controller="pl.edu.pwr.database.administrativedivisionofpoland.controllers.HistoryController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+        <TabPane fx:id="viewUnitsTabPane" prefHeight="700.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+            <Tab id="0" text="Historia województw">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                    <VBox prefHeight="600.0" prefWidth="718.0">
+                        <TableView id="tableView" fx:id="voivodeshipsTable" prefHeight="600.0" prefWidth="800.0" />
+                        <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                        <padding>
+                            <Insets left="10.0" top="10.0" />
+                        </padding>
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+            <Tab id="1" text="Historia powiatów">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                    <VBox prefHeight="700.0" prefWidth="900.0">
+                        <TableView id="tableView" fx:id="countiesTable" />
+                        <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+            <Tab id="2" text="Historia gmin">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="700.0" prefWidth="900.0">
+                    <VBox prefHeight="700.0" prefWidth="900.0">
+                        <TableView id="tableView" fx:id="communesTable" />
+                        <Button mnemonicParsing="false" onAction="#onRefreshButtonClick" text="Odśwież" />
+                    </VBox>
+                </AnchorPane>
+            </Tab>
+        </TabPane>
+</VBox>
