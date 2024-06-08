@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.handlers.api;
+package pl.edu.pwr.database.administrativedivisionofpoland.handlers;
 
 import javafx.event.ActionEvent;
 

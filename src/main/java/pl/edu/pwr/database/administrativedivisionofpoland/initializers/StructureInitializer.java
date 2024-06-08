@@ -3,7 +3,6 @@ package pl.edu.pwr.database.administrativedivisionofpoland.initializers;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.TableView;
 import pl.edu.pwr.database.administrativedivisionofpoland.controllers.MainController;
-import pl.edu.pwr.database.administrativedivisionofpoland.initializers.api.IInitializer;
 
 public class StructureInitializer implements IInitializer {
     MainController mainController;

@@ -11,18 +11,18 @@ import javafx.stage.Stage;
 import pl.edu.pwr.database.administrativedivisionofpoland.Main;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 import pl.edu.pwr.database.administrativedivisionofpoland.controllers.*;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.io.IOException;
 import java.util.Objects;
 
 public class NavigationHandler {
     MainController mainController;
-    IResultFetcher resultFetcher;
+    IResultReceiver resultFetcher;
     IDataSender dataSender;
 
-    public NavigationHandler(MainController mainController, IResultFetcher resultFetcher, IDataSender dataSender) {
+    public NavigationHandler(MainController mainController, IResultReceiver resultFetcher, IDataSender dataSender) {
         this.mainController = mainController;
         this.resultFetcher = resultFetcher;
         this.dataSender = dataSender;

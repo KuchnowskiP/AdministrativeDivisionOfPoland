@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class CountyService extends Service implements Creatable<CountyRequest, Boolean>,
+public class CountyService extends AuthenticatableService implements Creatable<CountyRequest, Boolean>,
         Editable<CountyRequest>, Deletable, GettableExtended<CountyExtended>, Gettable<CountyDto>, TerytProvider,
         GettableAddress<CountyAddressData>, Trackable<CountyHistoryDto>, GettableById<CountyDto> {
 

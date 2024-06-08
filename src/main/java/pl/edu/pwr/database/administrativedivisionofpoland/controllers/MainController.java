@@ -1,6 +1,5 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -11,39 +10,25 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import pl.edu.pwr.contract.Common.PageResult;
-import pl.edu.pwr.contract.Commune.CommuneRequest;
-import pl.edu.pwr.contract.County.CountyRequest;
 import pl.edu.pwr.contract.Dtos.*;
-import pl.edu.pwr.contract.History.CommuneHistoryDto;
-import pl.edu.pwr.contract.History.CountyHistoryDto;
-import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
-import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
-import pl.edu.pwr.contract.Reports.AddReportRequest;
-import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.authentication.IAuthenticationService;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.DataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.ResultFetcher;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.services.*;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.services.api.*;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.handlers.DeletionHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.handlers.NavigationHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.handlers.UIInteractionHandler;
-import pl.edu.pwr.database.administrativedivisionofpoland.handlers.api.IDeletionHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.handlers.IDeletionHandler;
 import pl.edu.pwr.database.administrativedivisionofpoland.initializers.ListenerInitializer;
 import pl.edu.pwr.database.administrativedivisionofpoland.initializers.StructureInitializer;
 import pl.edu.pwr.database.administrativedivisionofpoland.initializers.UIInitializer;
-import pl.edu.pwr.database.administrativedivisionofpoland.initializers.api.IInitializer;
-import pl.edu.pwr.database.administrativedivisionofpoland.initializers.api.IListenerInitializer;
+import pl.edu.pwr.database.administrativedivisionofpoland.initializers.IInitializer;
+import pl.edu.pwr.database.administrativedivisionofpoland.initializers.IListenerInitializer;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +81,7 @@ public class MainController implements Initializable {
     public TableView[][] tables;
     // Represents the hierarchy of administrative units: voivodeship, county, commune.
     // Each element stores the ID of the respective unit.
-    public Object[] administrativeUnitHierarchyChain = new Object[]{-1,-1,-1};
+    public int[] administrativeUnitHierarchyChain = new int[]{-1,-1,-1};
     // Represents the current depth levels when navigating through TabPanes.
     public int[] tabPaneDepthLevels = new int[2];
     int[] activeTables = new int[]{0,0};
@@ -115,114 +100,19 @@ public class MainController implements Initializable {
     public IListenerInitializer listenerInitializer;
     IInitializer structureInitializer;
     public IAuthenticationService authenticationService;
-    HttpClient httpClient;
-    ObjectMapper objectMapper;
-    String serverAddress;
-    String serverPort;
     IDeletionHandler deletionHandler;
 
-    Gettable<VoivodeshipDto> voivodeshipGetter;
-    GettableExtended<VoivodeshipExtended> voivodeshipExtendedGetter;
-    GettableAddress<VoivodeshipAddressData> voivodeshipAddressGetter;
-    Trackable<VoivodeshipHistoryDto> voivodeshipHistorian;
-    TerytProvider voivodeshipTerytProvider;
-
-    GettableExtended<CountyExtended> countyExtendedGetter;
-    GettableAddress<CountyAddressData> countyAddressGetter;
-    Trackable<CountyHistoryDto> countyHistorian;
-    TerytProvider countyTerytProvider;
-    GettableById<CountyDto> countyByIdGetter;
-
-    Gettable<CommuneDto> communeGetter;
-    GettableAddress<CommuneAddressData> communeAddressGetter;
-    Trackable<CommuneHistoryDto> communeHistorian;
-    TerytProvider communeTerytProvider;
-    GettableById<CommuneDto> communeByIdGetter;
-    GettableByGrandparentUnit<CommuneDto> communeByGPGetter;
-
-    Gettable<ReportDto> reportGetter;
-    Gettable<OfficeAddressDto> addressGetter;
-
-    Creatable<VoivodeshipRequest, Boolean> voivodeshipCreator;
-    Creatable<CountyRequest, Boolean> countyCreator;
-    Creatable<CommuneRequest, Boolean> communeCreator;
-    Creatable<AddReportRequest, HttpResponse<String>> reportCreator;
-    Creatable<OfficeAddressRequest, HttpResponse<String>> addressCreator;
-
-    Editable<VoivodeshipRequest> voivodeshipEditor;
-    Editable<CountyRequest> countyEditor;
-    Editable<CommuneRequest> communeEditor;
-
-    Deletable voivodeshipDeleter;
-    Deletable countyDeleter;
-    Deletable communeDeleter;
-
     IDataSender dataSender;
-    IResultFetcher resultFetcher;
+    IResultReceiver resultFetcher;
 
-    public MainController(
-            IAuthenticationService authenticationService, HttpClient httpClient, ObjectMapper objectMapper,
-            String serverAddress, String serverPort, Gettable<VoivodeshipDto> voivodeshipGetter,
-            GettableExtended<VoivodeshipExtended> voivodeshipExtendedGetter,
-            GettableAddress<VoivodeshipAddressData> voivodeshipAddressGetter,
-            Trackable<VoivodeshipHistoryDto> voivodeshipHistorian, TerytProvider voivodeshipTerytProvider,
-            GettableExtended<CountyExtended> countyExtendedGetter,
-            GettableAddress<CountyAddressData> countyAddressGetter,
-            Trackable<CountyHistoryDto> countyHistorian, TerytProvider countyTerytProvider,
-            GettableById<CountyDto> countyByIdGetter, Gettable<CommuneDto> communeGetter,
-            GettableAddress<CommuneAddressData> communeAddressGetter,
-            Trackable<CommuneHistoryDto> communeHistorian, TerytProvider communeTerytProvider,
-            GettableById<CommuneDto> communeByIdGetter,
-            GettableByGrandparentUnit<CommuneDto> communeByGPGetter, Gettable<ReportDto> reportGetter,
-            Gettable<OfficeAddressDto> addressGetter,
-            Creatable<VoivodeshipRequest, Boolean> voivodeshipCreator,
-            Creatable<CountyRequest, Boolean> countyCreator,
-            Creatable<CommuneRequest, Boolean> communeCreator,
-            Creatable<AddReportRequest, HttpResponse<String>> reportCreator,
-            Creatable<OfficeAddressRequest, HttpResponse<String>> addressCreator,
-            Editable<VoivodeshipRequest> voivodeshipEditor, Editable<CountyRequest> countyEditor,
-            Editable<CommuneRequest> communeEditor, Deletable voivodeshipDeleter, Deletable countyDeleter,
-            Deletable communeDeleter, IDataSender dataSender, IResultFetcher resultFetcher
-    ) {
+    public MainController (IAuthenticationService authenticationService,IDataSender dataSender, IResultReceiver resultFetcher) {
         this.uiInteractionHandler = new UIInteractionHandler(this);
         this.uiInitializer = new UIInitializer(this);
         this.listenerInitializer = new ListenerInitializer(this);
         this.structureInitializer = new StructureInitializer(this);
-        this.authenticationService = authenticationService;
-        this.httpClient = httpClient;
-        this.objectMapper = objectMapper;
-        this.serverAddress = serverAddress;
-        this.voivodeshipGetter = voivodeshipGetter;
-        this.voivodeshipExtendedGetter = voivodeshipExtendedGetter;
-        this.voivodeshipAddressGetter = voivodeshipAddressGetter;
-        this.voivodeshipHistorian = voivodeshipHistorian;
-        this.voivodeshipTerytProvider = voivodeshipTerytProvider;
-        this.countyExtendedGetter = countyExtendedGetter;
-        this.countyAddressGetter = countyAddressGetter;
-        this.countyHistorian = countyHistorian;
-        this.countyTerytProvider = countyTerytProvider;
-        this.countyByIdGetter = countyByIdGetter;
-        this.communeGetter = communeGetter;
-        this.communeAddressGetter = communeAddressGetter;
-        this.communeHistorian = communeHistorian;
-        this.communeTerytProvider = communeTerytProvider;
-        this.communeByIdGetter = communeByIdGetter;
-        this.communeByGPGetter = communeByGPGetter;
-        this.reportGetter = reportGetter;
-        this.addressGetter = addressGetter;
-        this.voivodeshipCreator = voivodeshipCreator;
-        this.countyCreator = countyCreator;
-        this.communeCreator = communeCreator;
-        this.reportCreator = reportCreator;
-        this.addressCreator = addressCreator;
-        this.voivodeshipEditor = voivodeshipEditor;
-        this.countyEditor = countyEditor;
-        this.communeEditor = communeEditor;
-        this.voivodeshipDeleter = voivodeshipDeleter;
-        this.countyDeleter = countyDeleter;
-        this.communeDeleter = communeDeleter;
         this.dataSender = dataSender;
         this.resultFetcher = resultFetcher;
+        this.authenticationService = authenticationService;
         this.navigationHandler = new NavigationHandler(this, this.resultFetcher, this.dataSender);
         this.deletionHandler = new DeletionHandler(this, this.dataSender);
     }
@@ -377,7 +267,7 @@ public class MainController implements Initializable {
             tabPaneDepthLevels[finalI]++;
             changeDepthDependentElements();
             try {
-                administrativeUnitHierarchyChain[tabPaneDepthLevels[finalI]] = row.getItem().getClass().getField("id").get(row.getItem());
+                administrativeUnitHierarchyChain[tabPaneDepthLevels[finalI]] = (int) row.getItem().getClass().getField("id").get(row.getItem());
                 masterName[tabPaneDepthLevels[finalI]] = row.getItem().getClass().getField("name").get(row.getItem()).toString();
             } catch (IllegalAccessException | NoSuchFieldException e) {
                 throw new RuntimeException(e);

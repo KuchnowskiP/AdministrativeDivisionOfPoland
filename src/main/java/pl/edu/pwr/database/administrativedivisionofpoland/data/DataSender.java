@@ -5,93 +5,69 @@ import pl.edu.pwr.contract.County.CountyRequest;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.services.api.Creatable;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.services.api.Deletable;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.services.api.Editable;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.managers.IDataCreationManager;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.managers.IDataDeletionManager;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.managers.IDataEditingManager;
 
 import java.net.http.HttpResponse;
 
 public class DataSender implements IDataSender {
-    Creatable<VoivodeshipRequest, Boolean> voivodeshipCreator;
-    Creatable<CountyRequest, Boolean> countyCreator;
-    Creatable<CommuneRequest, Boolean> communeCreator;
-    Creatable<AddReportRequest, HttpResponse<String>> reportCreator;
-    Creatable<OfficeAddressRequest, HttpResponse<String>> addressCreator;
-    Editable<VoivodeshipRequest> voivodeshipEditor;
-    Editable<CountyRequest> countyEditor;
-    Editable<CommuneRequest> communeEditor;
-    Deletable voivodeshipDeleter;
-    Deletable countyDeleter;
-    Deletable communeDeleter;
+    private final IDataCreationManager dataCreationService;
+    private final IDataEditingManager dataEditingService;
+    private final IDataDeletionManager dataDeletionService;
 
-    public DataSender(
-            Creatable<VoivodeshipRequest, Boolean> voivodeshipCreator,
-            Creatable<CountyRequest, Boolean> countyCreator,
-            Creatable<CommuneRequest, Boolean> communeCreator,
-            Creatable<AddReportRequest, HttpResponse<String>> reportCreator,
-            Creatable<OfficeAddressRequest, HttpResponse<String>> addressCreator,
-            Editable<VoivodeshipRequest> voivodeshipEditor,
-            Editable<CountyRequest> countyEditor,
-            Editable<CommuneRequest> communeEditor,
-            Deletable voivodeshipDeleter,
-            Deletable countyDeleter,
-            Deletable communeDeleter) {
-        this.voivodeshipCreator = voivodeshipCreator;
-        this.countyCreator = countyCreator;
-        this.communeCreator = communeCreator;
-        this.reportCreator = reportCreator;
-        this.addressCreator = addressCreator;
-        this.voivodeshipEditor = voivodeshipEditor;
-        this.countyEditor = countyEditor;
-        this.communeEditor = communeEditor;
-        this.voivodeshipDeleter = voivodeshipDeleter;
-        this.countyDeleter = countyDeleter;
-        this.communeDeleter = communeDeleter;
+
+    public DataSender(IDataCreationManager dataCreationService,
+                      IDataEditingManager dataEditingService,
+                      IDataDeletionManager dataDeletionService) {
+        this.dataCreationService = dataCreationService;
+        this.dataEditingService = dataEditingService;
+        this.dataDeletionService = dataDeletionService;
+
     }
 
     @Override
     public boolean addVoivodeship(VoivodeshipRequest voivodeshipRequest) throws Exception {
-        return voivodeshipCreator.create(voivodeshipRequest);
+        return dataCreationService.addVoivodeship(voivodeshipRequest);
     }
     @Override
     public boolean addCounty(CountyRequest countyRequest) throws Exception {
-        return countyCreator.create(countyRequest);
+        return dataCreationService.addCounty(countyRequest);
     }
     @Override
     public boolean addCommune(CommuneRequest communeRequest) throws Exception {
-        return communeCreator.create(communeRequest);
+        return dataCreationService.addCommune(communeRequest);
     }
     @Override
-    public void addReport(AddReportRequest addReportRequest) throws Exception {
-        reportCreator.create(addReportRequest);
+    public  HttpResponse<String> addReport(AddReportRequest addReportRequest) throws Exception {
+        return dataCreationService.addReport(addReportRequest);
     }
     @Override
-    public HttpResponse<String> addAddress(OfficeAddressRequest officeAddressRequest) throws Exception {
-        return addressCreator.create(officeAddressRequest);
+    public HttpResponse<String> addOfficeAddress(OfficeAddressRequest officeAddressRequest) throws Exception {
+        return dataCreationService.addOfficeAddress(officeAddressRequest);
     }
     @Override
     public boolean editVoivodeship(int unitID, VoivodeshipRequest voivodeshipRequest) throws Exception {
-        return voivodeshipEditor.edit(unitID, voivodeshipRequest);
+        return dataEditingService.editVoivodeship(unitID, voivodeshipRequest);
     }
     @Override
     public boolean editCounty(int unitID, CountyRequest countyRequest) throws Exception {
-        return countyEditor.edit(unitID, countyRequest);
+        return dataEditingService.editCounty(unitID, countyRequest);
     }
     @Override
-    public boolean editCommune(Integer id, CommuneRequest communeRequest) throws Exception {
-        return communeEditor.edit(id, communeRequest);
+    public boolean editCommune(Integer unitID, CommuneRequest communeRequest) throws Exception {
+        return dataEditingService.editCommune(unitID, communeRequest);
     }
     @Override
-    public boolean deleteVoivodeship(int ID) throws Exception {
-        return voivodeshipDeleter.delete(ID);
+    public boolean deleteVoivodeship(int unitID) throws Exception {
+        return dataDeletionService.deleteVoivodeship(unitID);
     }
     @Override
-    public boolean deleteCounty(int ID) throws Exception {
-        return countyDeleter.delete(ID);
+    public boolean deleteCounty(int unitID) throws Exception {
+        return dataDeletionService.deleteCounty(unitID);
     }
     @Override
-    public boolean deleteCommune(int ID) throws Exception {
-        return communeDeleter.delete(ID);
+    public boolean deleteCommune(int unitID) throws Exception {
+        return dataDeletionService.deleteCommune(unitID);
     }
 }

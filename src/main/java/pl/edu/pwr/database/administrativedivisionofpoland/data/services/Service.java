@@ -7,17 +7,17 @@ import java.net.http.HttpClient;
 
 public abstract class Service {
     protected HttpClient httpClient;
-    protected IAuthenticationService authenticationService;
+    protected ObjectMapper objectMapper;
     protected String serverAddress;
     protected String serverPort;
-    protected ObjectMapper objectMapper;
 
-    public Service(IAuthenticationService authenticationService, HttpClient httpClient, ObjectMapper objectMapper
+
+    public Service(HttpClient httpClient, ObjectMapper objectMapper
             , String serverAddress, String serverPort) {
         this.httpClient = httpClient;
-        this.authenticationService = authenticationService;
+        this.objectMapper = objectMapper;
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
-        this.objectMapper = objectMapper;
+
     }
 }

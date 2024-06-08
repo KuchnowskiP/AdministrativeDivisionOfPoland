@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.data.api;
+package pl.edu.pwr.database.administrativedivisionofpoland.data;
 
 import pl.edu.pwr.contract.Commune.CommuneRequest;
 import pl.edu.pwr.contract.County.CountyRequest;
@@ -12,12 +12,12 @@ public interface IDataSender {
     boolean addVoivodeship(VoivodeshipRequest voivodeshipRequest) throws Exception;
     boolean addCounty(CountyRequest countyRequest) throws Exception;
     boolean addCommune(CommuneRequest communeRequest) throws Exception;
-    void addReport(AddReportRequest addReportRequest) throws Exception;
-    HttpResponse<String> addAddress(OfficeAddressRequest officeAddressRequest) throws Exception;
+    HttpResponse<String> addReport(AddReportRequest addReportRequest) throws Exception;
+    HttpResponse<String> addOfficeAddress(OfficeAddressRequest officeAddressRequest) throws Exception;
     boolean editVoivodeship(int unitID, VoivodeshipRequest voivodeshipRequest) throws Exception;
     boolean editCounty(int unitID, CountyRequest countyRequest) throws Exception;
-    boolean editCommune(Integer id, CommuneRequest communeRequest) throws Exception;
-    boolean deleteVoivodeship(int ID) throws Exception;
-    boolean deleteCounty(int ID) throws Exception;
-    boolean deleteCommune(int ID) throws Exception;
+    boolean editCommune(Integer unitID, CommuneRequest communeRequest) throws Exception;
+    boolean deleteVoivodeship(int unitID) throws Exception;
+    boolean deleteCounty(int unitID) throws Exception;
+    boolean deleteCommune(int unitID) throws Exception;
 }

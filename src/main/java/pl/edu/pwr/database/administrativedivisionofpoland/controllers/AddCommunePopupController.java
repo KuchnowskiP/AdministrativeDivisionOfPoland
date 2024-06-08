@@ -8,8 +8,8 @@ import javafx.scene.control.TextField;
 import pl.edu.pwr.contract.Commune.CommuneRequest;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.net.URL;
 import java.net.http.HttpResponse;
@@ -35,7 +35,7 @@ public class AddCommunePopupController extends BaseCommunePopupController implem
     @FXML
     private Label returningLabel;
 
-    public AddCommunePopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public AddCommunePopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         super(resultFetcher, requestSender);
     }
 
@@ -111,7 +111,7 @@ public class AddCommunePopupController extends BaseCommunePopupController implem
                 newAddress.setPostalCode(postalCodeTextField.getText().trim());
                 newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
                 newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
-                HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
+                HttpResponse<String> responseWithIdAsABody = requestSender.addOfficeAddress(newAddress);
 
                 communeRequest.setLocality(localityTextField.getText().trim());
 

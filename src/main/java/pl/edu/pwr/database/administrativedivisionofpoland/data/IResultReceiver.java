@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.data.api;
+package pl.edu.pwr.database.administrativedivisionofpoland.data;
 
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.CommuneDto;
@@ -8,10 +8,10 @@ import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 
 import java.io.IOException;
 
-public interface IResultFetcher {
+public interface IResultReceiver {
     PageResult<VoivodeshipDto> getVoivodeships(int page, int size) throws IOException, InterruptedException;
 
-    PageResult<?> getResult(int table, int treeIndex, Object unit, int addressesAreChecked) throws Exception;
+    PageResult<?> getResult(int table, int treeIndex, int unit, int addressesAreChecked) throws Exception;
 
     PageResult<?> getHistoryResult(int table) throws IOException, InterruptedException;
 
@@ -21,11 +21,11 @@ public interface IResultFetcher {
 
     CommuneDto getCommuneById(int ID) throws IOException, InterruptedException;
 
-    PageResult<CommuneDto> communeByVoivodeshipId(Object ID, int page, int size) throws IOException, InterruptedException;
+    PageResult<CommuneDto> communeByVoivodeshipId(int ID, int page, int size) throws IOException, InterruptedException;
 
     String newVoivodeshipTeryt() throws IOException, InterruptedException;
 
-    String newCountyTeryt(Integer id, int city) throws IOException, InterruptedException;
+    String newCountyTeryt(int id, int city) throws IOException, InterruptedException;
 
-    String newCommuneTeryt(Integer id, int type) throws IOException, InterruptedException;
+    String newCommuneTeryt(int id, int type) throws IOException, InterruptedException;
 }

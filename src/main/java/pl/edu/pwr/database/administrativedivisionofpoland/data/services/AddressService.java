@@ -18,20 +18,14 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddressService implements Creatable<OfficeAddressRequest, HttpResponse<String>>, Gettable<OfficeAddressDto> {
-    IAuthenticationService authenticationService;
-    HttpClient httpClient;
-    ObjectMapper objectMapper;
-    String serverAddress;
-    String serverPort;
+public class AddressService extends AuthenticatableService implements Creatable<OfficeAddressRequest, HttpResponse<String>>, Gettable<OfficeAddressDto> {
 
-    public AddressService(IAuthenticationService authenticationService, HttpClient httpClient, ObjectMapper objectMapper,
-                          String serverAddress, String serverPort) {
-        this.authenticationService = authenticationService;
-        this.httpClient = httpClient;
-        this.objectMapper = objectMapper;
-        this.serverAddress = serverAddress;
-        this.serverPort = serverPort;
+    public AddressService(
+            IAuthenticationService authenticationService,
+            HttpClient httpClient, ObjectMapper objectMapper,
+            String serverAddress,
+            String serverPort) {
+        super(authenticationService, httpClient, objectMapper, serverAddress, serverPort);
     }
 
     @Override

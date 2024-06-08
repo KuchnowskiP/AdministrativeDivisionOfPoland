@@ -10,8 +10,6 @@ import javafx.scene.control.TableRow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import pl.edu.pwr.database.administrativedivisionofpoland.controllers.MainController;
-import pl.edu.pwr.database.administrativedivisionofpoland.initializers.api.IInitializer;
-import pl.edu.pwr.database.administrativedivisionofpoland.initializers.api.IListenerInitializer;
 
 import java.util.Objects;
 

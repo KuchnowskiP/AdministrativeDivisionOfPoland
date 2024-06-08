@@ -3,8 +3,7 @@ package pl.edu.pwr.database.administrativedivisionofpoland.handlers;
 import javafx.event.ActionEvent;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
 import pl.edu.pwr.database.administrativedivisionofpoland.controllers.MainController;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.handlers.api.IDeletionHandler;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
 
 public class DeletionHandler implements IDeletionHandler {
     private final MainController mainController;

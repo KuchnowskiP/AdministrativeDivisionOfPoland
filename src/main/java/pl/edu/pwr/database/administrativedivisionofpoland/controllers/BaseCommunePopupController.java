@@ -7,8 +7,8 @@ import javafx.scene.control.ChoiceBox;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.data.services.api.Gettable;
 
 import java.util.Objects;
@@ -27,7 +27,7 @@ public abstract class BaseCommunePopupController extends BaseUnitPopupController
 
     Gettable<CountyDto> countyGetter;
 
-    public BaseCommunePopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public BaseCommunePopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         super(resultFetcher, requestSender);
     }
 

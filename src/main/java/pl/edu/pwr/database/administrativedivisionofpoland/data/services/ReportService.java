@@ -16,18 +16,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 
-public class ReportService implements Creatable<AddReportRequest, HttpResponse<String>>, Gettable<ReportDto> {
-    HttpClient httpClient;
-    ObjectMapper objectMapper;
+public class ReportService extends Service implements Creatable<AddReportRequest, HttpResponse<String>>, Gettable<ReportDto> {
 
-    String serverAddress;
-    String serverPort;
 
-    public ReportService(HttpClient httpClient, ObjectMapper objectMapper, String serverAddress, String serverPort) {
-        this.httpClient = httpClient;
-        this.objectMapper = objectMapper;
-        this.serverAddress = serverAddress;
-        this.serverPort = serverPort;
+    public ReportService(HttpClient httpClient,
+                         ObjectMapper objectMapper,
+                         String serverAddress,
+                         String serverPort) {
+        super(httpClient, objectMapper, serverAddress, serverPort);
     }
 
     @Override

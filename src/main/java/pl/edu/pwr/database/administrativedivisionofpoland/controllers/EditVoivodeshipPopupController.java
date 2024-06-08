@@ -8,8 +8,8 @@ import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.contract.Voivodeship.VoivodeshipRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.net.URL;
 import java.net.http.HttpResponse;
@@ -27,7 +27,7 @@ public class EditVoivodeshipPopupController extends BaseVoivodeshipPopupControll
     @FXML
     private TextField apartmentNumberTextField;
 
-    public EditVoivodeshipPopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public EditVoivodeshipPopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         super(resultFetcher, requestSender);
     }
 
@@ -58,7 +58,7 @@ public class EditVoivodeshipPopupController extends BaseVoivodeshipPopupControll
                 newAddress.setPostalCode(postalCodeTextField.getText().trim());
                 newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
                 newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
-                HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
+                HttpResponse<String> responseWithIdAsABody = requestSender.addOfficeAddress(newAddress);
 
                 voivodeshipRequest.setLocalityFirst(localityTextField.getText().trim());
                 voivodeshipRequest.setIsSeatOfCouncilFirst(true);

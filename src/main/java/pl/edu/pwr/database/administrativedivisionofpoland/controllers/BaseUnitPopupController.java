@@ -10,8 +10,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.OfficeAddressDto;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -32,10 +32,10 @@ public abstract class BaseUnitPopupController {
     protected TextField postalCodeTextField;
     protected Integer addressID;
     protected String place;
-    IResultFetcher resultFetcher;
+    IResultReceiver resultFetcher;
     IDataSender requestSender;
 
-    public BaseUnitPopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public BaseUnitPopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         this.resultFetcher = resultFetcher;
         this.requestSender = requestSender;
     }

@@ -20,7 +20,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VoivodeshipService extends Service implements Creatable<VoivodeshipRequest, Boolean>, Editable<VoivodeshipRequest>,
+public class VoivodeshipService extends AuthenticatableService implements Creatable<VoivodeshipRequest, Boolean>, Editable<VoivodeshipRequest>,
         Deletable, GettableExtended<VoivodeshipExtended>, Gettable<VoivodeshipDto>, TerytProvider,
         GettableAddress<VoivodeshipAddressData>, Trackable<VoivodeshipHistoryDto> {
 

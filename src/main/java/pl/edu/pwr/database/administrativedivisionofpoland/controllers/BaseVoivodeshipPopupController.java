@@ -4,8 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 public abstract class BaseVoivodeshipPopupController extends BaseUnitPopupController {
     @FXML
@@ -15,7 +15,7 @@ public abstract class BaseVoivodeshipPopupController extends BaseUnitPopupContro
     @FXML
     protected Label returningLabel;
 
-    public BaseVoivodeshipPopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public BaseVoivodeshipPopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         super(resultFetcher, requestSender);
     }
 

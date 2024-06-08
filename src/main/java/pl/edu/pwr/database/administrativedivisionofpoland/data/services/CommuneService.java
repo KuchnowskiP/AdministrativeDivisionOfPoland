@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class CommuneService extends Service implements Creatable<CommuneRequest, Boolean>,
+public class CommuneService extends AuthenticatableService implements Creatable<CommuneRequest, Boolean>,
         Editable<CommuneRequest>, Deletable, Gettable<CommuneDto>, TerytProvider, GettableAddress<CommuneAddressData>,
         Trackable<CommuneHistoryDto>, GettableById<CommuneDto>, GettableByGrandparentUnit<CommuneDto> {
 

@@ -1,7 +1,6 @@
 package pl.edu.pwr.database.administrativedivisionofpoland.initializers;
 
 import pl.edu.pwr.database.administrativedivisionofpoland.controllers.MainController;
-import pl.edu.pwr.database.administrativedivisionofpoland.initializers.api.IInitializer;
 
 public class UIInitializer implements IInitializer {
     MainController mainController;

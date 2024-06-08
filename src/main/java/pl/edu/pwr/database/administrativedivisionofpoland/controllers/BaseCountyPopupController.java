@@ -9,8 +9,8 @@ import javafx.scene.control.TextField;
 import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.util.Objects;
 
@@ -26,7 +26,7 @@ public abstract class BaseCountyPopupController extends BaseUnitPopupController 
     protected PageResult<VoivodeshipDto> requestVoivodeships;
     protected VoivodeshipDto selectedVoivodeship = new VoivodeshipDto(-1, "", "", "");
 
-    public BaseCountyPopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public BaseCountyPopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         super(resultFetcher, requestSender);
     }
 

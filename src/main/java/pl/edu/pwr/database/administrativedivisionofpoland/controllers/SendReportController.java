@@ -18,8 +18,8 @@ import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.Dtos.VoivodeshipDto;
 import pl.edu.pwr.contract.Reports.AddReportRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 import pl.edu.pwr.database.administrativedivisionofpoland.data.services.CommuneService;
 import pl.edu.pwr.database.administrativedivisionofpoland.data.services.CountyService;
 
@@ -44,9 +44,9 @@ public class SendReportController implements Initializable {
     PageResult<CountyDto> requestCounties;
     PageResult<CommuneDto> requestCommunes;
     CommuneService communeService;
-    IResultFetcher resultFetcher;
+    IResultReceiver resultFetcher;
 
-    public SendReportController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public SendReportController(IResultReceiver resultFetcher, IDataSender requestSender) {
         this.resultFetcher = resultFetcher;
         this.dataSender = requestSender;
     }

@@ -1,4 +1,4 @@
-package pl.edu.pwr.database.administrativedivisionofpoland.initializers.api;
+package pl.edu.pwr.database.administrativedivisionofpoland.initializers;
 
 import javafx.scene.control.TabPane;
 

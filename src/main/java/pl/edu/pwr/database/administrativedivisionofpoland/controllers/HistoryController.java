@@ -13,7 +13,7 @@ import pl.edu.pwr.contract.Common.PageResult;
 import pl.edu.pwr.contract.History.CommuneHistoryDto;
 import pl.edu.pwr.contract.History.CountyHistoryDto;
 import pl.edu.pwr.contract.History.VoivodeshipHistoryDto;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -35,9 +35,9 @@ public class HistoryController implements Initializable {
     Class<?>[] units = new Class[]{VoivodeshipHistoryDto.class, CountyHistoryDto.class, CommuneHistoryDto.class};
     ChangeListener<?>[] currentlyActiveTableListeners;
     Thread tableUpdater = new Thread();
-    IResultFetcher resultFetcher;
+    IResultReceiver resultFetcher;
 
-    public HistoryController(IResultFetcher resultFetcher) {
+    public HistoryController(IResultReceiver resultFetcher) {
         this.resultFetcher = resultFetcher;
     }
 

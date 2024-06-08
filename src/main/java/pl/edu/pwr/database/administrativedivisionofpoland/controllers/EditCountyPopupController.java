@@ -9,8 +9,8 @@ import pl.edu.pwr.contract.County.CountyRequest;
 import pl.edu.pwr.contract.Dtos.CountyDto;
 import pl.edu.pwr.contract.OfficeAdres.OfficeAddressRequest;
 import pl.edu.pwr.database.administrativedivisionofpoland.UserInput;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IDataSender;
-import pl.edu.pwr.database.administrativedivisionofpoland.data.api.IResultFetcher;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IDataSender;
+import pl.edu.pwr.database.administrativedivisionofpoland.data.IResultReceiver;
 
 import java.net.URL;
 import java.net.http.HttpResponse;
@@ -31,7 +31,7 @@ public class EditCountyPopupController extends BaseCountyPopupController impleme
     @FXML
     private TextField apartmentNumberTextField;
 
-    public EditCountyPopupController(IResultFetcher resultFetcher, IDataSender requestSender) {
+    public EditCountyPopupController(IResultReceiver resultFetcher, IDataSender requestSender) {
         super(resultFetcher, requestSender);
     }
 
@@ -81,7 +81,7 @@ public class EditCountyPopupController extends BaseCountyPopupController impleme
                 newAddress.setPostalCode(postalCodeTextField.getText().trim());
                 newAddress.setNumberOfBuilding(numberOfBuildingTextField.getText().trim());
                 newAddress.setApartmentNumber(apartmentNumberTextField.getText().trim());
-                HttpResponse<String> responseWithIdAsABody = requestSender.addAddress(newAddress);
+                HttpResponse<String> responseWithIdAsABody = requestSender.addOfficeAddress(newAddress);
 
                 countyRequest.setLocality(localityTextField.getText().trim());
 
